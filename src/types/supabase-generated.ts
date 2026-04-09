@@ -1,0 +1,541 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
+  public: {
+    Tables: {
+      carpinteiros: {
+        Row: {
+          cidade: string
+          cpf_cnpj: string
+          created_at: string
+          endereco: string
+          estado: string
+          id: string
+          imposto_padrao: number
+          logo_url: string | null
+          madeireira_id: string | null
+          margem_lucro_padrao: number
+          nome: string
+          telefone: string
+          updated_at: string
+          user_id: string
+          valor_hora_mao_obra: number
+        }
+        Insert: {
+          cidade?: string
+          cpf_cnpj: string
+          created_at?: string
+          endereco?: string
+          estado?: string
+          id?: string
+          imposto_padrao?: number
+          logo_url?: string | null
+          madeireira_id?: string | null
+          margem_lucro_padrao?: number
+          nome: string
+          telefone: string
+          updated_at?: string
+          user_id: string
+          valor_hora_mao_obra?: number
+        }
+        Update: {
+          cidade?: string
+          cpf_cnpj?: string
+          created_at?: string
+          endereco?: string
+          estado?: string
+          id?: string
+          imposto_padrao?: number
+          logo_url?: string | null
+          madeireira_id?: string | null
+          margem_lucro_padrao?: number
+          nome?: string
+          telefone?: string
+          updated_at?: string
+          user_id?: string
+          valor_hora_mao_obra?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carpinteiros_madeireira_id_fkey"
+            columns: ["madeireira_id"]
+            isOneToOne: false
+            referencedRelation: "madeireiras"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      itens_orcamento: {
+        Row: {
+          id: string
+          item_preco_id: string
+          nome: string
+          orcamento_id: string
+          preco_unitario: number
+          quantidade: number
+          subtotal: number
+          unidade: string
+        }
+        Insert: {
+          id?: string
+          item_preco_id: string
+          nome: string
+          orcamento_id: string
+          preco_unitario: number
+          quantidade: number
+          subtotal: number
+          unidade: string
+        }
+        Update: {
+          id?: string
+          item_preco_id?: string
+          nome?: string
+          orcamento_id?: string
+          preco_unitario?: number
+          quantidade?: number
+          subtotal?: number
+          unidade?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "itens_orcamento_item_preco_id_fkey"
+            columns: ["item_preco_id"]
+            isOneToOne: false
+            referencedRelation: "itens_preco"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "itens_orcamento_orcamento_id_fkey"
+            columns: ["orcamento_id"]
+            isOneToOne: false
+            referencedRelation: "orcamentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      itens_preco: {
+        Row: {
+          categoria: string | null
+          codigo: string | null
+          descricao: string | null
+          disponivel: boolean
+          id: string
+          nome: string
+          preco_unitario: number
+          tabela_id: string
+          unidade: string
+        }
+        Insert: {
+          categoria?: string | null
+          codigo?: string | null
+          descricao?: string | null
+          disponivel?: boolean
+          id?: string
+          nome: string
+          preco_unitario: number
+          tabela_id: string
+          unidade: string
+        }
+        Update: {
+          categoria?: string | null
+          codigo?: string | null
+          descricao?: string | null
+          disponivel?: boolean
+          id?: string
+          nome?: string
+          preco_unitario?: number
+          tabela_id?: string
+          unidade?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "itens_preco_tabela_id_fkey"
+            columns: ["tabela_id"]
+            isOneToOne: false
+            referencedRelation: "itens_preco"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      madeireiras: {
+        Row: {
+          cidade: string
+          cnpj: string
+          created_at: string
+          endereco: string
+          estado: string
+          id: string
+          logo_url: string | null
+          razao_social: string
+          telefone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cidade?: string
+          cnpj: string
+          created_at?: string
+          endereco?: string
+          estado?: string
+          id?: string
+          logo_url?: string | null
+          razao_social: string
+          telefone: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cidade?: string
+          cnpj?: string
+          created_at?: string
+          endereco?: string
+          estado?: string
+          id?: string
+          logo_url?: string | null
+          razao_social?: string
+          telefone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      orcamentos: {
+        Row: {
+          carpinteiro_id: string
+          cliente_email: string | null
+          cliente_nome: string
+          cliente_telefone: string | null
+          created_at: string
+          descricao: string | null
+          finalizado_at: string | null
+          id: string
+          imposto: number
+          madeireira_id: string
+          mao_obra_horas: number | null
+          mao_obra_tipo: Database["public"]["Enums"]["mao_obra_tipo"]
+          mao_obra_valor: number
+          margem_lucro: number
+          nome: string
+          status: Database["public"]["Enums"]["orcamento_status"]
+          subtotal_mao_obra: number
+          subtotal_materiais: number
+          tabela_snapshot_id: string
+          termos_condicoes: string | null
+          tipo_projeto: Database["public"]["Enums"]["tipo_projeto"]
+          total: number
+          updated_at: string
+          validade_dias: number
+          valor_imposto: number
+          valor_margem: number
+        }
+        Insert: {
+          carpinteiro_id: string
+          cliente_email?: string | null
+          cliente_nome: string
+          cliente_telefone?: string | null
+          created_at?: string
+          descricao?: string | null
+          finalizado_at?: string | null
+          id?: string
+          imposto?: number
+          madeireira_id: string
+          mao_obra_horas?: number | null
+          mao_obra_tipo?: Database["public"]["Enums"]["mao_obra_tipo"]
+          mao_obra_valor?: number
+          margem_lucro?: number
+          nome: string
+          status?: Database["public"]["Enums"]["orcamento_status"]
+          subtotal_mao_obra?: number
+          subtotal_materiais?: number
+          tabela_snapshot_id: string
+          termos_condicoes?: string | null
+          tipo_projeto: Database["public"]["Enums"]["tipo_projeto"]
+          total?: number
+          updated_at?: string
+          validade_dias?: number
+          valor_imposto?: number
+          valor_margem?: number
+        }
+        Update: {
+          carpinteiro_id?: string
+          cliente_email?: string | null
+          cliente_nome?: string
+          cliente_telefone?: string | null
+          created_at?: string
+          descricao?: string | null
+          finalizado_at?: string | null
+          id?: string
+          imposto?: number
+          madeireira_id?: string
+          mao_obra_horas?: number | null
+          mao_obra_tipo?: Database["public"]["Enums"]["mao_obra_tipo"]
+          mao_obra_valor?: number
+          margem_lucro?: number
+          nome?: string
+          status?: Database["public"]["Enums"]["orcamento_status"]
+          subtotal_mao_obra?: number
+          subtotal_materiais?: number
+          tabela_snapshot_id?: string
+          termos_condicoes?: string | null
+          tipo_projeto?: Database["public"]["Enums"]["tipo_projeto"]
+          total?: number
+          updated_at?: string
+          validade_dias?: number
+          valor_imposto?: number
+          valor_margem?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orcamentos_carpinteiro_id_fkey"
+            columns: ["carpinteiro_id"]
+            isOneToOne: false
+            referencedRelation: "carpinteiros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orcamentos_madeireira_id_fkey"
+            columns: ["madeireira_id"]
+            isOneToOne: false
+            referencedRelation: "madeireiras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orcamentos_tabela_snapshot_id_fkey"
+            columns: ["tabela_snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "tabelas_preco"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tabelas_preco: {
+        Row: {
+          ativo: boolean
+          id: string
+          madeireira_id: string
+          nome: string
+          upload_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          id?: string
+          madeireira_id: string
+          nome: string
+          upload_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          id?: string
+          madeireira_id?: string
+          nome?: string
+          upload_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tabelas_preco_madeireira_id_fkey"
+            columns: ["madeireira_id"]
+            isOneToOne: false
+            referencedRelation: "madeireiras"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vinculacoes: {
+        Row: {
+          carpinteiro_id: string
+          id: string
+          madeireira_id: string
+          respondido_at: string | null
+          solicitado_at: string
+          status: Database["public"]["Enums"]["vinculacao_status"]
+        }
+        Insert: {
+          carpinteiro_id: string
+          id?: string
+          madeireira_id: string
+          respondido_at?: string | null
+          solicitado_at?: string
+          status?: Database["public"]["Enums"]["vinculacao_status"]
+        }
+        Update: {
+          carpinteiro_id?: string
+          id?: string
+          madeireira_id?: string
+          respondido_at?: string | null
+          solicitado_at?: string
+          status?: Database["public"]["Enums"]["vinculacao_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vinculacoes_carpinteiro_id_fkey"
+            columns: ["carpinteiro_id"]
+            isOneToOne: false
+            referencedRelation: "carpinteiros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vinculacoes_madeireira_id_fkey"
+            columns: ["madeireira_id"]
+            isOneToOne: false
+            referencedRelation: "madeireiras"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      mao_obra_tipo: "fixo" | "hora"
+      orcamento_status: "rascunho" | "finalizado" | "enviado"
+      tipo_projeto: "movel" | "estrutura"
+      vinculacao_status: "pendente" | "aprovada" | "rejeitada"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      mao_obra_tipo: ["fixo", "hora"],
+      orcamento_status: ["rascunho", "finalizado", "enviado"],
+      tipo_projeto: ["movel", "estrutura"],
+      vinculacao_status: ["pendente", "aprovada", "rejeitada"],
+    },
+  },
+} as const
