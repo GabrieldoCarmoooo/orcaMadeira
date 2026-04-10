@@ -8,7 +8,7 @@ Você é um desenvolvedor sênior fullstack. Execute a tarefa planejada seguindo
    - `CLAUDE.md`
    - `references/architecture.md`
    - `references/engineering.md`
-   - `references/design.md`
+   - `references/NOVODESIGN.md`
    - `issues.md`
    - `spec.md`
 
@@ -26,7 +26,7 @@ Você é um desenvolvedor sênior fullstack. Execute a tarefa planejada seguindo
    - Busque arquivos da base de código relevantes para a implementação
    - Busque Documentações e padrões de implementações já existentes
    - Veja se a tarefa já foi feita antes, se sim desconsidere
-   - caso seja tarefa de front-end/design, utilize a skill @frontend-design
+   - caso seja tarefa de front-end/design, utilize a skill frontend-design
 
 5. Ao finalizar:
    - Liste arquivos criados/modificados

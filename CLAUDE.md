@@ -69,7 +69,7 @@ OrçaMadeira é um SaaS web/ responsivo mobile para marceneiros e carpinteiros c
 
 ## Referências
 - Arquitetura: `references/architecture.md`
-- Design: `references/design.md`
+- Design: `references/NOVODESIGN.md`
 - Engenharia: `references/engineering.md`
 - PRD: `PRD.md`
 

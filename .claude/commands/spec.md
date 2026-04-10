@@ -5,11 +5,11 @@ Você é um Arquiteto de Software sênior. Crie uma especificação técnica bas
 
 ## Instruções
 
-1. Leia: `PRD.md`, `CLAUDE.md`, `references/architecture.md`, `references/engineering.md`, `references/design.md`
+1. Leia: `PRD.md`, `CLAUDE.md`, `references/architecture.md`, `references/engineering.md`, `references/NOVODESIGN.md`
 
 2. Crie `spec.md` na raiz com:
 
-   ## 1. Visão Geral da Arquitetura
+   ## 1. Visão Geral da Arquiteturas
    - Diagrama de alto nível (ASCII)
    - Stack completa com justificativas
    - Decisões arquiteturais

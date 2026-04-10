@@ -506,20 +506,20 @@ Criar `upload-planilha.tsx` (drag-and-drop + seleção de arquivo) e `mapeamento
 Criar `previa-dados.tsx` (tabela paginada com erros destacados) e `historico-uploads.tsx` (lista de uploads anteriores com data, total de itens e status).
 
 ### Tarefas
-- [ ] Criar `src/components/madeireira/previa-dados.tsx`
+- [x] Criar `src/components/madeireira/previa-dados.tsx`
   - Valida cada linha com `itemPrecoSchema` (Zod)
   - Destaca linhas com erro em vermelho
   - Exibe contagem: X linhas válidas, Y com erro
   - Paginação (50 por página)
   - Botão "Confirmar Import" só habilita com linhas válidas
-- [ ] Criar `src/components/madeireira/historico-uploads.tsx`
+- [x] Criar `src/components/madeireira/historico-uploads.tsx`
   - Lista de `tabelas_preco` ordenadas por `upload_at` desc
   - Exibe: data, quantidade de itens, status (ativa/inativa)
 
 ### Critérios de Aceite
-- [ ] Linha com erro não bloqueia o import — apenas contabiliza
-- [ ] Tabela paginada não trava com arquivos grandes
-- [ ] Histórico exibe data, total de itens e quem fez upload
+- [x] Linha com erro não bloqueia o import — apenas contabiliza
+- [x] Tabela paginada não trava com arquivos grandes
+- [x] Histórico exibe data, total de itens e quem fez upload
 
 ### Arquivos Envolvidos
 - `src/components/madeireira/previa-dados.tsx`
@@ -536,15 +536,15 @@ Criar `previa-dados.tsx` (tabela paginada com erros destacados) e `historico-upl
 Compor todos os componentes de upload na página `/madeireira/precos` e implementar a lógica de persistência: insert em batch de `itens_preco`, swap atômico de tabela ativa.
 
 ### Tarefas
-- [ ] Criar `src/pages/madeireira/precos-page.tsx`
-- [ ] Implementar fluxo completo: upload → mapeamento → prévia → confirmar
-- [ ] Persistência: INSERT `tabelas_preco` + batch INSERT `itens_preco` + swap `ativo`
-- [ ] Exibir `historico-uploads` na listagem principal
+- [x] Criar `src/pages/madeireira/precos-page.tsx`
+- [x] Implementar fluxo completo: upload → mapeamento → prévia → confirmar
+- [x] Persistência: INSERT `tabelas_preco` + batch INSERT `itens_preco` + swap `ativo`
+- [x] Exibir `historico-uploads` na listagem principal
 
 ### Critérios de Aceite
-- [ ] Tabela anterior desativada atomicamente ao confirmar nova
-- [ ] Rollback se insert em batch falhar
-- [ ] Rota `/madeireira/precos/novo` abre fluxo de upload
+- [x] Tabela anterior desativada atomicamente ao confirmar nova
+- [x] Rollback se insert em batch falhar
+- [x] Rota `/madeireira/precos/novo` abre fluxo de upload
 
 ### Arquivos Envolvidos
 - `src/pages/madeireira/precos-page.tsx`
@@ -562,16 +562,16 @@ Compor todos os componentes de upload na página `/madeireira/precos` e implemen
 Implementar a função pura `calcularOrcamento` em `lib/calcular-orcamento.ts` e o store Zustand que gerencia o estado do wizard de criação de orçamento.
 
 ### Tarefas
-- [ ] Criar `src/lib/calcular-orcamento.ts` com a função e tipo `ResumoOrcamento`
-- [ ] Criar `src/stores/useOrcamentoStore.ts`
+- [x] Criar `src/lib/calcular-orcamento.ts` com a função e tipo `ResumoOrcamento`
+- [x] Criar `src/stores/useOrcamentoStore.ts`
   - Estado: step atual, dados de cada step, itens adicionados
   - Actions: `setStepProjeto`, `addItem`, `removeItem`, `updateQuantidade`, `setFinanceiro`, `reset`
   - Cálculo derivado em tempo real usando `calcularOrcamento`
 
 ### Critérios de Aceite
-- [ ] Função `calcularOrcamento` testada com casos de margem + imposto
-- [ ] Store recalcula totais automaticamente ao mudar itens ou parâmetros financeiros
-- [ ] Store resetável ao iniciar novo orçamento
+- [x] Função `calcularOrcamento` testada com casos de margem + imposto
+- [x] Store recalcula totais automaticamente ao mudar itens ou parâmetros financeiros
+- [x] Store resetável ao iniciar novo orçamento
 
 ### Arquivos Envolvidos
 - `src/lib/calcular-orcamento.ts`
@@ -579,7 +579,7 @@ Implementar a função pura `calcularOrcamento` em `lib/calcular-orcamento.ts` e
 
 ---
 
-## ISSUE-021: Step 1 — Dados do projeto e cliente
+## ISSUE-021: Step 1 — Dados do projeto e cliente ✅
 **Épico**: F6 - Criação de Orçamento
 **Depende de**: ISSUE-020
 **Prioridade**: P1
@@ -588,22 +588,22 @@ Implementar a função pura `calcularOrcamento` em `lib/calcular-orcamento.ts` e
 Criar `step-projeto.tsx` com formulário de tipo de projeto (móvel/estrutura), nome, descrição e dados do cliente.
 
 ### Tarefas
-- [ ] Criar `src/components/orcamento/step-projeto.tsx`
-- [ ] Implementar schema parcial do `orcamentoSchema` para este step
-- [ ] Campos: `tipo_projeto` (toggle/select), `nome`, `descricao`, `cliente_nome`, `cliente_telefone`, `cliente_email`
-- [ ] Ao avançar, salvar no `useOrcamentoStore`
+- [x] Criar `src/components/orcamento/step-projeto.tsx`
+- [x] Implementar schema parcial do `orcamentoSchema` para este step
+- [x] Campos: `tipo_projeto` (toggle/select), `nome`, `descricao`, `cliente_nome`, `cliente_telefone`, `cliente_email`
+- [x] Ao avançar, salvar no `useOrcamentoStore`
 
 ### Critérios de Aceite
-- [ ] Validação inline nos campos obrigatórios
-- [ ] Tipo de projeto com UI visual clara (ícone móvel vs estrutura)
-- [ ] Email do cliente validado quando preenchido
+- [x] Validação inline nos campos obrigatórios
+- [x] Tipo de projeto com UI visual clara (ícone móvel vs estrutura)
+- [x] Email do cliente validado quando preenchido
 
 ### Arquivos Envolvidos
 - `src/components/orcamento/step-projeto.tsx`
 
 ---
 
-## ISSUE-022: Step 2 — Seleção de materiais
+## ISSUE-022: Step 2 — Seleção de materiais ✅
 **Épico**: F6 - Criação de Orçamento
 **Depende de**: ISSUE-020, ISSUE-014
 **Prioridade**: P1
@@ -612,20 +612,20 @@ Criar `step-projeto.tsx` com formulário de tipo de projeto (móvel/estrutura), 
 Criar `step-materiais.tsx` com busca de itens da tabela da madeireira vinculada (debounce 300ms, full-text), adição de itens e `item-material.tsx` para edição de quantidade.
 
 ### Tarefas
-- [ ] Criar `src/hooks/useItensPreco.ts` — busca paginada com debounce na tabela ativa
-- [ ] Criar `src/components/orcamento/item-material.tsx`
+- [x] Criar `src/hooks/useItensPreco.ts` — busca paginada com debounce na tabela ativa
+- [x] Criar `src/components/orcamento/item-material.tsx`
   - Linha: nome, unidade, preço unitário, input de quantidade, subtotal, botão remover
-- [ ] Criar `src/components/orcamento/step-materiais.tsx`
+- [x] Criar `src/components/orcamento/step-materiais.tsx`
   - Search input com debounce 300ms
   - Lista de resultados com botão "Adicionar"
   - Lista de itens adicionados com `item-material`
   - Subtotal de materiais em tempo real
 
 ### Critérios de Aceite
-- [ ] Busca retorna em < 300ms com índice full-text
-- [ ] Quantidade mínima 0.01, sem limite máximo
-- [ ] Subtotal atualiza imediatamente ao mudar quantidade
-- [ ] Ao menos 1 item obrigatório para avançar
+- [x] Busca retorna em < 300ms com índice full-text
+- [x] Quantidade mínima 0.01, sem limite máximo
+- [x] Subtotal atualiza imediatamente ao mudar quantidade
+- [x] Ao menos 1 item obrigatório para avançar
 
 ### Arquivos Envolvidos
 - `src/hooks/useItensPreco.ts`
@@ -643,20 +643,20 @@ Criar `step-materiais.tsx` com busca de itens da tabela da madeireira vinculada 
 Criar `step-financeiro.tsx` (mão de obra, margem, impostos, validade, termos) e `resumo-orcamento.tsx` (breakdown completo em tempo real).
 
 ### Tarefas
-- [ ] Criar `src/components/orcamento/step-financeiro.tsx`
+- [x] Criar `src/components/orcamento/step-financeiro.tsx`
   - Toggle fixo/hora para mão de obra
   - Se hora: campo de horas estimadas
   - Campos: margem_lucro (%), imposto (%), validade_dias, termos_condicoes
   - Pre-fill com valores padrão do perfil do carpinteiro
-- [ ] Criar `src/components/orcamento/resumo-orcamento.tsx`
+- [x] Criar `src/components/orcamento/resumo-orcamento.tsx`
   - Linha por linha: materiais, mão de obra, margem, impostos, total
   - Formato pt-BR (R$ 1.234,56)
   - Atualiza em tempo real conforme dados do store
 
 ### Critérios de Aceite
-- [ ] Pre-fill com defaults do perfil do carpinteiro
-- [ ] Total recalcula em tempo real
-- [ ] Valores formatados corretamente em pt-BR
+- [x] Pre-fill com defaults do perfil do carpinteiro
+- [x] Total recalcula em tempo real
+- [x] Valores formatados corretamente em pt-BR
 
 ### Arquivos Envolvidos
 - `src/components/orcamento/step-financeiro.tsx`
@@ -664,7 +664,7 @@ Criar `step-financeiro.tsx` (mão de obra, margem, impostos, validade, termos) e
 
 ---
 
-## ISSUE-024: Wizard de novo orçamento + autosave
+## ISSUE-024: Wizard de novo orçamento + autosave ✅
 **Épico**: F6 - Criação de Orçamento
 **Depende de**: ISSUE-021, ISSUE-022, ISSUE-023
 **Prioridade**: P1
@@ -673,26 +673,26 @@ Criar `step-financeiro.tsx` (mão de obra, margem, impostos, validade, termos) e
 Compor os 3 steps no wizard `/carpinteiro/orcamentos/novo`. Implementar autosave a cada 30s e as ações "Salvar Rascunho" e "Finalizar".
 
 ### Tarefas
-- [ ] Criar `src/pages/carpinteiro/novo-orcamento-page.tsx`
+- [x] Criar `src/pages/carpinteiro/novo-orcamento-page.tsx`
   - Stepper visual (step 1, 2, 3)
   - Composição dos 3 steps
   - Botão "Salvar Rascunho" disponível a qualquer momento
   - Autosave com debounce de 30s
   - Botão "Finalizar" no último step (congela preços via snapshot)
-- [ ] Implementar persistência: INSERT `orcamentos` + `itens_orcamento`
-- [ ] Bloquear criação se `madeireira_id = null` (exibir CTA de vinculação)
+- [x] Implementar persistência: INSERT `orcamentos` + `itens_orcamento`
+- [x] Bloquear criação se `madeireira_id = null` (exibir CTA de vinculação)
 
 ### Critérios de Aceite
-- [ ] Rascunho salvo a cada 30s sem interação do usuário
-- [ ] Finalizar desnormaliza todos os valores no registro
-- [ ] Carpinteiro sem madeireira vinculada vê CTA claro
+- [x] Rascunho salvo a cada 30s sem interação do usuário
+- [x] Finalizar desnormaliza todos os valores no registro
+- [x] Carpinteiro sem madeireira vinculada vê CTA claro
 
 ### Arquivos Envolvidos
 - `src/pages/carpinteiro/novo-orcamento-page.tsx`
 
 ---
 
-## ISSUE-025: Listagem e detalhe de orçamentos
+## ISSUE-025: Listagem e detalhe de orçamentos ✅
 **Épico**: F6 - Criação de Orçamento
 **Depende de**: ISSUE-024
 **Prioridade**: P1
@@ -701,21 +701,21 @@ Compor os 3 steps no wizard `/carpinteiro/orcamentos/novo`. Implementar autosave
 Criar a listagem `/carpinteiro/orcamentos` (paginada, filtrável por status) e a página de detalhe `/carpinteiro/orcamentos/:id`.
 
 ### Tarefas
-- [ ] Criar `src/hooks/useOrcamento.ts` — CRUD de orçamento
-- [ ] Criar `src/pages/carpinteiro/orcamentos-page.tsx`
+- [x] Criar `src/hooks/useOrcamento.ts` — CRUD de orçamento
+- [x] Criar `src/pages/carpinteiro/orcamentos-page.tsx`
   - Listagem paginada (50 por página)
   - Filtro por status (rascunho/finalizado/enviado)
   - Link para detalhe e edição
-- [ ] Criar `src/pages/carpinteiro/orcamento-detalhe-page.tsx`
+- [x] Criar `src/pages/carpinteiro/orcamento-detalhe-page.tsx`
   - Exibe todos os dados do orçamento + itens
   - Resumo financeiro com `resumo-orcamento`
   - Ação "Editar" (apenas rascunhos)
   - Ação "Exportar PDF" (apenas finalizados)
 
 ### Critérios de Aceite
-- [ ] Listagem paginada e ordenada por `created_at` desc
-- [ ] Botão "Editar" visível apenas para rascunhos
-- [ ] Botão "Exportar PDF" visível apenas para finalizados
+- [x] Listagem paginada e ordenada por `created_at` desc
+- [x] Botão "Editar" visível apenas para rascunhos
+- [x] Botão "Exportar PDF" visível apenas para finalizados
 
 ### Arquivos Envolvidos
 - `src/hooks/useOrcamento.ts`
@@ -726,7 +726,7 @@ Criar a listagem `/carpinteiro/orcamentos` (paginada, filtrável por status) e a
 
 ## F7 — Geração de PDF
 
-## ISSUE-026: Helpers de PDF e hook usePdf
+## ISSUE-026: Helpers de PDF e hook usePdf ✅
 **Épico**: F7 - Geração de PDF
 **Depende de**: ISSUE-003
 **Prioridade**: P2
@@ -735,18 +735,18 @@ Criar a listagem `/carpinteiro/orcamentos` (paginada, filtrável por status) e a
 Criar os helpers de formatação em `lib/pdf.ts` e o hook `usePdf` que gerencia a geração e download do blob.
 
 ### Tarefas
-- [ ] Instalar `@react-pdf/renderer`
-- [ ] Criar `src/lib/pdf.ts`
+- [x] Instalar `@react-pdf/renderer`
+- [x] Criar `src/lib/pdf.ts`
   - `formatBRL(value: number): string` — formato pt-BR
   - `formatDate(date: string): string` — DD/MM/YYYY
-- [ ] Criar `src/hooks/usePdf.ts`
+- [x] Criar `src/hooks/usePdf.ts`
   - `exportar(orcamento, itens)` → gera blob → download automático
   - Nome do arquivo: `orcamento-{id}-{cliente}.pdf`
   - Loading state durante geração
 
 ### Critérios de Aceite
-- [ ] `formatBRL(1234.56)` retorna `"R$ 1.234,56"`
-- [ ] Download inicia automaticamente após geração
+- [x] `formatBRL(1234.56)` retorna `"R$ 1.234,56"`
+- [x] Download inicia automaticamente após geração
 
 ### Arquivos Envolvidos
 - `src/lib/pdf.ts`
@@ -763,16 +763,16 @@ Criar os helpers de formatação em `lib/pdf.ts` e o hook `usePdf` que gerencia 
 Implementar `pdf-document.tsx` com o layout profissional usando `@react-pdf/renderer`: cabeçalho com logo, dados do cliente, tabela de materiais e seção de totais.
 
 ### Tarefas
-- [ ] Criar `src/components/orcamento/pdf-document.tsx`
-- [ ] Seções conforme spec: cabeçalho carpinteiro + logo, número/data/validade, cliente, tabela de materiais, breakdown financeiro, termos, rodapé
-- [ ] Logo carregada como base64 antes de gerar (evita CORS)
-- [ ] Valores em pt-BR usando `formatBRL` e `formatDate`
+- [x] Criar `src/components/orcamento/pdf-document.tsx`
+- [x] Seções conforme spec: cabeçalho carpinteiro + logo, número/data/validade, cliente, tabela de materiais, breakdown financeiro, termos, rodapé
+- [x] Logo carregada como base64 antes de gerar (evita CORS)
+- [x] Valores em pt-BR usando `formatBRL` e `formatDate`
 
 ### Critérios de Aceite
-- [ ] PDF gerado em < 3s
-- [ ] Logo renderizada no documento (não quebra por CORS)
-- [ ] Tabela de materiais com cabeçalho repetido em múltiplas páginas
-- [ ] Valores formatados em pt-BR
+- [x] PDF gerado em < 3s
+- [x] Logo renderizada no documento (não quebra por CORS)
+- [x] Tabela de materiais com cabeçalho repetido em múltiplas páginas
+- [x] Valores formatados em pt-BR
 
 ### Arquivos Envolvidos
 - `src/components/orcamento/pdf-document.tsx`
@@ -788,16 +788,16 @@ Implementar `pdf-document.tsx` com o layout profissional usando `@react-pdf/rend
 Criar `botao-exportar-pdf.tsx` com loading state e integrá-lo na página de detalhe do orçamento, disponível apenas para orçamentos finalizados.
 
 ### Tarefas
-- [ ] Criar `src/components/orcamento/botao-exportar-pdf.tsx`
+- [x] Criar `src/components/orcamento/botao-exportar-pdf.tsx`
   - Desabilitado se `status !== 'finalizado'`
   - Loading spinner durante geração
   - Chama `usePdf().exportar()`
-- [ ] Integrar em `orcamento-detalhe-page.tsx`
+- [x] Integrar em `orcamento-detalhe-page.tsx`
 
 ### Critérios de Aceite
-- [ ] Botão desabilitado para orçamentos não finalizados
-- [ ] Loading state visível durante geração
-- [ ] Download inicia automaticamente após geração
+- [x] Botão desabilitado para orçamentos não finalizados
+- [x] Loading state visível durante geração
+- [x] Download inicia automaticamente após geração
 
 ### Arquivos Envolvidos
 - `src/components/orcamento/botao-exportar-pdf.tsx`
@@ -842,10 +842,10 @@ Migrar o app do tema neutro grayscale shadcn para o design system "Timber Grain 
 ### Critérios de Aceite
 - [x] `npm run build` zero erros
 - [x] Paleta Timber Grain aplicada globalmente via CSS vars
-- [ ] Verificar visualmente todas as páginas em dev
-- [ ] Mobile: bottom nav aparece, sidebar escondida
-- [ ] Desktop: sidebar aparece sem bottom nav
-- [ ] Dark mode funcional com tons warm
+- [x] Verificar visualmente todas as páginas em dev
+- [x] Mobile: bottom nav aparece, sidebar escondida
+- [x] Desktop: sidebar aparece sem bottom nav
+- [x] Dark mode funcional com tons warm
 
 ### Arquivos Modificados
 - `src/index.css`, `src/components/ui/button.tsx`, `src/components/ui/input.tsx`, `src/components/ui/label.tsx`

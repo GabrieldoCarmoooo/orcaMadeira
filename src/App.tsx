@@ -17,6 +17,8 @@ const CarpinteiroDashboardPage = lazy(() => import('@/pages/carpinteiro/dashboar
 const CarpinteiroPerfilPage = lazy(() => import('@/pages/carpinteiro/perfil-page'))
 const CarpinteiroVinculacaoPage = lazy(() => import('@/pages/carpinteiro/vinculacao-page'))
 const CarpinteiroOrcamentosPage = lazy(() => import('@/pages/carpinteiro/orcamentos-page'))
+const CarpinteiroNovoOrcamentoPage = lazy(() => import('@/pages/carpinteiro/novo-orcamento-page'))
+const CarpinteiroOrcamentoDetalhePage = lazy(() => import('@/pages/carpinteiro/orcamento-detalhe-page'))
 
 // Madeireira pages
 const MadeireiraDashboardPage = lazy(() => import('@/pages/madeireira/dashboard-page'))
@@ -83,6 +85,8 @@ export default function App() {
               <Route path={ROUTES.CARPINTEIRO_PERFIL} element={<CarpinteiroPerfilPage />} />
               <Route path={ROUTES.CARPINTEIRO_VINCULACAO} element={<CarpinteiroVinculacaoPage />} />
               <Route path={ROUTES.CARPINTEIRO_ORCAMENTOS} element={<CarpinteiroOrcamentosPage />} />
+              <Route path={ROUTES.CARPINTEIRO_NOVO_ORCAMENTO} element={<CarpinteiroNovoOrcamentoPage />} />
+              <Route path="/carpinteiro/orcamentos/:id" element={<CarpinteiroOrcamentoDetalhePage />} />
             </Route>
           </Route>
 
@@ -92,6 +96,7 @@ export default function App() {
               <Route path={ROUTES.MADEIREIRA_DASHBOARD} element={<MadeireiraDashboardPage />} />
               <Route path={ROUTES.MADEIREIRA_PERFIL} element={<MadeireiraPerfilPage />} />
               <Route path={ROUTES.MADEIREIRA_PRECOS} element={<MadeireiraPrecosPage />} />
+              <Route path={ROUTES.MADEIREIRA_PRECOS_NOVO} element={<MadeireiraPrecosPage />} />
               <Route path={ROUTES.MADEIREIRA_PARCEIROS} element={<MadeireiraParceirosPage />} />
             </Route>
           </Route>
