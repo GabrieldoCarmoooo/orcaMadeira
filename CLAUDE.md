@@ -45,7 +45,8 @@ OrçaMadeira é um SaaS web/ responsivo mobile para marceneiros e carpinteiros c
 
 ## Stack Técnica
 - **Frontend**: React 19 + TypeScript + Vite 8
-- **Styling**: Tailwind CSS 4 + shadcn/ui (radix-nova style)
+- **Styling**: Tailwind CSS 4 + shadcn/ui (radix-nova) com design system Timber Grain
+  - Primary: Wood Gold (#7A5900), Secondary: Mahogany (#9D422B)
 - **Font**: Inter Variable
 - **Icons**: Lucide React
 - **Path alias**: `@/` aponta para `./src/`

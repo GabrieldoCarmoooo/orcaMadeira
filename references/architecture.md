@@ -6,7 +6,7 @@
 | UI Framework | React 19 | Já configurado, ecossistema maduro |
 | Linguagem | TypeScript (strict) | Segurança de tipos |
 | Build | Vite 8 | Velocidade de desenvolvimento |
-| Estilização | Tailwind CSS 4 | Utility-first, boa DX |
+| Estilização | Tailwind CSS 4 + Timber Grain design tokens | Utility-first, boa DX |
 | Componentes | shadcn/ui (radix-nova) | Acessível, customizável |
 | Ícones | Lucide React | Consistente com shadcn |
 | Roteamento | React Router v7 (a instalar) | Padrão do ecossistema |
@@ -61,3 +61,6 @@ src/
 
 ### ADR-005: Zod para validação
 - Type inference automático, composable, funciona com React Hook Form
+
+### ADR-006: Boas Práticas
+- Código limpo, boas práticas e comentários simples em cada bloco.

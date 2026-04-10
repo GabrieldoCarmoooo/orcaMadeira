@@ -17,9 +17,9 @@ const STATUS_LABEL: Record<OrcamentoStatus, string> = {
 }
 
 const STATUS_CLASS: Record<OrcamentoStatus, string> = {
-  rascunho: 'bg-amber-500/15 text-amber-700 dark:text-amber-400',
-  finalizado: 'bg-green-500/15 text-green-700 dark:text-green-400',
-  enviado: 'bg-blue-500/15 text-blue-700 dark:text-blue-400',
+  rascunho: 'bg-accent/20 text-accent-foreground',
+  finalizado: 'bg-primary/15 text-primary',
+  enviado: 'bg-secondary/15 text-secondary',
 }
 
 const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -33,7 +33,7 @@ export default function OrcamentoRecenteCard({ orcamento }: Props) {
   return (
     <Link
       to={ROUTES.CARPINTEIRO_ORCAMENTO(orcamento.id)}
-      className="flex items-center justify-between gap-4 rounded-lg border border-border bg-card px-4 py-3 transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="flex items-center justify-between gap-4 rounded-lg bg-card px-4 py-3 transition-colors shadow-tinted hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <div className="min-w-0 flex-1 space-y-0.5">
         <p className="truncate text-sm font-medium leading-tight">{orcamento.nome}</p>
@@ -43,7 +43,7 @@ export default function OrcamentoRecenteCard({ orcamento }: Props) {
       <div className="flex shrink-0 flex-col items-end gap-1">
         <span
           className={cn(
-            'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium',
+            'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest',
             STATUS_CLASS[orcamento.status],
           )}
         >

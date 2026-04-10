@@ -363,16 +363,16 @@ Implementar `/carpinteiro/dashboard` com métricas do mês, lista dos 5 orçamen
 Implementar `/madeireira/dashboard` com métricas: parceiros ativos, solicitações pendentes, data do último upload e total de itens na tabela ativa.
 
 ### Tarefas
-- [ ] Criar `src/pages/madeireira/dashboard-page.tsx`
-- [ ] Reutilizar `stat-card.tsx` (ISSUE-012)
-- [ ] Queries: count parceiros ativos, count pendentes, último upload, count itens ativos
-- [ ] Badge visual em "solicitações pendentes" se count > 0
-- [ ] Skeleton loading state
+- [x] Criar `src/pages/madeireira/dashboard-page.tsx`
+- [x] Reutilizar `stat-card.tsx` (ISSUE-012)
+- [x] Queries: count parceiros ativos, count pendentes, último upload, count itens ativos
+- [x] Badge visual em "solicitações pendentes" se count > 0
+- [x] Skeleton loading state
 
 ### Critérios de Aceite
-- [ ] Dados carregados em < 2s
-- [ ] Badge visível com número de solicitações pendentes
-- [ ] Link direto para `/madeireira/parceiros` nos atalhos
+- [x] Dados carregados em < 2s
+- [x] Badge visível com número de solicitações pendentes
+- [x] Link direto para `/madeireira/parceiros` nos atalhos
 
 ### Arquivos Envolvidos
 - `src/pages/madeireira/dashboard-page.tsx`
@@ -390,20 +390,20 @@ Implementar `/madeireira/dashboard` com métricas: parceiros ativos, solicitaç�
 Implementar `/carpinteiro/vinculacao` com busca de madeireiras, envio de solicitação e exibição do status atual com atualização sem refresh.
 
 ### Tarefas
-- [ ] Criar `src/hooks/useVinculacao.ts`
-- [ ] Criar `src/components/carpinteiro/busca-madeireira.tsx`
+- [x] Criar `src/hooks/useVinculacao.ts`
+- [x] Criar `src/components/carpinteiro/busca-madeireira.tsx`
   - Input com debounce de 300ms
   - Query full-text em `madeireiras.razao_social` e `cidade`
   - Botão "Solicitar Parceria" por resultado
-- [ ] Criar `src/pages/carpinteiro/vinculacao-page.tsx`
+- [x] Criar `src/pages/carpinteiro/vinculacao-page.tsx`
   - Exibe status atual (pendente/aprovada/rejeitada)
   - Supabase Realtime ou polling para atualização de status
-- [ ] Regra: cancelar solicitação anterior ao criar nova
+- [x] Regra: cancelar solicitação anterior ao criar nova
 
 ### Critérios de Aceite
-- [ ] Busca retorna resultados em < 500ms
-- [ ] Carpinteiro com vinculação pendente não pode solicitar outra
-- [ ] Status atualiza sem refresh de página
+- [x] Busca retorna resultados em < 500ms
+- [x] Carpinteiro com vinculação pendente não pode solicitar outra
+- [x] Status atualiza sem refresh de página
 
 ### Arquivos Envolvidos
 - `src/hooks/useVinculacao.ts`
@@ -421,17 +421,17 @@ Implementar `/carpinteiro/vinculacao` com busca de madeireiras, envio de solicit
 Implementar `/madeireira/parceiros` com lista de solicitações pendentes (aprovar/rejeitar) e lista de parceiros ativos com opção de remoção.
 
 ### Tarefas
-- [ ] Criar `src/components/madeireira/card-solicitacao.tsx`
+- [x] Criar `src/components/madeireira/card-solicitacao.tsx`
   - Exibe nome do carpinteiro, cidade, data da solicitação
   - Botões Aprovar e Rejeitar (com campo opcional de motivo)
-- [ ] Criar `src/pages/madeireira/parceiros-page.tsx`
+- [x] Criar `src/pages/madeireira/parceiros-page.tsx`
   - Seção "Solicitações Pendentes"
   - Seção "Parceiros Ativos" com opção remover parceria
 
 ### Critérios de Aceite
-- [ ] Aprovar atualiza `vinculacoes.status = 'aprovada'` e atualiza `carpinteiros.madeireira_id`
-- [ ] Rejeição permite motivo opcional exibido ao carpinteiro
-- [ ] Lista atualiza em tempo real após ação
+- [x] Aprovar atualiza `vinculacoes.status = 'aprovada'` e atualiza `carpinteiros.madeireira_id`
+- [x] Rejeição permite motivo opcional exibido ao carpinteiro
+- [x] Lista atualiza em tempo real após ação
 
 ### Arquivos Envolvidos
 - `src/components/madeireira/card-solicitacao.tsx`
@@ -450,16 +450,16 @@ Implementar `/madeireira/parceiros` com lista de solicitações pendentes (aprov
 Criar a lib `parse-planilha.ts` que abstrai PapaParse (CSV) e SheetJS (Excel) em uma API unificada retornando `RawRow[]`.
 
 ### Tarefas
-- [ ] Instalar `papaparse` e `xlsx` e seus tipos (`@types/papaparse`)
-- [ ] Criar `src/lib/parse-planilha.ts`
+- [x] Instalar `papaparse` e `xlsx` e seus tipos (`@types/papaparse`)
+- [x] Criar `src/lib/parse-planilha.ts`
   - `parsePlanilha(file: File): Promise<RawRow[]>`
   - Branch CSV vs Excel por extensão
   - Retornar objeto com headers detectados e linhas
 
 ### Critérios de Aceite
-- [ ] CSV e XLSX parsados para o mesmo formato `RawRow[]`
-- [ ] Headers da primeira linha extraídos corretamente
-- [ ] Arquivo > 10MB lança erro antes de parsear
+- [x] CSV e XLSX parsados para o mesmo formato `RawRow[]`
+- [x] Headers da primeira linha extraídos corretamente
+- [x] Arquivo > 10MB lança erro antes de parsear
 
 ### Arquivos Envolvidos
 - `src/lib/parse-planilha.ts`
@@ -475,20 +475,20 @@ Criar a lib `parse-planilha.ts` que abstrai PapaParse (CSV) e SheetJS (Excel) em
 Criar `upload-planilha.tsx` (drag-and-drop + seleção de arquivo) e `mapeamento-colunas.tsx` (UI para mapear colunas do arquivo para campos obrigatórios/opcionais).
 
 ### Tarefas
-- [ ] Criar `src/stores/useUploadStore.ts` com estado do fluxo de upload
-- [ ] Criar `src/components/madeireira/upload-planilha.tsx`
+- [x] Criar `src/stores/useUploadStore.ts` com estado do fluxo de upload
+- [x] Criar `src/components/madeireira/upload-planilha.tsx`
   - Drag-and-drop área
   - Validação de tipo e tamanho no client antes de parsear
   - Feedback de loading durante parse
-- [ ] Criar `src/components/madeireira/mapeamento-colunas.tsx`
+- [x] Criar `src/components/madeireira/mapeamento-colunas.tsx`
   - Selects para mapear cada coluna detectada → campo do sistema
   - Destaca quais são obrigatórias vs opcionais
   - Botão "Continuar" habilitado só quando obrigatórias mapeadas
 
 ### Critérios de Aceite
-- [ ] Arquivo > 10MB rejeitado com mensagem antes de qualquer upload
-- [ ] Seleção de mapeamento clara com preview do valor de exemplo
-- [ ] Campos obrigatórios validados antes de prosseguir
+- [x] Arquivo > 10MB rejeitado com mensagem antes de qualquer upload
+- [x] Seleção de mapeamento clara com preview do valor de exemplo
+- [x] Campos obrigatórios validados antes de prosseguir
 
 ### Arquivos Envolvidos
 - `src/stores/useUploadStore.ts`
@@ -805,9 +805,63 @@ Criar `botao-exportar-pdf.tsx` com loading state e integrá-lo na página de det
 
 ---
 
+---
+
+## DESIGN — Migração para Timber Grain
+
+## ISSUE-029: Migração do Design System para "Timber Grain" ✅
+**Épico**: Design System
+**Depende de**: ISSUE-001
+**Prioridade**: P1
+
+### Descrição
+Migrar o app do tema neutro grayscale shadcn para o design system "Timber Grain / The Master's Atelier": paleta wood-gold + mahogany, regra "no-line" (sem bordas 1px), glassmorfismo no header, bottom nav mobile.
+
+### Tarefas
+- [x] Atualizar CSS tokens em `src/index.css` (paleta completa Timber Grain)
+- [x] Adicionar variáveis extras de surface e shadow tintada
+- [x] Adicionar utilitários `.glass-header` e `.shadow-tinted`
+- [x] Atualizar dark mode com tons warm
+- [x] `button.tsx`: remover border, adicionar `active:scale-[0.97]`, variant secondary mahogany
+- [x] `input.tsx`: estilo filled (bg-muted), focus pencil-mark (border-b-2 border-primary)
+- [x] `label.tsx`: cor padrão text-secondary (mahogany)
+- [x] Criar `src/constants/nav-items.ts` (CARPINTEIRO_NAV e MADEIREIRA_NAV)
+- [x] Criar `src/components/layout/bottom-nav.tsx` (mobile only, glassmorfismo)
+- [x] Atualizar `app-sidebar.tsx` (hidden mobile, sem borders, usa nav-items)
+- [x] Atualizar `app-header.tsx` (glassmorfismo, sem border-b, shadow tintada)
+- [x] Atualizar `dashboard-layout.tsx` (renderiza BottomNav, remove mobile sidebar state)
+- [x] Atualizar `page-wrapper.tsx` (pb-24 lg:pb-6 para compensar bottom nav)
+- [x] Atualizar `stat-card.tsx` (sem border, shadow tintada, highlight com accent)
+- [x] Atualizar `orcamento-recente-card.tsx` (sem border, badges uppercase tracking-widest)
+- [x] Atualizar `logo-uploader.tsx` (drop zone bg-shift, sem border-dashed)
+- [x] Páginas auth: brand text-primary, container bg-card, alertas sem border
+- [x] Dashboard carpinteiro: CTA accent, section headers text-secondary, empty state sem border-dashed
+- [x] Atualizar CLAUDE.md com nova stack de styling
+- [x] Atualizar references/architecture.md
+
+### Critérios de Aceite
+- [x] `npm run build` zero erros
+- [x] Paleta Timber Grain aplicada globalmente via CSS vars
+- [ ] Verificar visualmente todas as páginas em dev
+- [ ] Mobile: bottom nav aparece, sidebar escondida
+- [ ] Desktop: sidebar aparece sem bottom nav
+- [ ] Dark mode funcional com tons warm
+
+### Arquivos Modificados
+- `src/index.css`, `src/components/ui/button.tsx`, `src/components/ui/input.tsx`, `src/components/ui/label.tsx`
+- `src/constants/nav-items.ts` (novo), `src/components/layout/bottom-nav.tsx` (novo)
+- `src/components/layout/app-sidebar.tsx`, `app-header.tsx`, `dashboard-layout.tsx`, `page-wrapper.tsx`
+- `src/components/shared/stat-card.tsx`, `src/components/orcamento/orcamento-recente-card.tsx`
+- `src/components/shared/logo-uploader.tsx`
+- `src/pages/auth/login-page.tsx`, `register-page.tsx`, `forgot-password-page.tsx`, `reset-password-page.tsx`
+- `src/pages/carpinteiro/dashboard-page.tsx`
+- `CLAUDE.md`, `references/architecture.md`
+
+---
+
 ## Resumo
 
-### Total de Issues: 28
+### Total de Issues: 29
 
 ### Distribuição por Épico
 

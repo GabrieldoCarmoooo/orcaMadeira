@@ -156,10 +156,10 @@ export default function LogoUploader({
           onDrop={handleDrop}
           onClick={() => !disabled && !isUploading && inputRef.current?.click()}
           className={cn(
-            'flex h-24 w-full cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed transition-colors',
+            'flex h-24 w-full cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg transition-colors',
             isDragging
-              ? 'border-primary bg-primary/5'
-              : 'border-border bg-muted/30 hover:border-primary/50 hover:bg-muted/50',
+              ? 'bg-primary/10 ring-2 ring-primary/40'
+              : 'bg-muted hover:bg-muted/70',
             (disabled || isUploading) && 'cursor-not-allowed opacity-60',
           )}
           aria-label="Área de upload de logo"

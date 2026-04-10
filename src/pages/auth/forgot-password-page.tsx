@@ -80,7 +80,7 @@ export default function ForgotPasswordPage() {
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {errors.root && (
-            <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <div className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
               {errors.root.message}
             </div>
           )}

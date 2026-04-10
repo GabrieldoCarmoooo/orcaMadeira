@@ -1,4 +1,4 @@
-import { Menu, LogOut } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
@@ -15,27 +15,14 @@ const ROUTE_LABELS: Record<string, string> = {
   [ROUTES.MADEIREIRA_PERFIL]: 'Perfil',
 }
 
-interface AppHeaderProps {
-  onMenuClick: () => void
-}
-
-export default function AppHeader({ onMenuClick }: AppHeaderProps) {
+export default function AppHeader() {
   const { pathname } = useLocation()
   const { logout, isLoading } = useAuth()
   const title = ROUTE_LABELS[pathname] ?? 'OrçaMadeira'
 
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between border-b bg-background px-4">
-      <div className="flex items-center gap-3">
-        <button
-          onClick={onMenuClick}
-          className="rounded-md p-1 text-muted-foreground hover:text-foreground lg:hidden"
-          aria-label="Abrir menu"
-        >
-          <Menu size={20} />
-        </button>
-        <h1 className="text-sm font-medium text-foreground">{title}</h1>
-      </div>
+    <header className="flex h-14 shrink-0 items-center justify-between glass-header shadow-tinted px-4 sticky top-0 z-20">
+      <h1 className="text-sm font-semibold text-foreground">{title}</h1>
 
       <Button
         variant="ghost"

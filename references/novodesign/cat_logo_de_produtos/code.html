@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface": "#fef8f4",
+                    "on-primary-fixed-variant": "#5d4200",
+                    "on-tertiary-fixed-variant": "#004e5c",
+                    "surface-container": "#f3ede9",
+                    "on-secondary": "#ffffff",
+                    "surface-bright": "#fef8f4",
+                    "outline": "#827560",
+                    "on-secondary-container": "#742410",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed": "#261900",
+                    "tertiary": "#00687a",
+                    "background": "#fef8f4",
+                    "surface-container-low": "#f9f2ef",
+                    "primary-container": "#ffbc00",
+                    "surface-container-high": "#ede7e3",
+                    "primary": "#7a5900",
+                    "error-container": "#ffdad6",
+                    "inverse-on-surface": "#f6f0ec",
+                    "on-secondary-fixed-variant": "#7e2b17",
+                    "inverse-primary": "#febb00",
+                    "primary-fixed": "#ffdea3",
+                    "surface-variant": "#e7e1de",
+                    "on-tertiary": "#ffffff",
+                    "outline-variant": "#d4c4ab",
+                    "on-surface-variant": "#504532",
+                    "on-secondary-fixed": "#3c0700",
+                    "on-tertiary-fixed": "#001f26",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed-dim": "#00d9fd",
+                    "secondary-fixed-dim": "#ffb4a2",
+                    "on-primary": "#ffffff",
+                    "secondary": "#9d422b",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-container": "#005b6c",
+                    "primary-fixed-dim": "#febb00",
+                    "surface-tint": "#7a5900",
+                    "surface-dim": "#dfd9d5",
+                    "tertiary-fixed": "#acedff",
+                    "tertiary-container": "#00dafe",
+                    "error": "#ba1a1a",
+                    "on-primary-container": "#6c4e00",
+                    "on-background": "#1d1b19",
+                    "secondary-fixed": "#ffdad2",
+                    "on-surface": "#1d1b19",
+                    "inverse-surface": "#32302e",
+                    "secondary-container": "#fd8c6f",
+                    "surface-container-highest": "#e7e1de"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="bg-[#FEF8F4]/80 dark:bg-[#1D1B19]/80 backdrop-blur-md docked full-width top-0 sticky z-50 flex justify-between items-center w-full px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-fixed overflow-hidden flex items-center justify-center">
+<img alt="Marceneiro Mestre" class="w-full h-full object-cover" data-alt="close-up profile avatar of a skilled woodworker with a professional and friendly appearance" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBE5GfUvGP13hO3p4zYYOUfLK9bWOZkygPT45AEWJa3i10blApMJpsnTafpXQRA4FjFKkcHakkFbiNws_7il4hOrXq9ISslTdzhOSZ3DiPOF6OaMD9BfsNiRJ1MHrG05Jyuc5Gty0Sxxw-jEnTsgSpHoOMWzKs8G0_PoyYJ3J-OKTeAPWm-vLFyt1_71s9Q8Xj6BQQXottAJ6A8l6ObmY9fxrhKrBIMhWV11eqd7FiVI6uJXrkwVmgUmOmym5Y9rIGyY9pLOK33tAo"/>
+</div>
+<h1 class="font-inter tracking-tighter font-bold text-lg text-[#7A5900] dark:text-[#FFBC00]">Produtos</h1>
+</div>
+<button class="material-symbols-outlined text-[#7A5900] dark:text-[#FFBC00] scale-95 transition-transform hover:bg-[#FEF8F4] dark:hover:bg-[#1D1B19] p-2 rounded-full" data-icon="notifications">notifications</button>
+</header>
+<main class="max-w-5xl mx-auto px-6 mt-8 space-y-8">
+<!-- Search and Filter Section -->
+<section class="space-y-6">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border-none focus:ring-0 border-b-2 border-transparent focus:border-primary px-12 py-4 rounded-lg text-on-surface placeholder:text-on-surface-variant/60 transition-all" placeholder="Buscar madeiras, ferragens ou acabamentos..." type="text"/>
+</div>
+<!-- Tabs - Editorial Style -->
+<div class="flex items-end gap-8 border-b border-outline-variant/20">
+<button class="pb-4 text-primary border-b-2 border-primary font-bold tracking-tight text-sm uppercase">Madeireira</button>
+<button class="pb-4 text-on-surface-variant/60 font-bold tracking-tight text-sm uppercase hover:text-on-surface transition-colors">Meus Produtos</button>
+</div>
+</section>
+<!-- Product Grid - Bento/Editorial Layout -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Product Card 1 -->
+<div class="group bg-surface-container-highest rounded-lg overflow-hidden flex flex-col transition-all hover:translate-y-[-4px]">
+<div class="h-48 overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="close-up of polished dark walnut wood grain texture showing intricate natural patterns and warm brown tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBZitg3ZDyCRSFtJJ0tUVUC96BBm4cxuC45zcTyWauJ438BBuveje8N0LjiJ0wmoKE5ABqqTPHIeRXzcMxjtb6Im3Fy7IlR6BDGGpD4QH8JJ_290vdHnffTF3toRt75vfi8WZU46uQnof78KZvWC73c8a9oNHAOiDxhBk49a6mfQ54sti9Ylknp1NBqnO6HDZiZlY1eI8XzE0mBeplE4-uaW9q0fGNKnmxGPsrrFYN9hWeSbccpjXER6Izu5Drx9MnrKCk7FgnjrA"/>
+<div class="absolute top-3 right-3 bg-primary-container text-on-primary-container px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Premium</div>
+</div>
+<div class="p-6 space-y-4 flex-grow flex flex-col justify-between">
+<div>
+<span class="text-secondary font-bold text-[10px] uppercase tracking-widest mb-1 block">Nogueira Americana</span>
+<h3 class="text-xl font-bold tracking-tighter leading-tight">Chapa de MDF Revestido 18mm</h3>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[10px] text-on-surface-variant font-medium uppercase">Preço por folha</span>
+<span class="text-2xl font-black text-on-surface tracking-tighter">R$ 485,00</span>
+</div>
+<button class="bg-secondary text-white w-10 h-10 rounded-lg flex items-center justify-center hover:bg-on-secondary-container transition-colors">
+<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="group bg-surface-container-highest rounded-lg overflow-hidden flex flex-col transition-all hover:translate-y-[-4px]">
+<div class="h-48 overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="stack of light colored pine wood planks in a workshop with soft natural lighting and visible wood grain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjNONoha8hCSySTopt6GFZAdavykxvJxubASVvPaL1CmOZMNhcsNWr9wCtbTyjR-_I-yOqCsgPbq3s0YQOh7aq_1F6eGgzoOlIPdaX8NZTCl3VT5GPC8JQrLNq01BdN47-M5kAp4bGQncCTDLvlQaOGHscdX-05_NSfWQc3SiF_qNNi0mdGrOVh4oy8dG8kpoaM6PMYdHnVcckueEs_8njIaGwScvSfEg2ktEl5_9bJNhXnPCWnkzhO7t87BhBewz7ATn22t2G1F8"/>
+<div class="absolute top-3 right-3 bg-surface-container-low text-on-surface-variant px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Estoque Alto</div>
+</div>
+<div class="p-6 space-y-4 flex-grow flex flex-col justify-between">
+<div>
+<span class="text-secondary font-bold text-[10px] uppercase tracking-widest mb-1 block">Pinus Tratado</span>
+<h3 class="text-xl font-bold tracking-tighter leading-tight">Viga Aparelhada 5x15cm</h3>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[10px] text-on-surface-variant font-medium uppercase">Preço por metro</span>
+<span class="text-2xl font-black text-on-surface tracking-tighter">R$ 32,90</span>
+</div>
+<button class="bg-secondary text-white w-10 h-10 rounded-lg flex items-center justify-center hover:bg-on-secondary-container transition-colors">
+<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="group bg-surface-container-highest rounded-lg overflow-hidden flex flex-col transition-all hover:translate-y-[-4px]">
+<div class="h-48 overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="macro photo of high quality metal furniture hinges and hardware on a clean white background with professional lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbHA6iyTb3Y3eNEpLsh7KNzO9jWX7uTsqOJkbup9qjsSQP1iHGOkADxeU2mutK3UyyUiMU1KXxqTI_35m9navEY24nmHlJ_jBidyA2gPslxH5ykyBb0u693Z9OparzlazuOANkPKQ3jvDy_sv7wa2EBSRrmEpL-aQW1B8yaIbyk3ra9S7Bpvu6fAxQEGljWGooLKAStg5jFqrjMBBPuIWpA0fXne1li0VIivbOEoCqzc6X411Wbe1dPZZpjnqEPaqFSdWd1mMvbZo"/>
+</div>
+<div class="p-6 space-y-4 flex-grow flex flex-col justify-between">
+<div>
+<span class="text-secondary font-bold text-[10px] uppercase tracking-widest mb-1 block">Ferragens Blum</span>
+<h3 class="text-xl font-bold tracking-tighter leading-tight">Dobradiça Slow 35mm</h3>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[10px] text-on-surface-variant font-medium uppercase">Preço por unidade</span>
+<span class="text-2xl font-black text-on-surface tracking-tighter">R$ 18,50</span>
+</div>
+<button class="bg-secondary text-white w-10 h-10 rounded-lg flex items-center justify-center hover:bg-on-secondary-container transition-colors">
+<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 4 -->
+<div class="group bg-surface-container-highest rounded-lg overflow-hidden flex flex-col transition-all hover:translate-y-[-4px]">
+<div class="h-48 overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="smooth light oak wood planks arranged in a herringbone pattern with soft daylight highlights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoVI1xusKDjN15oh6Ag7-zDdmUHsQpgVprFvIL8jSfZk_coqHhg4cYee9Twi1159A-wbZ2Ukip_dNCOG5URGRuknjcrurS-bEcTbHdCtjBhduSXJfeUzq7u10GRp37BWXDy8cfHqI7qIq5dQ5qKDSNXb0IwDCxvz-nr_T9FPEUXvq-S64XnyQ4DDAFVzWnsX2b4B8MTM9wN-wlsMIr10CBc7aGAsZuoeXffqNsBsI24Bh_vHbhcoLGZ-p4ChN4ISwHeEglFwKM428"/>
+</div>
+<div class="p-6 space-y-4 flex-grow flex flex-col justify-between">
+<div>
+<span class="text-secondary font-bold text-[10px] uppercase tracking-widest mb-1 block">Carvalho Europeu</span>
+<h3 class="text-xl font-bold tracking-tighter leading-tight">Piso Laminado Click 8mm</h3>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[10px] text-on-surface-variant font-medium uppercase">Preço por m²</span>
+<span class="text-2xl font-black text-on-surface tracking-tighter">R$ 124,00</span>
+</div>
+<button class="bg-secondary text-white w-10 h-10 rounded-lg flex items-center justify-center hover:bg-on-secondary-container transition-colors">
+<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 5 -->
+<div class="group bg-surface-container-highest rounded-lg overflow-hidden flex flex-col transition-all hover:translate-y-[-4px]">
+<div class="h-48 overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="selection of fine wood stains and varnishes in glass jars on a rustic wooden workbench" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-ly6viMiBpEoeq71nwveBv3Ys7tkZB2GhdOaZLiuyGmPuMcoOQWM4p_iPYHzQIxklkFAWOMsGU1QoeecoqDz5R1E8V4-GYGrW4TQF88-c2mQo-9vM-3IBAkERztmkzK07X5JMw8xLFAg_g4HoaaNkfY0UZMZ6mwwWlltqF1Mn53yjFwjz2g5srY_FbNibQZqh7W-M5yf3ntbhU9R64iLt6Qesbrr90xbwGIEKUsxQJvzPeXaQckiGO4shuaJPuh6ClxTc637aTzQ"/>
+</div>
+<div class="p-6 space-y-4 flex-grow flex flex-col justify-between">
+<div>
+<span class="text-secondary font-bold text-[10px] uppercase tracking-widest mb-1 block">Acabamentos</span>
+<h3 class="text-xl font-bold tracking-tighter leading-tight">Verniz Marítimo Brilhante 900ml</h3>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[10px] text-on-surface-variant font-medium uppercase">Preço por lata</span>
+<span class="text-2xl font-black text-on-surface tracking-tighter">R$ 64,90</span>
+</div>
+<button class="bg-secondary text-white w-10 h-10 rounded-lg flex items-center justify-center hover:bg-on-secondary-container transition-colors">
+<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-24 right-6 bg-primary-container text-on-primary-container flex items-center gap-2 px-6 py-4 rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all z-40 group">
+<span class="material-symbols-outlined font-bold" data-icon="add">add</span>
+<span class="font-bold tracking-tight">Adicionar Produto</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full flex justify-around items-center px-4 py-3 pb-safe bg-[#FEF8F4] dark:bg-[#1D1B19] shadow-[0_-4px_6px_-1px_rgba(157,66,43,0.06)] z-50">
+<a class="flex flex-col items-center justify-center text-[#9D422B] dark:text-[#FEF8F4]/60 active:scale-90 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-inter text-[10px] font-bold uppercase tracking-widest">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#9D422B] dark:text-[#FEF8F4]/60 active:scale-90 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-inter text-[10px] font-bold uppercase tracking-widest">Propostas</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#FFBC00] text-[#1D1B19] rounded-lg px-4 py-1 active:scale-90 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span class="font-inter text-[10px] font-bold uppercase tracking-widest">Produtos</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#9D422B] dark:text-[#FEF8F4]/60 active:scale-90 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-inter text-[10px] font-bold uppercase tracking-widest">Ajustes</span>
+</a>
+</nav>
+</body></html>

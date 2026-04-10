@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Criar Nova Proposta - Marceneiro Mestre</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface": "#fef8f4",
+                    "on-primary-fixed-variant": "#5d4200",
+                    "on-tertiary-fixed-variant": "#004e5c",
+                    "surface-container": "#f3ede9",
+                    "on-secondary": "#ffffff",
+                    "surface-bright": "#fef8f4",
+                    "outline": "#827560",
+                    "on-secondary-container": "#742410",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed": "#261900",
+                    "tertiary": "#00687a",
+                    "background": "#fef8f4",
+                    "surface-container-low": "#f9f2ef",
+                    "primary-container": "#ffbc00",
+                    "surface-container-high": "#ede7e3",
+                    "primary": "#7a5900",
+                    "error-container": "#ffdad6",
+                    "inverse-on-surface": "#f6f0ec",
+                    "on-secondary-fixed-variant": "#7e2b17",
+                    "inverse-primary": "#febb00",
+                    "primary-fixed": "#ffdea3",
+                    "surface-variant": "#e7e1de",
+                    "on-tertiary": "#ffffff",
+                    "outline-variant": "#d4c4ab",
+                    "on-surface-variant": "#504532",
+                    "on-secondary-fixed": "#3c0700",
+                    "on-tertiary-fixed": "#001f26",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed-dim": "#00d9fd",
+                    "secondary-fixed-dim": "#ffb4a2",
+                    "on-primary": "#ffffff",
+                    "secondary": "#9d422b",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-container": "#005b6c",
+                    "primary-fixed-dim": "#febb00",
+                    "surface-tint": "#7a5900",
+                    "surface-dim": "#dfd9d5",
+                    "tertiary-fixed": "#acedff",
+                    "tertiary-container": "#00dafe",
+                    "error": "#ba1a1a",
+                    "on-primary-container": "#6c4e00",
+                    "on-background": "#1d1b19",
+                    "secondary-fixed": "#ffdad2",
+                    "on-surface": "#1d1b19",
+                    "inverse-surface": "#32302e",
+                    "secondary-container": "#fd8c6f",
+                    "surface-container-highest": "#e7e1de"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.5rem",
+                    "lg": "1rem",
+                    "xl": "1.25rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .glass-header {
+            background-color: rgba(254, 248, 244, 0.8);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 glass-header px-6 py-4 flex justify-between items-center w-full border-b border-outline-variant/10">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-black overflow-hidden shadow-sm">
+<img alt="Marceneiro Mestre" class="w-full h-full object-cover" data-alt="close-up portrait of a professional master carpenter in his studio with warm lighting and wooden background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9k5YO5BUwRMDaHuBqrMVNR962QVCtKleJleEH5IxspwtQc2hyy-xoDvIyWjyVorXiV7YmV0ReJi2P6Lp-SURWoFT06huwuAXGmgNdrwDORYXygeQY2DTOQHsF2QiH22gnnHk2KXS4BXM-cOG8QAF7rTnlBPpiFCR51nktrLe-5e7VFUfJUWhXxOkGWuHHc2mUyQ-i2VCPo7aHk77MNJFEr0mTR542ak7LQgsnBowzj9U1Hd3E2nKn1x7xBOboUQdPZcR44KKHD9E"/>
+</div>
+<h1 class="text-[#7A5900] dark:text-[#FFBC00] font-inter tracking-tighter font-bold text-lg">Projeto Atual</h1>
+</div>
+<button class="text-[#7A5900] dark:text-[#FFBC00] active:scale-95 transition-transform">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<main class="max-w-4xl mx-auto px-4 py-8">
+<!-- Progress Stepper -->
+<div class="mb-12">
+<div class="flex justify-between items-center mb-4">
+<span class="text-secondary font-bold tracking-widest text-[10px] uppercase">Passo 2 de 4: Orçamento</span>
+<span class="text-primary font-bold text-sm tracking-tight">65% Concluído</span>
+</div>
+<div class="h-2 w-full bg-secondary-container/20 rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary to-primary-container w-[65%] rounded-full shadow-sm"></div>
+</div>
+</div>
+<div class="space-y-12">
+<!-- Section: Customer Info (Asymmetric Editorial Style) -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<div class="md:col-span-4">
+<h2 class="text-2xl font-bold tracking-tighter text-on-surface leading-none mb-2">Dados do Cliente</h2>
+<p class="text-on-surface-variant text-sm font-medium">As especificações fundamentais do projeto.</p>
+</div>
+<div class="md:col-span-8 bg-surface-container-highest p-6 rounded-lg space-y-4">
+<div>
+<label class="block text-secondary font-bold text-xs uppercase tracking-widest mb-1">Nome Completo</label>
+<input class="w-full bg-surface-container-low border-none border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t p-3 text-on-surface transition-all" placeholder="Ex: Roberto Silva" type="text"/>
+</div>
+<div>
+<label class="block text-secondary font-bold text-xs uppercase tracking-widest mb-1">Contato (WhatsApp/Email)</label>
+<input class="w-full bg-surface-container-low border-none border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t p-3 text-on-surface transition-all" placeholder="roberto@email.com" type="text"/>
+</div>
+</div>
+</section>
+<!-- Section: Selection of Products -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<div class="md:col-span-4">
+<h2 class="text-2xl font-bold tracking-tighter text-on-surface leading-none mb-2">Materiais</h2>
+<p class="text-on-surface-variant text-sm font-medium">Busque na base de fornecedores ou crie sob medida.</p>
+</div>
+<div class="md:col-span-8 space-y-4">
+<div class="flex gap-2">
+<div class="relative flex-grow">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-3 bg-surface-container-highest border-none rounded-lg focus:ring-2 focus:ring-primary/20 text-on-surface" placeholder="Pesquisar em MDF, Ferragens, Vernizes..." type="text"/>
+</div>
+<button class="bg-secondary text-on-secondary px-4 py-2 rounded-lg flex items-center gap-2 font-bold text-sm hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-sm">add_circle</span>
+                            Personalizado
+                        </button>
+</div>
+<!-- Added Products List -->
+<div class="bg-surface-container p-1 rounded-xl">
+<div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm space-y-6">
+<!-- Item 1 -->
+<div class="flex items-center justify-between gap-4">
+<div class="flex-grow">
+<h4 class="font-bold text-on-surface">Chapa MDF Louro Freijó 18mm</h4>
+<p class="text-xs text-secondary font-bold uppercase tracking-tighter">Duratex Premium</p>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center bg-surface-container rounded-lg p-1">
+<button class="w-8 h-8 flex items-center justify-center hover:bg-surface rounded">
+<span class="material-symbols-outlined text-sm">remove</span>
+</button>
+<span class="px-4 font-bold">03</span>
+<button class="w-8 h-8 flex items-center justify-center hover:bg-surface rounded">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+<div class="text-right min-w-[100px]">
+<p class="text-xs text-on-surface-variant font-medium">R$ 285,00 un</p>
+<p class="font-bold text-on-surface">R$ 855,00</p>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center justify-between gap-4">
+<div class="flex-grow">
+<h4 class="font-bold text-on-surface">Corrediça Telescópica 450mm</h4>
+<p class="text-xs text-secondary font-bold uppercase tracking-tighter">FGV TN Reforçada</p>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center bg-surface-container rounded-lg p-1">
+<button class="w-8 h-8 flex items-center justify-center hover:bg-surface rounded">
+<span class="material-symbols-outlined text-sm">remove</span>
+</button>
+<span class="px-4 font-bold">12</span>
+<button class="w-8 h-8 flex items-center justify-center hover:bg-surface rounded">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+<div class="text-right min-w-[100px]">
+<p class="text-xs text-on-surface-variant font-medium">R$ 42,00 un</p>
+<p class="font-bold text-on-surface">R$ 504,00</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Labor & Margin -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<div class="md:col-span-4">
+<h2 class="text-2xl font-bold tracking-tighter text-on-surface leading-none mb-2">Mão de Obra &amp; Lucro</h2>
+<p class="text-on-surface-variant text-sm font-medium">O valor do mestre e a saúde do negócio.</p>
+</div>
+<div class="md:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div class="bg-surface-container-high p-6 rounded-lg border-l-4 border-primary">
+<label class="block text-secondary font-bold text-xs uppercase tracking-widest mb-2">Valor da Mão de Obra</label>
+<div class="flex items-center">
+<span class="text-on-surface-variant font-bold mr-2">R$</span>
+<input class="w-full bg-transparent border-none text-2xl font-bold text-on-surface p-0 focus:ring-0" type="number" value="2500"/>
+</div>
+</div>
+<div class="bg-surface-container-high p-6 rounded-lg border-l-4 border-secondary">
+<label class="block text-secondary font-bold text-xs uppercase tracking-widest mb-2">Margem de Lucro (%)</label>
+<div class="flex items-center">
+<input class="w-full bg-transparent border-none text-2xl font-bold text-on-surface p-0 focus:ring-0" type="number" value="35"/>
+<span class="text-on-surface-variant font-bold ml-2">%</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Total & Config -->
+<section class="bg-on-surface text-surface rounded-xl p-8 shadow-xl">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+<div>
+<p class="text-primary-container font-bold text-xs uppercase tracking-[0.2em] mb-1">Total do Orçamento</p>
+<h3 class="text-5xl font-black tracking-tighter">R$ 5.210,00</h3>
+</div>
+<div class="w-full md:w-auto space-y-4">
+<div class="flex items-center justify-between gap-6 bg-white/5 p-4 rounded-lg">
+<span class="text-sm font-medium">Mostrar Detalhes no PDF</span>
+<button class="relative w-12 h-6 bg-primary rounded-full flex items-center px-1">
+<div class="w-4 h-4 bg-on-primary rounded-full ml-auto shadow-sm"></div>
+</button>
+</div>
+<div class="flex items-center justify-between gap-6 bg-white/5 p-4 rounded-lg">
+<span class="text-sm font-medium">Apenas Preço Final</span>
+<button class="relative w-12 h-6 bg-white/20 rounded-full flex items-center px-1">
+<div class="w-4 h-4 bg-white rounded-full shadow-sm"></div>
+</button>
+</div>
+</div>
+</div>
+</section>
+<div class="pt-8 flex flex-col sm:flex-row gap-4">
+<button class="flex-1 bg-surface-container-highest text-on-surface py-4 rounded-lg font-bold hover:bg-surface-container-high transition-colors">
+                    Salvar Rascunho
+                </button>
+<button class="flex-[2] bg-primary-container text-on-primary-container py-4 rounded-lg font-black text-lg shadow-lg shadow-primary-container/20 flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined">description</span>
+                    GERAR PROPOSTA PDF
+                </button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full bg-[#FEF8F4] dark:bg-[#1D1B19] flex justify-around items-center px-4 py-3 pb-safe z-50 shadow-[0_-4px_6px_-1px_rgba(157,66,43,0.06)]">
+<button class="flex flex-col items-center justify-center text-[#9D422B] dark:text-[#FEF8F4]/60 active:scale-90 transition-all">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-inter text-[10px] font-bold uppercase tracking-widest mt-1">Dashboard</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-[#FFBC00] text-[#1D1B19] rounded-lg px-4 py-1 active:scale-90 transition-all">
+<span class="material-symbols-outlined">description</span>
+<span class="font-inter text-[10px] font-bold uppercase tracking-widest mt-1">Propostas</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#9D422B] dark:text-[#FEF8F4]/60 active:scale-90 transition-all">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-inter text-[10px] font-bold uppercase tracking-widest mt-1">Produtos</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#9D422B] dark:text-[#FEF8F4]/60 active:scale-90 transition-all">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-inter text-[10px] font-bold uppercase tracking-widest mt-1">Ajustes</span>
+</button>
+</nav>
+</body></html>

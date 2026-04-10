@@ -166,7 +166,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-sm space-y-6">
         {/* Header */}
         <div className="space-y-1 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">OrçaMadeira</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-primary">OrçaMadeira</h1>
           <p className="text-sm text-muted-foreground">Crie sua conta gratuita</p>
         </div>
 
@@ -180,10 +180,10 @@ export default function RegisterPage() {
                 type="button"
                 onClick={() => setValue('role', value, { shouldValidate: true })}
                 className={[
-                  'flex flex-col items-center gap-1.5 rounded-lg border p-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                  'flex flex-col items-center gap-1.5 rounded-lg p-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                   active
-                    ? 'border-primary bg-primary/5 text-primary'
-                    : 'border-border bg-background text-muted-foreground hover:border-primary/50 hover:text-foreground',
+                    ? 'bg-primary/10 text-primary font-medium'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/70 hover:text-foreground',
                 ].join(' ')}
               >
                 <Icon className="h-5 w-5" />
@@ -198,7 +198,7 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {/* Root error */}
           {errors.root && (
-            <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <div className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
               {errors.root.message}
             </div>
           )}

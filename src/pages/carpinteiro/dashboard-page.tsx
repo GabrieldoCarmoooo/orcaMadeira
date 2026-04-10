@@ -109,12 +109,12 @@ export default function CarpinteiroDashboardPage() {
 
       {/* CTA — sem madeireira vinculada */}
       {semMadeireira && (
-        <div className="flex flex-col gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-xl bg-accent/20 px-4 py-4 sm:flex-row sm:items-center sm:justify-between shadow-tinted">
           <div className="space-y-0.5">
-            <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+            <p className="text-sm font-semibold text-accent-foreground">
               Você ainda não tem uma madeireira vinculada
             </p>
-            <p className="text-xs text-amber-700 dark:text-amber-400">
+            <p className="text-xs text-accent-foreground/80">
               Vincule-se a uma madeireira para acessar os preços e criar orçamentos.
             </p>
           </div>
@@ -155,7 +155,7 @@ export default function CarpinteiroDashboardPage() {
       {/* Recent orçamentos */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-secondary">
             Orçamentos recentes
           </h2>
           <Link
@@ -180,7 +180,7 @@ export default function CarpinteiroDashboardPage() {
           </div>
         ) : (
           /* Empty state */
-          <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border py-10 text-center">
+          <div className="flex flex-col items-center justify-center gap-3 rounded-xl bg-card shadow-tinted py-10 text-center">
             <FileText className="h-8 w-8 text-muted-foreground/50" />
             <div className="space-y-1">
               <p className="text-sm font-medium">Nenhum orçamento ainda</p>
