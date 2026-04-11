@@ -8,7 +8,7 @@ Carpinteiros perdem tempo criando orçamentos manualmente, consultando preços p
 
 ## Solução
 Uma plataforma onde:
-1. **Madeireiras** cadastram e atualizam seus preços via upload de planilha
+1. **Madeireiras** cadastram e atualizam seus preços via upload de planilha e/ ou cadastro manual dentro da plataforma.
 2. **Carpinteiros** criam orçamentos selecionando materiais com preços reais, adicionando mão de obra, margem e impostos
 3. O sistema gera um **PDF profissional** com a marca do carpinteiro
 

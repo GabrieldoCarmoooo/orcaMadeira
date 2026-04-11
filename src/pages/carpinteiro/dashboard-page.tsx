@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FileText, ClipboardList, TrendingUp, Link2 } from 'lucide-react'
+import { Plus, Link2, FileText } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { ROUTES } from '@/constants/routes'
 import { Button } from '@/components/ui/button'
-import StatCard from '@/components/shared/stat-card'
+import { MetricCard } from '@/components/ui/metric-card'
 import OrcamentoRecenteCard from '@/components/orcamento/orcamento-recente-card'
 import type { Orcamento } from '@/types/orcamento'
 
@@ -15,9 +15,12 @@ type OrcamentoResumo = Pick<
 >
 
 interface DashboardStats {
-  totalMes: number
-  countRascunhos: number
-  countFinalizados: number
+  totalConvertido: number
+  totalPendente: number
+  totalPerdido: number
+  countConvertidos: number
+  countPendentes: number
+  countPerdidos: number
   recentes: OrcamentoResumo[]
 }
 
@@ -42,8 +45,7 @@ export default function CarpinteiroDashboardPage() {
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
         const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString()
 
-        const [totaisRes, rascunhosRes, finalizadosRes, recentesRes] = await Promise.all([
-          // Rows finalized this month — we sum client-side
+        const [convertidosRes, pendentesRes, rascunhosRes, recentesRes] = await Promise.all([
           supabase
             .from('orcamentos')
             .select('total')
@@ -52,21 +54,18 @@ export default function CarpinteiroDashboardPage() {
             .gte('finalizado_at', startOfMonth)
             .lte('finalizado_at', endOfMonth),
 
-          // Count rascunhos
           supabase
             .from('orcamentos')
-            .select('*', { count: 'exact', head: true })
+            .select('total')
+            .eq('carpinteiro_id', carpinteiro!.id)
+            .eq('status', 'enviado'),
+
+          supabase
+            .from('orcamentos')
+            .select('total, id')
             .eq('carpinteiro_id', carpinteiro!.id)
             .eq('status', 'rascunho'),
 
-          // Count finalizados + enviados
-          supabase
-            .from('orcamentos')
-            .select('*', { count: 'exact', head: true })
-            .eq('carpinteiro_id', carpinteiro!.id)
-            .in('status', ['finalizado', 'enviado']),
-
-          // 5 most recent
           supabase
             .from('orcamentos')
             .select('id, nome, cliente_nome, status, total, created_at')
@@ -75,15 +74,16 @@ export default function CarpinteiroDashboardPage() {
             .limit(5),
         ])
 
-        const totalMes = (totaisRes.data ?? []).reduce(
-          (acc, row) => acc + (row.total as number),
-          0,
-        )
+        const sum = (rows: { total: number }[]) =>
+          (rows ?? []).reduce((acc, r) => acc + (r.total as number), 0)
 
         setStats({
-          totalMes,
-          countRascunhos: rascunhosRes.count ?? 0,
-          countFinalizados: finalizadosRes.count ?? 0,
+          totalConvertido: sum(convertidosRes.data ?? []),
+          totalPendente: sum(pendentesRes.data ?? []),
+          totalPerdido: sum(rascunhosRes.data ?? []),
+          countConvertidos: convertidosRes.data?.length ?? 0,
+          countPendentes: pendentesRes.data?.length ?? 0,
+          countPerdidos: rascunhosRes.data?.length ?? 0,
           recentes: (recentesRes.data ?? []) as OrcamentoResumo[],
         })
       } finally {
@@ -94,75 +94,83 @@ export default function CarpinteiroDashboardPage() {
     fetchStats()
   }, [carpinteiro])
 
-  const firstName = carpinteiro?.nome.split(' ')[0] ?? ''
   const semMadeireira = carpinteiro?.madeireira_id === null
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold">Olá, {firstName} 👋</h1>
-        <p className="text-sm text-muted-foreground">
-          Aqui está um resumo da sua atividade
-        </p>
-      </div>
+    <div className="space-y-8">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden rounded-xl bg-surface-container-highest min-h-[160px] flex flex-col justify-between p-6">
+        {/* Wood grain decorative overlay */}
+        <div className="absolute inset-0 wood-hero-overlay rounded-xl pointer-events-none" />
 
-      {/* CTA — sem madeireira vinculada */}
-      {semMadeireira && (
-        <div className="flex flex-col gap-3 rounded-xl bg-accent/20 px-4 py-4 sm:flex-row sm:items-center sm:justify-between shadow-tinted">
-          <div className="space-y-0.5">
-            <p className="text-sm font-semibold text-accent-foreground">
-              Você ainda não tem uma madeireira vinculada
-            </p>
-            <p className="text-xs text-accent-foreground/80">
-              Vincule-se a uma madeireira para acessar os preços e criar orçamentos.
-            </p>
-          </div>
-          <Button asChild size="sm" className="shrink-0 gap-1.5">
-            <Link to={ROUTES.CARPINTEIRO_VINCULACAO}>
-              <Link2 className="h-4 w-4" />
-              Vincular Madeireira
+        <div className="relative z-10">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">
+            Bem-vindo de volta
+          </p>
+          <h1 className="text-4xl font-extrabold tracking-tighter text-on-surface leading-none">
+            Painel de{' '}
+            <em className="not-italic font-black text-primary">Controle</em>
+          </h1>
+        </div>
+
+        <div className="relative z-10 mt-6 flex items-center gap-3">
+          <Button
+            asChild
+            disabled={semMadeireira}
+            className="bg-primary text-primary-foreground font-bold tracking-tight shadow-tinted gap-2"
+          >
+            <Link to={ROUTES.CARPINTEIRO_NOVO_ORCAMENTO}>
+              <Plus size={16} />
+              Nova Proposta
             </Link>
           </Button>
+          {semMadeireira && (
+            <Button asChild variant="ghost" size="sm" className="text-xs gap-1.5">
+              <Link to={ROUTES.CARPINTEIRO_VINCULACAO}>
+                <Link2 size={14} />
+                Vincular madeireira
+              </Link>
+            </Button>
+          )}
         </div>
-      )}
+      </section>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard
-          title="Total orçado no mês"
-          value={loading ? '—' : BRL.format(stats?.totalMes ?? 0)}
-          icon={<TrendingUp className="h-4 w-4" />}
-          highlight
+      {/* Metrics grid */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <MetricCard
+          label="Propostas Convertidas"
+          value={loading ? '—' : BRL.format(stats?.totalConvertido ?? 0)}
+          description={loading ? '' : `${stats?.countConvertidos ?? 0} finalizadas`}
+          dot="primary"
           loading={loading}
         />
-        <StatCard
-          title="Rascunhos"
-          value={loading ? '—' : (stats?.countRascunhos ?? 0)}
+        <MetricCard
+          label="Pendentes"
+          value={loading ? '—' : BRL.format(stats?.totalPendente ?? 0)}
+          description={loading ? '' : `${stats?.countPendentes ?? 0} aguardando assinatura`}
+          dot="secondary"
+          loading={loading}
+        />
+        <MetricCard
+          label="Rascunhos"
+          value={loading ? '—' : String(stats?.countPerdidos ?? 0)}
           description="em andamento"
-          icon={<FileText className="h-4 w-4" />}
-          loading={loading}
-        />
-        <StatCard
-          title="Finalizados"
-          value={loading ? '—' : (stats?.countFinalizados ?? 0)}
-          description="orçamentos enviados"
-          icon={<ClipboardList className="h-4 w-4" />}
+          dot="outline"
           loading={loading}
         />
       </div>
 
-      {/* Recent orçamentos */}
-      <section className="space-y-3">
+      {/* Recent proposals */}
+      <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-secondary">
-            Orçamentos recentes
+          <h2 className="text-[10px] font-bold uppercase tracking-widest text-secondary">
+            Últimas Propostas
           </h2>
           <Link
             to={ROUTES.CARPINTEIRO_ORCAMENTOS}
-            className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            className="text-xs font-semibold text-primary underline-offset-4 hover:underline"
           >
-            Ver todos
+            Ver todas
           </Link>
         </div>
 
@@ -179,17 +187,18 @@ export default function CarpinteiroDashboardPage() {
             ))}
           </div>
         ) : (
-          /* Empty state */
-          <div className="flex flex-col items-center justify-center gap-3 rounded-xl bg-card shadow-tinted py-10 text-center">
-            <FileText className="h-8 w-8 text-muted-foreground/50" />
+          <div className="flex flex-col items-center justify-center gap-4 rounded-xl bg-surface-container py-12 text-center">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <FileText className="h-6 w-6 text-primary" />
+            </div>
             <div className="space-y-1">
-              <p className="text-sm font-medium">Nenhum orçamento ainda</p>
-              <p className="text-xs text-muted-foreground">
-                Crie seu primeiro orçamento para começar.
+              <p className="text-sm font-bold text-on-surface">Nenhum orçamento ainda</p>
+              <p className="text-xs text-on-surface-variant">
+                Crie sua primeira proposta para começar.
               </p>
             </div>
             <Button asChild size="sm" disabled={semMadeireira}>
-              <Link to={ROUTES.CARPINTEIRO_NOVO_ORCAMENTO}>Criar orçamento</Link>
+              <Link to={ROUTES.CARPINTEIRO_NOVO_ORCAMENTO}>Criar proposta</Link>
             </Button>
           </div>
         )}

@@ -12,7 +12,7 @@ export default function BottomNav({ role }: BottomNavProps) {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-30 lg:hidden glass-header shadow-[0_-4px_6px_-1px_rgba(157,66,43,0.06)]"
+      className="fixed bottom-0 left-0 right-0 z-30 lg:hidden glass-header border-t border-outline-variant/10 shadow-[0_-4px_6px_-1px_rgba(157,66,43,0.06)]"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <ul className="flex items-center">
@@ -22,17 +22,24 @@ export default function BottomNav({ role }: BottomNavProps) {
               to={href}
               className={({ isActive }) =>
                 cn(
-                  'flex flex-col items-center gap-1 px-2 py-2.5 text-center transition-colors',
-                  isActive
-                    ? 'bg-accent/20 text-accent-foreground'
-                    : 'text-muted-foreground hover:text-foreground',
+                  'relative flex flex-col items-center gap-1 px-1 py-2.5 text-center transition-colors',
+                  isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
                 )
               }
             >
               {({ isActive }) => (
                 <>
+                  {/* Active indicator dot above icon */}
+                  <span
+                    className={cn(
+                      'absolute top-1 h-1 w-4 rounded-full transition-all duration-200',
+                      isActive ? 'bg-primary-container' : 'bg-transparent',
+                    )}
+                  />
                   <Icon size={20} strokeWidth={isActive ? 2.5 : 1.75} />
-                  <span className="text-[10px] font-medium leading-none">{label}</span>
+                  <span className="text-[9px] font-bold uppercase tracking-wide leading-none">
+                    {label}
+                  </span>
                 </>
               )}
             </NavLink>

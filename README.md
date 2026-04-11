@@ -1,73 +1,59 @@
-# React + TypeScript + Vite
+# OrçaMadeira
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+SaaS web/mobile-first para marceneiros e carpinteiros criarem orçamentos profissionais com preços reais de uma madeireira parceira.
 
-Currently, two official plugins are available:
+## Sobre o produto
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Carpinteiro/Marceneiro** — cria orçamentos para clientes com materiais da madeireira vinculada, margem de lucro, mão de obra, imposto e exporta PDF profissional com logo e cores de marca.
+- **Madeireira** — cadastra produtos (madeira por m³ e outros), faz upload de tabela de preços (CSV/Excel) e disponibiliza para carpinteiros parceiros.
 
-## React Compiler
+## Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Camada | Tecnologia |
+|---|---|
+| Frontend | React 19 + TypeScript strict + Vite 8 |
+| Estilização | Tailwind CSS 4 + shadcn/ui + **Timber Grain design system** |
+| Ícones | Lucide React |
+| Roteamento | React Router v7 |
+| Estado | Zustand |
+| Formulários | React Hook Form + Zod |
+| Backend | Supabase (Auth + PostgreSQL + Storage) |
+| PDF | @react-pdf/renderer |
+| CSV/Excel | PapaParse + SheetJS |
 
-## Expanding the ESLint configuration
+## Design System
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+**Timber Grain — Master's Atelier**: identidade editorial wood-block, paleta wood gold (#7A5900) + mahogany (#9D422B), sem bordas 1px, glassmorphism no header.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Conceitual: [`references/NOVODESIGN.md`](references/NOVODESIGN.md)
+- Mockups por tela: [`references/design-atualizado/`](references/design-atualizado/)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Desenvolvimento
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# instalar dependências
+npm install
+
+# servidor de desenvolvimento (http://localhost:5173)
+npm run dev
+
+# build de produção
+npm run build
+
+# lint
+npm run lint
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Variáveis de ambiente necessárias:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
 ```
+
+## Documentação
+
+- [`PRD.md`](PRD.md) — Product Requirements Document
+- [`spec.md`](spec.md) — Especificação técnica
+- [`CLAUDE.md`](CLAUDE.md) — Regras de negócio e convenções para AI
+- [`references/NOVODESIGN.md`](references/NOVODESIGN.md) — Design system Timber Grain

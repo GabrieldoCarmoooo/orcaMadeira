@@ -33,7 +33,7 @@ const TIPO_LABEL: Record<string, string> = {
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <p className="text-[10px] font-bold uppercase tracking-widest text-secondary">
       {children}
     </p>
   )
@@ -124,12 +124,12 @@ export default function OrcamentoDetalhePage() {
       : 'Mão de obra (fixo)'
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 px-4 py-8">
+    <div className="space-y-6">
       {/* Back nav */}
       <button
         type="button"
         onClick={() => navigate(ROUTES.CARPINTEIRO_ORCAMENTOS)}
-        className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        className="flex items-center gap-1.5 text-sm text-on-surface-variant transition-colors hover:text-on-surface"
       >
         <ArrowLeft className="size-4" />
         Orçamentos
@@ -176,7 +176,7 @@ export default function OrcamentoDetalhePage() {
       </div>
 
       {/* Client info */}
-      <div className="rounded-[16px] bg-muted/50 px-5 py-4 space-y-1">
+      <div className="bg-surface-container-highest rounded-lg px-5 py-4 space-y-1">
         <SectionTitle>Cliente</SectionTitle>
         <div className="mt-3">
           <InfoRow label="Nome" value={orcamento.cliente_nome} />
@@ -186,7 +186,7 @@ export default function OrcamentoDetalhePage() {
       </div>
 
       {/* Dates */}
-      <div className="rounded-[16px] bg-muted/50 px-5 py-4 space-y-1">
+      <div className="bg-surface-container-highest rounded-lg px-5 py-4 space-y-1">
         <SectionTitle>Datas</SectionTitle>
         <div className="mt-3">
           <InfoRow
@@ -211,7 +211,7 @@ export default function OrcamentoDetalhePage() {
             {itens.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center gap-3 rounded-[8px] bg-muted/50 px-4 py-3"
+                className="flex items-center gap-3 rounded-lg bg-surface-container px-4 py-3"
               >
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-foreground">{item.nome}</p>
@@ -229,8 +229,8 @@ export default function OrcamentoDetalhePage() {
       )}
 
       {/* Financial summary */}
-      <div className="rounded-[16px] bg-muted/50 px-5 py-4 space-y-1">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <div className="bg-surface-container-highest rounded-lg px-5 py-4 space-y-1">
+        <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-secondary">
           Resumo financeiro
         </p>
 
@@ -249,15 +249,19 @@ export default function OrcamentoDetalhePage() {
           value={orcamento.valor_imposto}
           muted
         />
+      </div>
 
-        <div className="my-3 h-px bg-border/40" />
-
-        <FinancialLine label="Total" value={orcamento.total} highlight />
+      {/* Dark total block */}
+      <div className="rounded-lg bg-foreground text-background px-6 py-5 flex items-center justify-between">
+        <span className="text-sm font-bold uppercase tracking-widest opacity-70">Total da Proposta</span>
+        <span className="text-3xl font-black tracking-tighter">
+          {BRL.format(orcamento.total)}
+        </span>
       </div>
 
       {/* Terms */}
       {orcamento.termos_condicoes && (
-        <div className="rounded-[16px] bg-muted/50 px-5 py-4 space-y-2">
+        <div className="bg-surface-container-highest rounded-lg px-5 py-4 space-y-2">
           <SectionTitle>Termos e condições</SectionTitle>
           <p className="mt-2 text-sm text-muted-foreground whitespace-pre-wrap">
             {orcamento.termos_condicoes}

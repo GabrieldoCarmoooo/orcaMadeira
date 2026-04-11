@@ -6,6 +6,7 @@ import {
   User,
   Tag,
   Users,
+  Package,
 } from 'lucide-react'
 import { ROUTES } from '@/constants/routes'
 
@@ -17,6 +18,7 @@ export interface NavItem {
 
 export const CARPINTEIRO_NAV: NavItem[] = [
   { label: 'Dashboard', href: ROUTES.CARPINTEIRO_DASHBOARD, icon: LayoutDashboard },
+  { label: 'Catálogo', href: ROUTES.CARPINTEIRO_CATALOGO, icon: Package },
   { label: 'Orçamentos', href: ROUTES.CARPINTEIRO_ORCAMENTOS, icon: FileText },
   { label: 'Vinculação', href: ROUTES.CARPINTEIRO_VINCULACAO, icon: Link2 },
   { label: 'Perfil', href: ROUTES.CARPINTEIRO_PERFIL, icon: User },

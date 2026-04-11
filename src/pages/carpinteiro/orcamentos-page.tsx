@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Plus, ChevronRight, FileText, Loader2, ChevronLeft } from 'lucide-react'
+
+
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/useAuthStore'
@@ -25,9 +27,9 @@ const STATUS_LABEL: Record<OrcamentoStatus, string> = {
 }
 
 const STATUS_CLASS: Record<OrcamentoStatus, string> = {
-  rascunho: 'bg-muted text-muted-foreground',
-  finalizado: 'bg-primary/15 text-primary',
-  enviado: 'bg-secondary/15 text-secondary',
+  rascunho: 'bg-primary/10 text-primary',
+  finalizado: 'bg-secondary/10 text-secondary',
+  enviado: 'bg-on-surface-variant/10 text-on-surface-variant',
 }
 
 const FILTER_TABS: { value: FilterStatus; label: string }[] = [
@@ -38,11 +40,6 @@ const FILTER_TABS: { value: FilterStatus; label: string }[] = [
 ]
 
 const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
-const DATE_FMT = new Intl.DateTimeFormat('pt-BR', {
-  day: '2-digit',
-  month: 'short',
-  year: 'numeric',
-})
 
 function Skeleton({ className }: { className?: string }) {
   return <div className={`animate-pulse rounded-md bg-muted ${className ?? ''}`} />
@@ -98,13 +95,13 @@ export default function CarpinteiroOrcamentosPage() {
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 px-4 py-8">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Orçamentos</h1>
+          <h1 className="text-2xl font-black tracking-tighter text-on-surface">Orçamentos</h1>
           {!loading && (
-            <p className="mt-0.5 text-xs text-muted-foreground">
+            <p className="mt-0.5 text-xs text-on-surface-variant">
               {total} {total === 1 ? 'orçamento' : 'orçamentos'}
             </p>
           )}
@@ -116,17 +113,17 @@ export default function CarpinteiroOrcamentosPage() {
       </div>
 
       {/* Status filter tabs */}
-      <div className="flex gap-1 overflow-x-auto pb-1">
+      <div className="flex border-b border-outline-variant/20 overflow-x-auto">
         {FILTER_TABS.map((tab) => (
           <button
             key={tab.value}
             type="button"
             onClick={() => setFilter(tab.value)}
             className={cn(
-              'shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
+              'shrink-0 pb-3 px-4 text-sm font-bold transition-colors',
               filter === tab.value
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground hover:bg-muted/80',
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-on-surface-variant hover:text-on-surface border-b-2 border-transparent',
             )}
           >
             {tab.label}
@@ -169,36 +166,30 @@ export default function CarpinteiroOrcamentosPage() {
             <Link
               key={orc.id}
               to={ROUTES.CARPINTEIRO_ORCAMENTO(orc.id)}
-              className={cn(
-                'flex items-center gap-3 rounded-[16px] bg-card px-4 py-3 transition-colors',
-                'hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-              )}
+              className="flex items-center gap-4 rounded-lg bg-surface-container-highest px-4 py-3.5 transition-all duration-200 hover:translate-x-1 hover:bg-surface-container-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
+              {/* Initial icon */}
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                <span className="text-primary font-black text-xs uppercase">
+                  {orc.nome.charAt(0)}
+                </span>
+              </div>
+
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-foreground">{orc.nome}</p>
-                <p className="truncate text-xs text-muted-foreground">{orc.cliente_nome}</p>
+                <p className="truncate text-sm font-semibold text-on-surface">{orc.nome}</p>
+                <p className="truncate text-xs text-on-surface-variant">{orc.cliente_nome}</p>
               </div>
 
               <div className="flex shrink-0 flex-col items-end gap-1.5">
-                <span
-                  className={cn(
-                    'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest',
-                    STATUS_CLASS[orc.status],
-                  )}
-                >
+                <span className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest', STATUS_CLASS[orc.status])}>
                   {STATUS_LABEL[orc.status]}
                 </span>
-                <span className="text-xs font-semibold tabular-nums text-foreground">
+                <span className="text-xs font-black tabular-nums text-on-surface tracking-tighter">
                   {BRL.format(orc.total)}
                 </span>
               </div>
 
-              <div className="flex shrink-0 flex-col items-end gap-1.5">
-                <ChevronRight className="size-4 text-muted-foreground" />
-                <span className="text-[11px] text-muted-foreground">
-                  {DATE_FMT.format(new Date(orc.created_at))}
-                </span>
-              </div>
+              <ChevronRight className="size-4 text-on-surface-variant shrink-0" />
             </Link>
           ))}
         </div>

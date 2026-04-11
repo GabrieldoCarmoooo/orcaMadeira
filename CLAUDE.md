@@ -45,8 +45,9 @@ OrçaMadeira é um SaaS web/ responsivo mobile para marceneiros e carpinteiros c
 
 ## Stack Técnica
 - **Frontend**: React 19 + TypeScript + Vite 8
-- **Styling**: Tailwind CSS 4 + shadcn/ui (radix-nova) com design system Timber Grain
+- **Styling**: Tailwind CSS 4 + shadcn/ui (radix-nova) com design system **Timber Grain — Master's Atelier (editorial wood-block)**
   - Primary: Wood Gold (#7A5900), Secondary: Mahogany (#9D422B)
+  - Regras: sem bordas 1px (apenas tonal layering), glassmorphism no header, grid editorial assimétrico 4/8
 - **Font**: Inter Variable
 - **Icons**: Lucide React
 - **Path alias**: `@/` aponta para `./src/`
@@ -69,7 +70,8 @@ OrçaMadeira é um SaaS web/ responsivo mobile para marceneiros e carpinteiros c
 
 ## Referências
 - Arquitetura: `references/architecture.md`
-- Design: `references/NOVODESIGN.md`
+- Design (conceitual): `references/NOVODESIGN.md`
+- Design (mockups por tela): `references/design-atualizado/`
 - Engenharia: `references/engineering.md`
 - PRD: `PRD.md`
 

@@ -7,7 +7,7 @@ interface PageWrapperProps {
 export default function PageWrapper({ children }: PageWrapperProps) {
   return (
     <main className="flex-1 overflow-auto">
-      <div className="mx-auto max-w-7xl px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:pb-6">
+      <div className="mx-auto max-w-4xl px-4 py-8 pb-28 sm:px-6 lg:px-8 lg:pb-8">
         {children}
       </div>
     </main>

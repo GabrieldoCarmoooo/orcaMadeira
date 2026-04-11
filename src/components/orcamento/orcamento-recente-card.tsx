@@ -1,8 +1,7 @@
 import { Link } from 'react-router-dom'
-import { ChevronRight } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { ArrowRight } from 'lucide-react'
+import { StatusChip } from '@/components/ui/status-chip'
 import { ROUTES } from '@/constants/routes'
-import type { OrcamentoStatus } from '@/types/common'
 import type { Orcamento } from '@/types/orcamento'
 
 type OrcamentoResumo = Pick<
@@ -10,20 +9,7 @@ type OrcamentoResumo = Pick<
   'id' | 'nome' | 'cliente_nome' | 'status' | 'total' | 'created_at'
 >
 
-const STATUS_LABEL: Record<OrcamentoStatus, string> = {
-  rascunho: 'Rascunho',
-  finalizado: 'Finalizado',
-  enviado: 'Enviado',
-}
-
-const STATUS_CLASS: Record<OrcamentoStatus, string> = {
-  rascunho: 'bg-accent/20 text-accent-foreground',
-  finalizado: 'bg-primary/15 text-primary',
-  enviado: 'bg-secondary/15 text-secondary',
-}
-
 const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
-const DATE_FMT = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
 
 interface Props {
   orcamento: OrcamentoResumo
@@ -33,31 +19,32 @@ export default function OrcamentoRecenteCard({ orcamento }: Props) {
   return (
     <Link
       to={ROUTES.CARPINTEIRO_ORCAMENTO(orcamento.id)}
-      className="flex items-center justify-between gap-4 rounded-lg bg-card px-4 py-3 transition-colors shadow-tinted hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="flex items-center gap-4 px-4 py-3.5 rounded-lg bg-surface-container-highest transition-all duration-200 hover:translate-x-1 hover:bg-surface-container-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <div className="min-w-0 flex-1 space-y-0.5">
-        <p className="truncate text-sm font-medium leading-tight">{orcamento.nome}</p>
-        <p className="truncate text-xs text-muted-foreground">{orcamento.cliente_nome}</p>
-      </div>
-
-      <div className="flex shrink-0 flex-col items-end gap-1">
-        <span
-          className={cn(
-            'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest',
-            STATUS_CLASS[orcamento.status],
-          )}
-        >
-          {STATUS_LABEL[orcamento.status]}
-        </span>
-        <span className="text-xs font-medium tabular-nums">{BRL.format(orcamento.total)}</span>
-      </div>
-
-      <div className="flex shrink-0 flex-col items-end gap-1 text-right">
-        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-        <span className="text-[11px] text-muted-foreground">
-          {DATE_FMT.format(new Date(orcamento.created_at))}
+      {/* Icon container */}
+      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+        <span className="text-primary font-black text-xs uppercase">
+          {orcamento.nome.charAt(0)}
         </span>
       </div>
+
+      {/* Content */}
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-on-surface leading-tight truncate">
+          {orcamento.nome}
+        </p>
+        <p className="text-xs text-on-surface-variant truncate mt-0.5">{orcamento.cliente_nome}</p>
+      </div>
+
+      {/* Status + price */}
+      <div className="flex flex-col items-end gap-1.5 shrink-0">
+        <StatusChip status={orcamento.status} />
+        <span className="text-xs font-black tabular-nums text-on-surface tracking-tighter">
+          {BRL.format(orcamento.total)}
+        </span>
+      </div>
+
+      <ArrowRight className="h-4 w-4 text-on-surface-variant shrink-0" />
     </Link>
   )
 }

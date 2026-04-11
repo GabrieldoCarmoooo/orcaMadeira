@@ -97,10 +97,12 @@ export default function BuscaMadeireira({ onSolicitar, disabled = false }: Busca
                   <Building2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                   <span className="truncate text-sm font-medium">{m.razao_social}</span>
                 </div>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <MapPin className="h-3 w-3 shrink-0" />
-                  {m.cidade}, {m.estado}
-                </div>
+                {(m.cidade.trim() || m.estado.trim()) && (
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <MapPin className="h-3 w-3 shrink-0" />
+                    {[m.cidade.trim(), m.estado.trim()].filter(Boolean).join(', ')}
+                  </div>
+                )}
               </div>
               <Button
                 size="sm"

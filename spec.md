@@ -41,7 +41,7 @@
 | UI Framework | React | 19 | Concurrency features, já configurado |
 | Linguagem | TypeScript | strict | Type safety end-to-end |
 | Build | Vite | 8 | HMR rápido, bundle otimizado |
-| Estilização | Tailwind CSS | 4 | Utility-first, sem CSS custom |
+| Estilização | Tailwind CSS | 4 | Utility-first; Design System: Timber Grain — Master's Atelier |
 | Componentes | shadcn/ui (radix-nova) | latest | Acessível (WCAG), customizável |
 | Ícones | Lucide React | latest | Consistente com shadcn |
 | Roteamento | React Router | v7 | Padrão do ecossistema React |
@@ -51,6 +51,27 @@
 | Backend | Supabase | latest | Auth + DB + Storage sem backend custom |
 | PDF | @react-pdf/renderer | latest | Geração client-side, sem custo de servidor |
 | CSV/Excel | PapaParse + SheetJS | latest | Parse robusto de planilhas |
+
+### Design System: Timber Grain — Master's Atelier
+
+Referência conceitual: `references/NOVODESIGN.md` | Mockups por tela: `references/design-atualizado/`
+
+**Princípios:**
+- Sem bordas 1px para separação — usar `surface-container` shifts
+- Glassmorphism no header (`glass-header` utility: bg 80% + blur 12px)
+- Grid editorial assimétrico (4 cols título / 8 cols conteúdo) em formulários
+- Tipografia: `tracking-tighter` em displays, `uppercase tracking-widest text-[10px]` em micro-labels
+- Hover states: `hover:translate-x-1` em list items, `hover:-translate-y-1` em cards de produto
+
+**Primitivos criados em `src/components/ui/`:**
+- `EditorialSection` — grid 4/8 assimétrico
+- `MetricCard` — card KPI com dot indicator tonal
+- `GrainProgress` — barra de progresso gradiente `from-primary to-primary-container`
+- `StatusChip` — pill de status com bg tonal (`primary/10`, `secondary/10`)
+- `EditorialInput` — input com `border-b-2` pencil-mark focus
+- `TonalCard` — wrapper `bg-surface-container-highest` sem borda
+
+---
 
 ### Decisões Arquiteturais
 

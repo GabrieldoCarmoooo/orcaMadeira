@@ -7,6 +7,7 @@ export const ROUTES = {
 
   // Carpinteiro
   CARPINTEIRO_DASHBOARD: '/carpinteiro/dashboard',
+  CARPINTEIRO_CATALOGO: '/carpinteiro/catalogo',
   CARPINTEIRO_PERFIL: '/carpinteiro/perfil',
   CARPINTEIRO_VINCULACAO: '/carpinteiro/vinculacao',
   CARPINTEIRO_ORCAMENTOS: '/carpinteiro/orcamentos',
