@@ -1,11 +1,28 @@
 import type { TipoProjeto } from '@/types/common'
 
 export interface ItemOrcamentoCalculo {
+  // uid distingue linhas únicas no store: madeira m³ usa "madeira:{id}:{comprimento_id}:{acabamento_id|none}";
+  // legado e outro_produto omitem uid e caem no fallback item_preco_id.
+  uid?: string
   item_preco_id: string
   nome: string
   unidade: string
   preco_unitario: number
   quantidade: number
+
+  // Campos de snapshot introduzidos na migration 002 (ISSUE-021/023).
+  // Opcionais para manter compatibilidade total com itens legados existentes.
+  origem?: 'legado_planilha' | 'madeira_m3' | 'outro_produto'
+  madeira_m3_id?: string
+  outro_produto_id?: string
+  especie_nome?: string
+  espessura_cm?: number
+  largura_cm?: number
+  comprimento_id?: string
+  comprimento_real_m?: number
+  acabamento_id?: string
+  acabamento_nome?: string
+  acabamento_percentual?: number
 }
 
 export interface DadosFinanceiros {

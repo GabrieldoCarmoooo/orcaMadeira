@@ -53,10 +53,16 @@ interface OrcamentoStore {
   setStep: (step: WizardStep) => void
   setStepProjeto: (data: Partial<StepProjetoData>) => void
   addItem: (item: ItemOrcamentoCalculo) => void
-  removeItem: (item_preco_id: string) => void
-  updateQuantidade: (item_preco_id: string, quantidade: number) => void
+  // uid é o identificador único da linha (item.uid ?? item.item_preco_id)
+  removeItem: (uid: string) => void
+  updateQuantidade: (uid: string, quantidade: number) => void
   setFinanceiro: (data: Partial<StepFinanceiroData>) => void
   reset: () => void
+}
+
+// Retorna a chave única da linha: uid composto (madeira m³) ou item_preco_id (legado/outro_produto)
+function getItemKey(item: ItemOrcamentoCalculo): string {
+  return item.uid ?? item.item_preco_id
 }
 
 function recalcular(
@@ -92,10 +98,13 @@ export const useOrcamentoStore = create<OrcamentoStore>((set) => ({
 
   addItem(item) {
     set((state) => {
-      const existing = state.itens.find((i) => i.item_preco_id === item.item_preco_id)
+      // Deduplicação por uid composto — garante que madeira m³ com comprimento/acabamento
+      // diferentes sejam linhas separadas; legado e outro_produto usam item_preco_id
+      const key = getItemKey(item)
+      const existing = state.itens.find((i) => getItemKey(i) === key)
       const itens = existing
         ? state.itens.map((i) =>
-            i.item_preco_id === item.item_preco_id
+            getItemKey(i) === key
               ? { ...i, quantidade: i.quantidade + item.quantidade }
               : i,
           )
@@ -104,20 +113,20 @@ export const useOrcamentoStore = create<OrcamentoStore>((set) => ({
     })
   },
 
-  removeItem(item_preco_id) {
+  removeItem(uid) {
     set((state) => {
-      const itens = state.itens.filter((i) => i.item_preco_id !== item_preco_id)
+      const itens = state.itens.filter((i) => getItemKey(i) !== uid)
       return { itens, resumo: recalcular(itens, state.stepFinanceiro) }
     })
   },
 
-  updateQuantidade(item_preco_id, quantidade) {
+  updateQuantidade(uid, quantidade) {
     set((state) => {
       const itens =
         quantidade <= 0
-          ? state.itens.filter((i) => i.item_preco_id !== item_preco_id)
+          ? state.itens.filter((i) => getItemKey(i) !== uid)
           : state.itens.map((i) =>
-              i.item_preco_id === item_preco_id ? { ...i, quantidade } : i,
+              getItemKey(i) === uid ? { ...i, quantidade } : i,
             )
       return { itens, resumo: recalcular(itens, state.stepFinanceiro) }
     })

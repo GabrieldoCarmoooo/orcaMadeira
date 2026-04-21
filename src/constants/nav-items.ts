@@ -26,7 +26,7 @@ export const CARPINTEIRO_NAV: NavItem[] = [
 
 export const MADEIREIRA_NAV: NavItem[] = [
   { label: 'Dashboard', href: ROUTES.MADEIREIRA_DASHBOARD, icon: LayoutDashboard },
-  { label: 'Preços', href: ROUTES.MADEIREIRA_PRECOS, icon: Tag },
+  { label: 'Produtos & Preços', href: ROUTES.MADEIREIRA_PRECOS, icon: Tag },
   { label: 'Parceiros', href: ROUTES.MADEIREIRA_PARCEIROS, icon: Users },
   { label: 'Perfil', href: ROUTES.MADEIREIRA_PERFIL, icon: User },
 ]

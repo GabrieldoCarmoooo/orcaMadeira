@@ -76,38 +76,155 @@ export type Database = {
           },
         ]
       }
+      comprimentos_madeira_m3: {
+        Row: {
+          comprimento_m: number
+          created_at: string
+          disponivel: boolean
+          id: string
+          madeira_m3_id: string
+        }
+        Insert: {
+          comprimento_m: number
+          created_at?: string
+          disponivel?: boolean
+          id?: string
+          madeira_m3_id: string
+        }
+        Update: {
+          comprimento_m?: number
+          created_at?: string
+          disponivel?: boolean
+          id?: string
+          madeira_m3_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comprimentos_madeira_m3_madeira_m3_id_fkey"
+            columns: ["madeira_m3_id"]
+            isOneToOne: false
+            referencedRelation: "madeiras_m3"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      especies_madeira: {
+        Row: {
+          created_at: string
+          custo_m3: number
+          id: string
+          madeireira_id: string
+          margem_lucro_pct: number
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          custo_m3: number
+          id?: string
+          madeireira_id: string
+          margem_lucro_pct?: number
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          custo_m3?: number
+          id?: string
+          madeireira_id?: string
+          margem_lucro_pct?: number
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "especies_madeira_madeireira_id_fkey"
+            columns: ["madeireira_id"]
+            isOneToOne: false
+            referencedRelation: "madeireiras"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       itens_orcamento: {
         Row: {
+          acabamento_id: string | null
+          acabamento_nome: string | null
+          acabamento_percentual: number | null
+          comprimento_id: string | null
+          comprimento_real_m: number | null
+          especie_nome: string | null
+          espessura_cm: number | null
           id: string
-          item_preco_id: string
+          item_preco_id: string | null
+          largura_cm: number | null
+          madeira_m3_id: string | null
           nome: string
           orcamento_id: string
+          origem: string
+          outro_produto_id: string | null
           preco_unitario: number
           quantidade: number
           subtotal: number
           unidade: string
         }
         Insert: {
+          acabamento_id?: string | null
+          acabamento_nome?: string | null
+          acabamento_percentual?: number | null
+          comprimento_id?: string | null
+          comprimento_real_m?: number | null
+          especie_nome?: string | null
+          espessura_cm?: number | null
           id?: string
-          item_preco_id: string
+          item_preco_id?: string | null
+          largura_cm?: number | null
+          madeira_m3_id?: string | null
           nome: string
           orcamento_id: string
+          origem?: string
+          outro_produto_id?: string | null
           preco_unitario: number
           quantidade: number
           subtotal: number
           unidade: string
         }
         Update: {
+          acabamento_id?: string | null
+          acabamento_nome?: string | null
+          acabamento_percentual?: number | null
+          comprimento_id?: string | null
+          comprimento_real_m?: number | null
+          especie_nome?: string | null
+          espessura_cm?: number | null
           id?: string
-          item_preco_id?: string
+          item_preco_id?: string | null
+          largura_cm?: number | null
+          madeira_m3_id?: string | null
           nome?: string
           orcamento_id?: string
+          origem?: string
+          outro_produto_id?: string | null
           preco_unitario?: number
           quantidade?: number
           subtotal?: number
           unidade?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "itens_orcamento_acabamento_id_fkey"
+            columns: ["acabamento_id"]
+            isOneToOne: false
+            referencedRelation: "servicos_acabamento"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "itens_orcamento_comprimento_id_fkey"
+            columns: ["comprimento_id"]
+            isOneToOne: false
+            referencedRelation: "comprimentos_madeira_m3"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "itens_orcamento_item_preco_id_fkey"
             columns: ["item_preco_id"]
@@ -116,10 +233,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "itens_orcamento_madeira_m3_id_fkey"
+            columns: ["madeira_m3_id"]
+            isOneToOne: false
+            referencedRelation: "madeiras_m3"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "itens_orcamento_orcamento_id_fkey"
             columns: ["orcamento_id"]
             isOneToOne: false
             referencedRelation: "orcamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "itens_orcamento_outro_produto_id_fkey"
+            columns: ["outro_produto_id"]
+            isOneToOne: false
+            referencedRelation: "outros_produtos"
             referencedColumns: ["id"]
           },
         ]
@@ -163,7 +294,61 @@ export type Database = {
             foreignKeyName: "itens_preco_tabela_id_fkey"
             columns: ["tabela_id"]
             isOneToOne: false
-            referencedRelation: "itens_preco"
+            referencedRelation: "tabelas_preco"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      madeiras_m3: {
+        Row: {
+          comprimento_m: number
+          created_at: string
+          disponivel: boolean
+          especie_id: string
+          espessura_cm: number
+          id: string
+          largura_cm: number
+          madeireira_id: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          comprimento_m?: number
+          created_at?: string
+          disponivel?: boolean
+          especie_id: string
+          espessura_cm: number
+          id?: string
+          largura_cm: number
+          madeireira_id: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          comprimento_m?: number
+          created_at?: string
+          disponivel?: boolean
+          especie_id?: string
+          espessura_cm?: number
+          id?: string
+          largura_cm?: number
+          madeireira_id?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "madeiras_m3_especie_id_fkey"
+            columns: ["especie_id"]
+            isOneToOne: false
+            referencedRelation: "especies_madeira"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "madeiras_m3_madeireira_id_fkey"
+            columns: ["madeireira_id"]
+            isOneToOne: false
+            referencedRelation: "madeireiras"
             referencedColumns: ["id"]
           },
         ]
@@ -319,6 +504,88 @@ export type Database = {
           },
         ]
       }
+      outros_produtos: {
+        Row: {
+          created_at: string
+          descricao: string | null
+          disponivel: boolean
+          id: string
+          madeireira_id: string
+          nome: string
+          preco_unitario: number
+          unidade: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string | null
+          disponivel?: boolean
+          id?: string
+          madeireira_id: string
+          nome: string
+          preco_unitario: number
+          unidade: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string | null
+          disponivel?: boolean
+          id?: string
+          madeireira_id?: string
+          nome?: string
+          preco_unitario?: number
+          unidade?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outros_produtos_madeireira_id_fkey"
+            columns: ["madeireira_id"]
+            isOneToOne: false
+            referencedRelation: "madeireiras"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      servicos_acabamento: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          id: string
+          madeireira_id: string
+          nome: string
+          percentual_acrescimo: number
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          madeireira_id: string
+          nome: string
+          percentual_acrescimo: number
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          madeireira_id?: string
+          nome?: string
+          percentual_acrescimo?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "servicos_acabamento_madeireira_id_fkey"
+            columns: ["madeireira_id"]
+            isOneToOne: false
+            referencedRelation: "madeireiras"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tabelas_preco: {
         Row: {
           ativo: boolean
@@ -398,7 +665,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_madeireira_owner: { Args: { m_id: string }; Returns: boolean }
     }
     Enums: {
       mao_obra_tipo: "fixo" | "hora"

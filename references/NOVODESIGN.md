@@ -69,6 +69,32 @@ Standard shadows look "digital." We want "physical."
 ### Signature Component: The "Grain" Progress Bar
 *   For proposal stages (Draft > Sent > Signed), use a thick (8px) bar using `secondary_container` as the track and a `primary` gradient for the progress.
 
+### Tabs (Catálogo da Madeireira)
+*   Usado na página `Produtos & Preços` para separar **Espécies | Madeiras m³ | Outros Produtos | Acabamentos | Importar Planilha**.
+*   `TabsTrigger` ativo: `bg-surface-container-highest` + `text-primary` + `tracking-tight font-medium`. Inativo: `text-on-surface-variant`.
+*   Sem sublinhado 1px — indicador é `bg-primary-container` sob o label (bloco tonal).
+*   Container externo com `bg-surface-container-low`, 16px de padding vertical entre Tabs e conteúdo.
+
+### Dialog / Modal
+*   Backdrop `bg-secondary/20 backdrop-blur-sm` (névoa quente, não preto puro).
+*   Conteúdo `bg-surface-container-highest`, `rounded-lg` (16px), `p-6 md:p-8`, sombra tintada com `secondary` a 6% opacidade.
+*   Título em `headline-sm` com `tracking-tight`; descrição em `body-md text-on-surface-variant`.
+*   Ações no rodapé alinhadas à direita; Cancelar é tertiary, Confirmar é primary.
+
+### Preview ao vivo (forms de catálogo)
+*   Exemplo: no form de Espécie, ao digitar custo + margem, exibir bloco em `bg-primary/10` com "Venda: R$ 4.200,00/m³" em `display-sm tracking-tighter text-primary`.
+*   No form de Madeira m³, tabela lateral com cada comprimento cadastrado → valor calculado formatado em BRL. Linha usa `surface_container_low` alternado com `surface`.
+
+### Empty States (editoriais)
+*   Ícone Lucide grande (48px) em `text-secondary/40`.
+*   Título `headline-sm` + body curta. CTA primary abaixo.
+*   Uso: "Cadastre ao menos uma espécie primeiro" no form de Madeira m³ sem espécies.
+
+### Badges de origem no Orçamento
+*   Para cada item do step de materiais, chip tonal à direita: `Madeira m³ · Cambará 5×15×2,40m`.
+*   Usa `bg-secondary/10 text-secondary` + `uppercase tracking-widest text-[10px]`.
+*   Acabamento aplicado vira um segundo chip: `Acabamento: Lixamento (+10%)` em `bg-primary/10 text-primary`.
+
 ---
 
 ## 6. Do’s and Don’ts
@@ -81,7 +107,13 @@ Standard shadows look "digital." We want "physical."
 ### Don't:
 *   **DON'T** use pure black (#000000). Use `on_surface` (#1D1B19) to keep the warmth of the mahogany palette.
 *   **DON'T** use 1px dividers between list items. Use 8px of `surface_container_low` as a spacer or simply rely on typography and vertical rhythm.
-*   **DON'T** use standard 4px rounding. Stick to the **8px (DEFAULT)** or **16px (lg)** to maintain a "sturdy" architectural feel. 
+*   **DON'T** use standard 4px rounding. Stick to the **8px (DEFAULT)** or **16px (lg)** to maintain a "sturdy" architectural feel.
+*   **DON'T** editar componentes gerados por `shadcn add` (em `src/components/ui/`). Aplicar customizações Timber Grain via `className` no consumo.
+
+---
+
+## 7. Mockups de referência por tela
+Ver `references/design-atualizado/`. Implementações que toquem UI devem conferir o mockup da tela correspondente antes de criar variantes novas.
 
 ---
 *End of Document*

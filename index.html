@@ -5,6 +5,21 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>vite-project</title>
+    <script>
+      // Pré-hidratação do tema — roda antes do React montar para evitar FOUC.
+      // Lê a preferência persistida; se ausente, respeita o tema do SO.
+      (function () {
+        try {
+          var t = localStorage.getItem('orcamadeira:theme');
+          if (t !== 'light' && t !== 'dark') {
+            t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          if (t === 'dark') document.documentElement.classList.add('dark');
+        } catch (_) {
+          /* localStorage pode estar bloqueado (modo privado) — ignora silenciosamente */
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

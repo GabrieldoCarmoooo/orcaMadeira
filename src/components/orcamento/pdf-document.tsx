@@ -207,6 +207,15 @@ const s = StyleSheet.create({
     color: C.onSurfaceMuted,
   },
 
+  // Linha auxiliar para itens de madeira m³ — espécie, dimensões e acabamento
+  itemAuxLabel: {
+    fontSize: 8,
+    color: C.secondary,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginTop: 1,
+  },
+
   // Column widths
   colNome: { flex: 3 },
   colUnidade: { flex: 1, textAlign: 'center' },
@@ -305,6 +314,8 @@ export interface OrcamentoPdfProps {
   itens: ItemOrcamento[]
   carpinteiro: Carpinteiro
   logoBase64?: string
+  /** Quando false, omite a tabela de materiais e o breakdown; exibe só o total */
+  mostrarDetalhes?: boolean
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -318,6 +329,27 @@ function validadeLabel(orcamento: Orcamento): string {
   const d = new Date(base)
   d.setUTCDate(d.getUTCDate() + orcamento.validade_dias)
   return formatDate(d.toISOString())
+}
+
+// Formata a linha auxiliar de espécie + dimensões para itens de madeira m³.
+// Retorna null para itens legados ou outros_produtos (sem especie_nome).
+function formatLinhaEspecie(item: ItemOrcamento): string | null {
+  if (item.origem !== 'madeira_m3' || !item.especie_nome) return null
+  const esp = item.espessura_cm != null ? String(item.espessura_cm) : '?'
+  const larg = item.largura_cm != null ? String(item.largura_cm) : '?'
+  const comp =
+    item.comprimento_real_m != null
+      ? ` · ${item.comprimento_real_m.toFixed(2).replace('.', ',')}m`
+      : ''
+  return `${item.especie_nome} · ${esp}×${larg}cm${comp}`
+}
+
+// Formata a linha de acabamento quando há acabamento aplicado ao item.
+function formatLinhaAcabamento(item: ItemOrcamento): string | null {
+  if (!item.acabamento_nome) return null
+  const pct =
+    item.acabamento_percentual != null ? ` (+${item.acabamento_percentual}%)` : ''
+  return `Acabamento: ${item.acabamento_nome}${pct}`
 }
 
 function maoObraLabel(orcamento: Orcamento): string {
@@ -334,6 +366,7 @@ export function OrcamentoPdfDocument({
   itens,
   carpinteiro,
   logoBase64,
+  mostrarDetalhes = true,
 }: OrcamentoPdfProps) {
   const idCurto = orcamento.id.slice(0, 8).toUpperCase()
   const dataEmissao = formatDate(orcamento.finalizado_at ?? orcamento.created_at)
@@ -421,82 +454,103 @@ export function OrcamentoPdfDocument({
           </View>
         </View>
 
-        {/* ── Materiais ───────────────────────────────────────────────────── */}
-        <Text style={s.sectionLabel}>Materiais</Text>
-        <View style={s.table}>
-          {/* Table header — repeats on every page */}
-          <View style={s.tableHeader} fixed>
-            <Text style={[s.tableHeaderText, s.colNome]}>Item</Text>
-            <Text style={[s.tableHeaderText, s.colUnidade]}>Unid.</Text>
-            <Text style={[s.tableHeaderText, s.colQtd]}>Qtd.</Text>
-            <Text style={[s.tableHeaderText, s.colPrecoUnit]}>Preço Unit.</Text>
-            <Text style={[s.tableHeaderText, s.colSubtotal]}>Subtotal</Text>
-          </View>
+        {/* ── Materiais — omitido quando mostrarDetalhes=false ────────────── */}
+        {mostrarDetalhes && (
+          <>
+            <Text style={s.sectionLabel}>Materiais</Text>
+            <View style={s.table}>
+              <View style={s.tableHeader} fixed>
+                <Text style={[s.tableHeaderText, s.colNome]}>Item</Text>
+                <Text style={[s.tableHeaderText, s.colUnidade]}>Unid.</Text>
+                <Text style={[s.tableHeaderText, s.colQtd]}>Qtd.</Text>
+                <Text style={[s.tableHeaderText, s.colPrecoUnit]}>Preço Unit.</Text>
+                <Text style={[s.tableHeaderText, s.colSubtotal]}>Subtotal</Text>
+              </View>
 
-          {itens.map((item, idx) => (
-            <View
-              key={item.id}
-              style={[s.tableRow, idx % 2 !== 0 ? s.tableRowEven : {}]}
-              wrap={false}
-            >
-              <Text style={[s.tableCell, s.colNome]}>{item.nome}</Text>
-              <Text style={[s.tableCellMuted, s.colUnidade]}>
-                {item.unidade}
-              </Text>
-              <Text style={[s.tableCellMuted, s.colQtd]}>
-                {item.quantidade % 1 === 0
-                  ? item.quantidade.toString()
-                  : item.quantidade.toFixed(2)}
-              </Text>
-              <Text style={[s.tableCellMuted, s.colPrecoUnit]}>
-                {formatBRL(item.preco_unitario)}
-              </Text>
-              <Text style={[s.tableCell, s.colSubtotal]}>
-                {formatBRL(item.subtotal)}
-              </Text>
+              {itens.map((item, idx) => {
+                // Calcula as linhas auxiliares; null quando o item é legado ou outro produto
+                const linhaEspecie = formatLinhaEspecie(item)
+                const linhaAcabamento = formatLinhaAcabamento(item)
+                return (
+                  <View
+                    key={item.id}
+                    style={[s.tableRow, idx % 2 !== 0 ? s.tableRowEven : {}]}
+                    wrap={false}
+                  >
+                    <View style={s.colNome}>
+                      <Text style={s.tableCell}>{item.nome}</Text>
+                      {linhaEspecie && (
+                        <Text style={s.itemAuxLabel}>{linhaEspecie}</Text>
+                      )}
+                      {linhaAcabamento && (
+                        <Text style={s.itemAuxLabel}>{linhaAcabamento}</Text>
+                      )}
+                    </View>
+                    <Text style={[s.tableCellMuted, s.colUnidade]}>
+                      {item.unidade}
+                    </Text>
+                    <Text style={[s.tableCellMuted, s.colQtd]}>
+                      {item.quantidade % 1 === 0
+                        ? item.quantidade.toString()
+                        : item.quantidade.toFixed(2)}
+                    </Text>
+                    <Text style={[s.tableCellMuted, s.colPrecoUnit]}>
+                      {formatBRL(item.preco_unitario)}
+                    </Text>
+                    <Text style={[s.tableCell, s.colSubtotal]}>
+                      {formatBRL(item.subtotal)}
+                    </Text>
+                  </View>
+                )
+              })}
             </View>
-          ))}
-        </View>
+          </>
+        )}
 
         {/* ── Resumo Financeiro ───────────────────────────────────────────── */}
         <View style={s.financeiroBox} wrap={false}>
-          <View style={s.financeiroRow}>
-            <Text style={s.financeiroLabel}>Materiais</Text>
-            <Text style={s.financeiroValue}>
-              {formatBRL(orcamento.subtotal_materiais)}
-            </Text>
-          </View>
+          {/* Breakdown detalhado só aparece quando mostrarDetalhes=true */}
+          {mostrarDetalhes && (
+            <>
+              <View style={s.financeiroRow}>
+                <Text style={s.financeiroLabel}>Materiais</Text>
+                <Text style={s.financeiroValue}>
+                  {formatBRL(orcamento.subtotal_materiais)}
+                </Text>
+              </View>
 
-          <View style={s.financeiroRow}>
-            <Text style={s.financeiroLabel}>
-              Mão de Obra ({orcamento.mao_obra_tipo === 'hora' ? 'por hora' : 'fixo'})
-            </Text>
-            <Text style={s.financeiroValue}>{maoObraLabel(orcamento)}</Text>
-          </View>
+              <View style={s.financeiroRow}>
+                <Text style={s.financeiroLabel}>
+                  Mão de Obra ({orcamento.mao_obra_tipo === 'hora' ? 'por hora' : 'fixo'})
+                </Text>
+                <Text style={s.financeiroValue}>{maoObraLabel(orcamento)}</Text>
+              </View>
 
-          {orcamento.margem_lucro > 0 && (
-            <View style={s.financeiroRow}>
-              <Text style={s.financeiroLabel}>
-                Margem de Lucro ({orcamento.margem_lucro}%)
-              </Text>
-              <Text style={s.financeiroValue}>
-                {formatBRL(orcamento.valor_margem)}
-              </Text>
-            </View>
+              {orcamento.margem_lucro > 0 && (
+                <View style={s.financeiroRow}>
+                  <Text style={s.financeiroLabel}>
+                    Margem de Lucro ({orcamento.margem_lucro}%)
+                  </Text>
+                  <Text style={s.financeiroValue}>
+                    {formatBRL(orcamento.valor_margem)}
+                  </Text>
+                </View>
+              )}
+
+              {orcamento.imposto > 0 && (
+                <View style={s.financeiroRow}>
+                  <Text style={s.financeiroLabel}>
+                    Impostos ({orcamento.imposto}%)
+                  </Text>
+                  <Text style={s.financeiroValue}>
+                    {formatBRL(orcamento.valor_imposto)}
+                  </Text>
+                </View>
+              )}
+
+              <View style={s.financeiroSeparator} />
+            </>
           )}
-
-          {orcamento.imposto > 0 && (
-            <View style={s.financeiroRow}>
-              <Text style={s.financeiroLabel}>
-                Impostos ({orcamento.imposto}%)
-              </Text>
-              <Text style={s.financeiroValue}>
-                {formatBRL(orcamento.valor_imposto)}
-              </Text>
-            </View>
-          )}
-
-          <View style={s.financeiroSeparator} />
 
           <View style={s.financeiroTotalRow}>
             <Text style={s.financeiroTotalLabel}>TOTAL</Text>

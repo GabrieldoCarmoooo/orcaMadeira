@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Pencil, Loader2, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -92,6 +93,7 @@ export default function OrcamentoDetalhePage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { orcamento, itens, loading, error } = useOrcamento(id)
+  const [mostrarDetalhes, setMostrarDetalhes] = useState(true)
 
   if (loading) {
     return (
@@ -158,7 +160,7 @@ export default function OrcamentoDetalhePage() {
         </div>
 
         {/* Actions */}
-        <div className="flex shrink-0 flex-col gap-2">
+        <div className="flex shrink-0 flex-col gap-2 items-end">
           {orcamento.status === 'rascunho' && (
             <Button
               size="sm"
@@ -170,7 +172,31 @@ export default function OrcamentoDetalhePage() {
             </Button>
           )}
           {(orcamento.status === 'finalizado' || orcamento.status === 'enviado') && (
-            <BotaoExportarPdf orcamento={orcamento} itens={itens} />
+            <>
+              <BotaoExportarPdf orcamento={orcamento} itens={itens} mostrarDetalhes={mostrarDetalhes} />
+              <button
+                type="button"
+                role="switch"
+                aria-checked={mostrarDetalhes}
+                onClick={() => setMostrarDetalhes((v) => !v)}
+                className="flex items-center gap-2 text-[11px] text-muted-foreground cursor-pointer select-none"
+              >
+                <span>Detalhes no PDF</span>
+                <span
+                  className={cn(
+                    'relative inline-flex h-5 w-9 shrink-0 rounded-full items-center px-0.5 transition-colors',
+                    mostrarDetalhes ? 'bg-primary' : 'bg-muted-foreground/30',
+                  )}
+                >
+                  <span
+                    className={cn(
+                      'h-4 w-4 rounded-full bg-white shadow-sm transition-transform',
+                      mostrarDetalhes ? 'translate-x-4' : 'translate-x-0',
+                    )}
+                  />
+                </span>
+              </button>
+            </>
           )}
         </div>
       </div>

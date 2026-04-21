@@ -6,9 +6,10 @@ import type { Orcamento, ItemOrcamento } from '@/types/orcamento'
 interface BotaoExportarPdfProps {
   orcamento: Orcamento
   itens: ItemOrcamento[]
+  mostrarDetalhes?: boolean
 }
 
-export function BotaoExportarPdf({ orcamento, itens }: BotaoExportarPdfProps) {
+export function BotaoExportarPdf({ orcamento, itens, mostrarDetalhes = true }: BotaoExportarPdfProps) {
   const { loading, exportar } = usePdf()
   const canExport = orcamento.status === 'finalizado' || orcamento.status === 'enviado'
 
@@ -17,7 +18,7 @@ export function BotaoExportarPdf({ orcamento, itens }: BotaoExportarPdfProps) {
       size="sm"
       variant="outline"
       disabled={!canExport || loading}
-      onClick={() => exportar(orcamento, itens)}
+      onClick={() => exportar(orcamento, itens, mostrarDetalhes)}
     >
       {loading ? (
         <Loader2 className="size-3.5 animate-spin" />

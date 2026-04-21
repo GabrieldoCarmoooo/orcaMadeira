@@ -10,6 +10,11 @@ import UploadPlanilha from '@/components/madeireira/upload-planilha'
 import MapeamentoColunas from '@/components/madeireira/mapeamento-colunas'
 import PreviaDados, { type ValidatedItemPreco } from '@/components/madeireira/previa-dados'
 import HistoricoUploads from '@/components/madeireira/historico-uploads'
+import { TabsProdutos } from '@/components/madeireira/catalogo/tabs-produtos'
+import { EspeciesPanel } from '@/components/madeireira/catalogo/especies-panel'
+import { MadeirasMcPanel } from '@/components/madeireira/catalogo/madeiras-m3-panel'
+import { OutrosProdutosPanel } from '@/components/madeireira/catalogo/outros-produtos-panel'
+import { AcabamentosPanel } from '@/components/madeireira/catalogo/acabamentos-panel'
 
 // ─── Step indicator ──────────────────────────────────────────────────────────
 
@@ -279,15 +284,15 @@ export default function MadeireiraPrecosPage() {
     )
   }
 
-  // ── History view (default) ──────────────────────────────────────────────────
-  return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      {/* Header */}
+  // ── Conteúdo da aba "Importar Planilha" — histórico + botão para abrir wizard ──
+  const importarContent = (
+    <div className="space-y-6">
+      {/* Cabeçalho com CTA de novo upload */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Tabela de Preços</h1>
+          <h2 className="text-lg font-semibold tracking-tight">Importar Planilha</h2>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Gerencie os preços disponibilizados aos carpinteiros parceiros.
+            Importe CSV ou XLSX para adicionar produtos em massa à tabela de preços.
           </p>
         </div>
         <Button onClick={handleStartUpload} className="shrink-0">
@@ -296,7 +301,7 @@ export default function MadeireiraPrecosPage() {
         </Button>
       </div>
 
-      {/* Success banner (shown after a successful import) */}
+      {/* Banner de sucesso após import bem-sucedido */}
       {successMessage && (
         <div className="flex items-center gap-2 rounded-xl bg-green-50 dark:bg-green-950/30 px-4 py-3 text-sm text-green-700 dark:text-green-400">
           <CheckCircle2 className="h-4 w-4 shrink-0" />
@@ -304,13 +309,35 @@ export default function MadeireiraPrecosPage() {
         </div>
       )}
 
-      {/* Upload history */}
+      {/* Histórico de uploads anteriores */}
       <section className="space-y-3">
         <h2 className="text-xs font-bold uppercase tracking-widest text-secondary">
           Histórico de uploads
         </h2>
         <HistoricoUploads refreshKey={refreshKey} />
       </section>
+    </div>
+  )
+
+  // ── Tabbed layout (default) ─────────────────────────────────────────────────
+  return (
+    <div className="space-y-6">
+      {/* Cabeçalho da página com novo título */}
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Produtos & Preços</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">
+          Gerencie o catálogo de produtos disponibilizado aos carpinteiros parceiros.
+        </p>
+      </div>
+
+      {/* Layout com abas: 4 categorias do catálogo relacional + importação via planilha */}
+      <TabsProdutos
+        especies={<EspeciesPanel />}
+        madeirasMc={<MadeirasMcPanel />}
+        outrosProdutos={<OutrosProdutosPanel />}
+        acabamentos={<AcabamentosPanel />}
+        importar={importarContent}
+      />
     </div>
   )
 }

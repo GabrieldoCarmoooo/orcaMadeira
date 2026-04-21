@@ -5,7 +5,7 @@ import { useAuthStore } from '@/stores/useAuthStore'
 
 interface UsePdfReturn {
   loading: boolean
-  exportar: (orcamento: Orcamento, itens: ItemOrcamento[]) => Promise<void>
+  exportar: (orcamento: Orcamento, itens: ItemOrcamento[], mostrarDetalhes?: boolean) => Promise<void>
 }
 
 /** Fetches an image URL and returns a base64 data URI to avoid CORS issues in PDF. */
@@ -29,7 +29,7 @@ export function usePdf(): UsePdfReturn {
   const [loading, setLoading] = useState(false)
   const carpinteiro = useAuthStore((s) => s.carpinteiro)
 
-  async function exportar(orcamento: Orcamento, itens: ItemOrcamento[]): Promise<void> {
+  async function exportar(orcamento: Orcamento, itens: ItemOrcamento[], mostrarDetalhes = true): Promise<void> {
     if (!carpinteiro) return
     setLoading(true)
     try {
@@ -41,7 +41,7 @@ export function usePdf(): UsePdfReturn {
       // Lazy-load the PDF document to avoid bundling @react-pdf/renderer in the main chunk
       const { OrcamentoPdfDocument } = await import('@/components/orcamento/pdf-document')
 
-      const element = OrcamentoPdfDocument({ orcamento, itens, carpinteiro, logoBase64 })
+      const element = OrcamentoPdfDocument({ orcamento, itens, carpinteiro, logoBase64, mostrarDetalhes })
       const blob = await pdf(element).toBlob()
 
       const url = URL.createObjectURL(blob)

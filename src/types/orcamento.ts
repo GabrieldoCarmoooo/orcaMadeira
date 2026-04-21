@@ -38,6 +38,30 @@ export interface ItemOrcamento {
   preco_unitario: number
   quantidade: number
   subtotal: number
+
+  // Campos de origem introduzidos na migration 002.
+  // Opcionais para manter compatibilidade com itens anteriores à migration
+  // (legado_planilha é o default; campos de madeira/outro_produto ficam null).
+  origem?: 'legado_planilha' | 'madeira_m3' | 'outro_produto'
+
+  // Referências relacionais — exclusivas por tipo de origem
+  madeira_m3_id?: string | null
+  outro_produto_id?: string | null
+
+  // Snapshot das dimensões gravado no momento da finalização do orçamento.
+  // Garante que alterações futuras na madeira não afetam orçamentos já finalizados.
+  especie_nome?: string | null
+  espessura_cm?: number | null
+  largura_cm?: number | null
+
+  // Comprimento selecionado pelo carpinteiro no orçamento (pré-cadastrado pela madeireira)
+  comprimento_real_m?: number | null
+  comprimento_id?: string | null
+
+  // Snapshot do acabamento aplicado — gravado ao confirmar para preservar histórico
+  acabamento_id?: string | null
+  acabamento_nome?: string | null
+  acabamento_percentual?: number | null
 }
 
 export interface Vinculacao {

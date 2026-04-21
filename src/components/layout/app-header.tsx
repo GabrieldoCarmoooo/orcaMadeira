@@ -1,6 +1,7 @@
 import { Bell, LogOut } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { useAuth } from '@/hooks/useAuth'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { ROUTES } from '@/constants/routes'
@@ -58,6 +59,7 @@ export default function AppHeader() {
 
       {/* Actions */}
       <div className="flex items-center gap-1">
+        <ThemeToggle />
         <Button
           variant="ghost"
           size="icon"

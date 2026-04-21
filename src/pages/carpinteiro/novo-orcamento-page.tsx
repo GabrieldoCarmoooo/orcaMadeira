@@ -11,6 +11,67 @@ import { ResumoOrcamento } from '@/components/orcamento/resumo-orcamento'
 import { GrainProgress } from '@/components/ui/grain-progress'
 import { Button } from '@/components/ui/button'
 import { ROUTES } from '@/constants/routes'
+import type { ItemOrcamentoCalculo } from '@/lib/calcular-orcamento'
+
+// Valida integridade dos itens antes do insert para evitar violação do CHECK constraint no banco.
+// Cada origem exige o campo relacional correspondente não-nulo.
+function validarItensParaInsert(itens: ItemOrcamentoCalculo[]): void {
+  for (const item of itens) {
+    if (item.origem === 'madeira_m3' && !item.madeira_m3_id) {
+      throw new Error(`Item "${item.nome}" é do tipo madeira_m3 mas não tem madeira_m3_id definido.`)
+    }
+    if (item.origem === 'outro_produto' && !item.outro_produto_id) {
+      throw new Error(`Item "${item.nome}" é do tipo outro_produto mas não tem outro_produto_id definido.`)
+    }
+  }
+}
+
+// Mapeia um item do store para o formato de insert em itens_orcamento,
+// propagando os campos de snapshot corretos de acordo com a origem do item.
+function mapItemParaInsert(orcamentoId: string, item: ItemOrcamentoCalculo) {
+  const base = {
+    orcamento_id: orcamentoId,
+    nome: item.nome,
+    unidade: item.unidade,
+    preco_unitario: item.preco_unitario,
+    quantidade: item.quantidade,
+    subtotal: item.preco_unitario * item.quantidade,
+  }
+
+  if (item.origem === 'madeira_m3') {
+    // Snapshot completo das dimensões e acabamento — preserva o valor histórico ao finalizar
+    return {
+      ...base,
+      origem: 'madeira_m3' as const,
+      item_preco_id: null,
+      madeira_m3_id: item.madeira_m3_id!,
+      especie_nome: item.especie_nome ?? null,
+      espessura_cm: item.espessura_cm ?? null,
+      largura_cm: item.largura_cm ?? null,
+      comprimento_real_m: item.comprimento_real_m ?? null,
+      comprimento_id: item.comprimento_id ?? null,
+      acabamento_id: item.acabamento_id ?? null,
+      acabamento_nome: item.acabamento_nome ?? null,
+      acabamento_percentual: item.acabamento_percentual ?? null,
+    }
+  }
+
+  if (item.origem === 'outro_produto') {
+    return {
+      ...base,
+      origem: 'outro_produto' as const,
+      item_preco_id: null,
+      outro_produto_id: item.outro_produto_id!,
+    }
+  }
+
+  // Default legado_planilha — mantém compatibilidade com itens anteriores à migration 002
+  return {
+    ...base,
+    origem: 'legado_planilha' as const,
+    item_preco_id: item.item_preco_id,
+  }
+}
 
 const STEP_LABELS = ['Projeto', 'Materiais', 'Financeiro', 'Revisão'] as const
 const TOTAL_STEPS = STEP_LABELS.length
@@ -31,6 +92,7 @@ export default function NovoOrcamentoPage() {
   const [saving, setSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [mostrarDetalhes, setMostrarDetalhes] = useState(true)
 
   useEffect(() => {
     reset()
@@ -99,15 +161,12 @@ export default function NovoOrcamentoPage() {
         const { error } = await supabase.from('orcamentos').update(payload).eq('id', id)
         if (error) throw error
       }
+      // Valida integridade dos itens antes de deletar/reinserir — fail-fast no cliente
+      validarItensParaInsert(itens)
       await supabase.from('itens_orcamento').delete().eq('orcamento_id', id)
       if (itens.length > 0) {
         await supabase.from('itens_orcamento').insert(
-          itens.map((item) => ({
-            orcamento_id: id!, item_preco_id: item.item_preco_id,
-            nome: item.nome, unidade: item.unidade,
-            preco_unitario: item.preco_unitario, quantidade: item.quantidade,
-            subtotal: item.preco_unitario * item.quantidade,
-          }))
+          itens.map((item) => mapItemParaInsert(id!, item))
         )
       }
       setLastSaved(new Date())
@@ -157,15 +216,12 @@ export default function NovoOrcamentoPage() {
         const { error } = await supabase.from('orcamentos').update(payload).eq('id', id)
         if (error) throw error
       }
+      // Valida integridade dos itens antes de deletar/reinserir — fail-fast no cliente
+      validarItensParaInsert(itens)
       await supabase.from('itens_orcamento').delete().eq('orcamento_id', id)
       if (itens.length > 0) {
         await supabase.from('itens_orcamento').insert(
-          itens.map((item) => ({
-            orcamento_id: id!, item_preco_id: item.item_preco_id,
-            nome: item.nome, unidade: item.unidade,
-            preco_unitario: item.preco_unitario, quantidade: item.quantidade,
-            subtotal: item.preco_unitario * item.quantidade,
-          }))
+          itens.map((item) => mapItemParaInsert(id!, item))
         )
       }
       reset()
@@ -333,11 +389,14 @@ export default function NovoOrcamentoPage() {
                 <span className="font-medium">Mostrar detalhes no PDF</span>
                 <button
                   type="button"
-                  className="relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full bg-background/20 items-center px-0.5 transition-colors focus-visible:outline-none"
-                  aria-checked
                   role="switch"
+                  aria-checked={mostrarDetalhes}
+                  onClick={() => setMostrarDetalhes((v) => !v)}
+                  className={`relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full items-center px-0.5 transition-colors focus-visible:outline-none ${mostrarDetalhes ? 'bg-background/40' : 'bg-background/20'}`}
                 >
-                  <span className="h-5 w-5 translate-x-6 rounded-full bg-background shadow-sm transition-transform" />
+                  <span
+                    className={`h-5 w-5 rounded-full bg-background shadow-sm transition-transform ${mostrarDetalhes ? 'translate-x-6' : 'translate-x-0'}`}
+                  />
                 </button>
               </div>
             </div>
