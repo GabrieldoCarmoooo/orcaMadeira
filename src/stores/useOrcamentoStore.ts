@@ -7,6 +7,7 @@ import {
   type StepFinanceiroData,
   type StepProjetoData,
 } from '@/lib/calcular-orcamento'
+import type { Orcamento, ItemOrcamento } from '@/types/orcamento'
 
 export type WizardStep = 1 | 2 | 3
 
@@ -16,6 +17,8 @@ const DEFAULT_FINANCEIRO: StepFinanceiroData = {
   mao_obra_horas: null,
   margem_lucro: 0,
   imposto: 0,
+  deslocamento: 0,
+  custos_adicionais: 0,
   validade_dias: 30,
   termos_condicoes: '',
 }
@@ -35,6 +38,8 @@ const EMPTY_RESUMO: ResumoOrcamento = {
   valor_margem: 0,
   valor_imposto: 0,
   total: 0,
+  deslocamento: 0,
+  custos_adicionais: 0,
 }
 
 interface OrcamentoStore {
@@ -57,6 +62,8 @@ interface OrcamentoStore {
   removeItem: (uid: string) => void
   updateQuantidade: (uid: string, quantidade: number) => void
   setFinanceiro: (data: Partial<StepFinanceiroData>) => void
+  // Popula todas as steps a partir de um orçamento existente — usado pela tela de edição
+  hydrate: (orcamento: Orcamento, itens: ItemOrcamento[]) => void
   reset: () => void
 }
 
@@ -65,16 +72,49 @@ function getItemKey(item: ItemOrcamentoCalculo): string {
   return item.uid ?? item.item_preco_id
 }
 
+// Reconstrói uid e mapeia snapshot do banco para o formato de cálculo do store
+function itemOrcamentoToCalculo(item: ItemOrcamento): ItemOrcamentoCalculo {
+  // uid composto para madeira m³ — recria exatamente o padrão "madeira:{id}:{comprimento_id}:{acabamento_id|none}"
+  // garantindo que removeItem e updateQuantidade funcionem corretamente após hydrate
+  const uid =
+    item.origem === 'madeira_m3' && item.madeira_m3_id && item.comprimento_id
+      ? `madeira:${item.madeira_m3_id}:${item.comprimento_id}:${item.acabamento_id ?? 'none'}`
+      : undefined
+
+  return {
+    uid,
+    item_preco_id: item.item_preco_id,
+    nome: item.nome,
+    unidade: item.unidade,
+    preco_unitario: item.preco_unitario,
+    quantidade: item.quantidade,
+    origem: item.origem,
+    madeira_m3_id: item.madeira_m3_id ?? undefined,
+    outro_produto_id: item.outro_produto_id ?? undefined,
+    especie_nome: item.especie_nome ?? undefined,
+    espessura_cm: item.espessura_cm ?? undefined,
+    largura_cm: item.largura_cm ?? undefined,
+    comprimento_id: item.comprimento_id ?? undefined,
+    comprimento_real_m: item.comprimento_real_m ?? undefined,
+    acabamento_id: item.acabamento_id ?? undefined,
+    acabamento_nome: item.acabamento_nome ?? undefined,
+    acabamento_percentual: item.acabamento_percentual ?? undefined,
+  }
+}
+
 function recalcular(
   itens: ItemOrcamentoCalculo[],
   financeiro: StepFinanceiroData,
 ): ResumoOrcamento {
+  // Mapeia campos do wizard para a interface de cálculo puro
   const dados: DadosFinanceiros = {
     mao_obra_tipo: financeiro.mao_obra_tipo,
     mao_obra_valor: financeiro.mao_obra_valor,
     mao_obra_horas: financeiro.mao_obra_horas,
     margem_lucro: financeiro.margem_lucro,
     imposto: financeiro.imposto,
+    deslocamento: financeiro.deslocamento,
+    custos_adicionais: financeiro.custos_adicionais,
   }
   return calcularOrcamento(itens, dados)
 }
@@ -137,6 +177,39 @@ export const useOrcamentoStore = create<OrcamentoStore>((set) => ({
       const stepFinanceiro = { ...state.stepFinanceiro, ...data }
       return { stepFinanceiro, resumo: recalcular(state.itens, stepFinanceiro) }
     })
+  },
+
+  hydrate(orcamento, itens) {
+    // Popula step de projeto com dados do orçamento existente
+    const stepProjeto: StepProjetoData = {
+      tipo_projeto: orcamento.tipo_projeto,
+      nome: orcamento.nome,
+      descricao: orcamento.descricao ?? '',
+      cliente_nome: orcamento.cliente_nome,
+      cliente_telefone: orcamento.cliente_telefone ?? '',
+      cliente_email: orcamento.cliente_email ?? '',
+    }
+
+    // Popula step financeiro com todos os campos do orçamento salvo, incluindo custos extras
+    const stepFinanceiro: StepFinanceiroData = {
+      mao_obra_tipo: orcamento.mao_obra_tipo,
+      mao_obra_valor: orcamento.mao_obra_valor,
+      mao_obra_horas: orcamento.mao_obra_horas,
+      margem_lucro: orcamento.margem_lucro,
+      imposto: orcamento.imposto,
+      deslocamento: orcamento.deslocamento,
+      custos_adicionais: orcamento.custos_adicionais,
+      validade_dias: orcamento.validade_dias,
+      termos_condicoes: orcamento.termos_condicoes ?? '',
+    }
+
+    // Converte itens do banco para o formato do store, reconstituindo uids compostos
+    const itensCalculo = itens.map(itemOrcamentoToCalculo)
+
+    // Recalcula resumo a partir dos dados hidratados
+    const resumo = recalcular(itensCalculo, stepFinanceiro)
+
+    set({ step: 1, stepProjeto, itens: itensCalculo, stepFinanceiro, resumo })
   },
 
   reset() {

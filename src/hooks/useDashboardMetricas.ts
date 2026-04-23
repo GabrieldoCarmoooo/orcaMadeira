@@ -57,6 +57,9 @@ export function useDashboardMetricas(
 
   useEffect(() => {
     if (!carpinteiroId) return
+    // Captura o id como string após o guard para que o TypeScript o trate como não-nulo
+    // dentro da closure assíncrona — o compilador não consegue estreitar através de await
+    const id = carpinteiroId
 
     let cancelled = false
 
@@ -74,7 +77,7 @@ export function useDashboardMetricas(
         .select(
           'subtotal_mao_obra, valor_margem, imposto, custos_adicionais, deslocamento, total',
         )
-        .eq('carpinteiro_id', carpinteiroId)
+        .eq('carpinteiro_id', id)
         .eq('status', 'pedido_fechado')
         .gte('created_at', fromIso)
         .lte('created_at', toIso)

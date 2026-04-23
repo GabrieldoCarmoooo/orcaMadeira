@@ -45,6 +45,10 @@ export function ResumoOrcamento() {
 
   const { mao_obra_tipo, mao_obra_valor, mao_obra_horas, margem_lucro, imposto } = stepFinanceiro
 
+  // Exibe linhas de custos extras apenas quando o valor é maior que zero (evita poluição no resumo)
+  const temDeslocamento = resumo.deslocamento > 0
+  const temCustosAdicionais = resumo.custos_adicionais > 0
+
   const maoObraLabel =
     mao_obra_tipo === 'hora'
       ? `Mão de obra (${mao_obra_horas ?? 0}h × ${formatBRL(mao_obra_valor)})`
@@ -58,6 +62,12 @@ export function ResumoOrcamento() {
 
       <SummaryLine label="Materiais" value={resumo.subtotal_materiais} muted />
       <SummaryLine label={maoObraLabel} value={resumo.subtotal_mao_obra} muted />
+      {temDeslocamento && (
+        <SummaryLine label="Deslocamento" value={resumo.deslocamento} muted />
+      )}
+      {temCustosAdicionais && (
+        <SummaryLine label="Custos adicionais" value={resumo.custos_adicionais} muted />
+      )}
 
       {/* Spacer */}
       <div className="h-2" />

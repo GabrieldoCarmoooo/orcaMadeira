@@ -20,14 +20,14 @@
 | ISSUE-008 | 1 | Selector de status + ações Editar/Excluir no detalhe do orçamento | concluída | ISSUE-006 |
 | ISSUE-009 | 1 | Filtro de datas (range picker + presets) no Dashboard | concluída | — |
 | ISSUE-010 | 1 | Métricas novas no Dashboard (mão de obra, margem, total custos, pedidos fechados) | concluída | ISSUE-003, ISSUE-009 |
-| ISSUE-011 | 2 | Adicionar action `hydrate` em `useOrcamentoStore` | pendente | ISSUE-003 |
-| ISSUE-012 | 2 | Criar `editar-orcamento-page.tsx` | pendente | ISSUE-011 |
-| ISSUE-013 | 2 | Mapear rota `/carpinteiro/orcamentos/:id/editar` em `App.tsx` | pendente | ISSUE-012 |
-| ISSUE-014 | 3 | Corrigir bug do input de quantidade em `item-material.tsx` | pendente | — |
-| ISSUE-015 | 3 | Atualizar fórmula em `calcular-orcamento.ts` (deslocamento + custos_adicionais) | pendente | — |
-| ISSUE-016 | 3 | Renomear seção e adicionar campos `deslocamento`/`custos_adicionais` em `step-financeiro.tsx` | pendente | ISSUE-015 |
-| ISSUE-017 | 3 | Esconder campos sensíveis em `pdf-document.tsx` | pendente | ISSUE-015 |
-| ISSUE-018 | 3 | Exibir custos em `resumo-orcamento.tsx` | pendente | ISSUE-015 |
+| ISSUE-011 | 2 | Adicionar action `hydrate` em `useOrcamentoStore` | concluída | ISSUE-003 |
+| ISSUE-012 | 2 | Criar `editar-orcamento-page.tsx` | concluída | ISSUE-011 |
+| ISSUE-013 | 2 | Mapear rota `/carpinteiro/orcamentos/:id/editar` em `App.tsx` | concluída | ISSUE-012 |
+| ISSUE-014 | 3 | Corrigir bug do input de quantidade em `item-material.tsx` | concluída | — |
+| ISSUE-015 | 3 | Atualizar fórmula em `calcular-orcamento.ts` (deslocamento + custos_adicionais) | concluída | — |
+| ISSUE-016 | 3 | Renomear seção e adicionar campos `deslocamento`/`custos_adicionais` em `step-financeiro.tsx` | concluída | ISSUE-015 |
+| ISSUE-017 | 3 | Esconder campos sensíveis em `pdf-document.tsx` | concluída | ISSUE-015 |
+| ISSUE-018 | 3 | Exibir custos em `resumo-orcamento.tsx` | concluída | ISSUE-015 |
 | ISSUE-019 | 4 | Criar componente `toggle-detalhes-pdf.tsx` com AlertDialog | pendente | — |
 | ISSUE-020 | 4 | Substituir toggles inline em criação e detalhe pelo componente compartilhado | pendente | ISSUE-019 |
 | ISSUE-021 | 5 | Adicionar rota `/carpinteiro/orcamentos/:id/proposta` | pendente | — |
@@ -329,9 +329,9 @@ Mostrar métricas financeiras reais no período filtrado. As métricas de Mão d
 
 ## Fase 2 — Edição de Orçamento Salvo
 
-### [ISSUE-011] Action `hydrate` em `useOrcamentoStore`
+### [ISSUE-011] Action `hydrate` em `useOrcamentoStore` ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 2
 **Dependências**: ISSUE-003
 **Estimativa**: pequena (< 1h)
@@ -340,8 +340,8 @@ Mostrar métricas financeiras reais no período filtrado. As métricas de Mão d
 Necessário para a tela de edição reaproveitar o wizard partindo de um orçamento existente.
 
 **O que fazer**
-- [ ] Adicionar `hydrate(orcamento, itens)` que popula todas as steps do store com snapshot atual.
-- [ ] Garantir que `reset()` limpa o estado para evitar leak entre navegações.
+- [x] Adicionar `hydrate(orcamento, itens)` que popula todas as steps do store com snapshot atual.
+- [x] Garantir que `reset()` limpa o estado para evitar leak entre navegações.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -349,14 +349,14 @@ Necessário para a tela de edição reaproveitar o wizard partindo de um orçame
 | EDITAR | `src/stores/useOrcamentoStore.ts` | nova action |
 
 **Critérios de aceitação**
-- [ ] `npx tsc --noEmit` passa.
-- [ ] Chamando `hydrate` o `useOrcamentoStore.getState()` reflete os campos passados.
+- [x] `npx tsc --noEmit` passa.
+- [x] Chamando `hydrate` o `useOrcamentoStore.getState()` reflete os campos passados.
 
 ---
 
-### [ISSUE-012] Criar `editar-orcamento-page.tsx`
+### [ISSUE-012] Criar `editar-orcamento-page.tsx` ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 2
 **Dependências**: ISSUE-011
 **Estimativa**: grande (> 3h)
@@ -365,11 +365,11 @@ Necessário para a tela de edição reaproveitar o wizard partindo de um orçame
 Reaproveita o wizard de novo orçamento, mas carrega via `useOrcamento(id)`, hidrata o store e faz `UPDATE` no Finalizar (preserva `finalizado_at`).
 
 **O que fazer**
-- [ ] Criar página que monta `<NovoOrcamentoWizard mode="edit" />` (extrair wizard se necessário) ou cópia controlada do fluxo.
-- [ ] No mount: `useOrcamento(id)` → `hydrate` no store → `setStep(0)`.
-- [ ] No `handleFinalizar`: `updateOrcamento(id, payload)` em vez de `insert`.
-- [ ] Manter `finalizado_at` original ao editar não-rascunho.
-- [ ] Confirmar que `useOrcamento` retorna itens com todas as colunas de snapshot.
+- [x] Criar página que monta `<NovoOrcamentoWizard mode="edit" />` (extrair wizard se necessário) ou cópia controlada do fluxo.
+- [x] No mount: `useOrcamento(id)` → `hydrate` no store → `setStep(0)`.
+- [x] No `handleFinalizar`: `updateOrcamento(id, payload)` em vez de `insert`.
+- [x] Manter `finalizado_at` original ao editar não-rascunho.
+- [x] Confirmar que `useOrcamento` retorna itens com todas as colunas de snapshot (`select('*')` já retorna tudo; confirmado).
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -378,14 +378,14 @@ Reaproveita o wizard de novo orçamento, mas carrega via `useOrcamento(id)`, hid
 | EDITAR | `src/hooks/useOrcamento.ts` | garantir snapshot completo |
 
 **Critérios de aceitação**
-- [ ] Abrir um orçamento "salvo" → wizard renderiza com dados pré-preenchidos.
-- [ ] "Finalizar" não cria duplicata — atualiza o registro existente.
+- [x] Abrir um orçamento "salvo" → wizard renderiza com dados pré-preenchidos.
+- [x] "Finalizar" não cria duplicata — atualiza o registro existente.
 
 ---
 
-### [ISSUE-013] Mapear rota de edição em `App.tsx`
+### [ISSUE-013] Mapear rota de edição em `App.tsx` ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 2
 **Dependências**: ISSUE-012
 **Estimativa**: pequena (< 1h)
@@ -394,7 +394,7 @@ Reaproveita o wizard de novo orçamento, mas carrega via `useOrcamento(id)`, hid
 Bug item 2: rota `/carpinteiro/orcamentos/:id/editar` definida em `routes.ts` mas sem `<Route>` em `App.tsx`, caindo no fallback `Navigate to /login`.
 
 **O que fazer**
-- [ ] Adicionar `<Route path="/carpinteiro/orcamentos/:id/editar" element={<EditarOrcamentoPage />} />` em `App.tsx`, dentro do guard de carpinteiro autenticado.
+- [x] Adicionar `<Route path="/carpinteiro/orcamentos/:id/editar" element={<EditarOrcamentoPage />} />` em `App.tsx`, dentro do guard de carpinteiro autenticado.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -402,15 +402,15 @@ Bug item 2: rota `/carpinteiro/orcamentos/:id/editar` definida em `routes.ts` ma
 | EDITAR | `src/App.tsx` | rota nova |
 
 **Critérios de aceitação**
-- [ ] Acesso direto à URL não redireciona para `/login` quando autenticado.
+- [x] Acesso direto à URL não redireciona para `/login` quando autenticado.
 
 ---
 
 ## Fase 3 — Bugs e novos campos no Form de Orçamento
 
-### [ISSUE-014] Fix bug do input de quantidade em `item-material.tsx`
+### [ISSUE-014] Fix bug do input de quantidade em `item-material.tsx` ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 3
 **Dependências**: nenhuma
 **Estimativa**: pequena (< 1h)
@@ -419,10 +419,10 @@ Bug item 2: rota `/carpinteiro/orcamentos/:id/editar` definida em `routes.ts` ma
 Bug item 3: handler em `item-material.tsx:45-50` ignora valores < 0.01 (incl. NaN do campo vazio); `min={0.01}` no HTML bloqueia edição. Usuário percebe input "preso em 1".
 
 **O que fazer**
-- [ ] Introduzir `inputValue` (string) com `useEffect` para sincronizar a partir de `item.quantidade`.
-- [ ] `onChange` aceita qualquer string (inclusive vazia).
-- [ ] `onBlur`: `parseFloat`; se `>= 0.01` commita no store; senão restaura último valor válido.
-- [ ] Remover `min={0.01}` do HTML.
+- [x] Introduzir `inputValue` (string) com `useEffect` para sincronizar a partir de `item.quantidade`.
+- [x] `onChange` aceita qualquer string (inclusive vazia).
+- [x] `onBlur`: `parseFloat`; se `>= 0.01` commita no store; senão restaura último valor válido.
+- [x] Remover `min={0.01}` do HTML.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -430,15 +430,15 @@ Bug item 3: handler em `item-material.tsx:45-50` ignora valores < 0.01 (incl. Na
 | EDITAR | `src/components/orcamento/item-material.tsx` | input controlado |
 
 **Critérios de aceitação**
-- [ ] Apagar o input e digitar `5` aceita o novo valor.
-- [ ] Deixar vazio + blur restaura o valor anterior.
-- [ ] Não é possível commitar `0` ou negativo.
+- [x] Apagar o input e digitar `5` aceita o novo valor.
+- [x] Deixar vazio + blur restaura o valor anterior.
+- [x] Não é possível commitar `0` ou negativo.
 
 ---
 
 ### [ISSUE-015] Atualizar fórmula em `calcular-orcamento.ts`
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 3
 **Dependências**: nenhuma
 **Estimativa**: média (1–3h)
@@ -447,26 +447,27 @@ Bug item 3: handler em `item-material.tsx:45-50` ignora valores < 0.01 (incl. Na
 Nova base: `subtotal_materiais + subtotal_mao_obra + deslocamento + custos_adicionais`. Margem e imposto continuam sobre essa base. Custos extras integram total mas não vão ao PDF (regra de negócio).
 
 **O que fazer**
-- [ ] Atualizar `StepFinanceiroData`/`DadosFinanceiros` com `deslocamento` e `custos_adicionais`.
-- [ ] Atualizar `calcularOrcamento(...)` aplicando a nova fórmula.
-- [ ] Atualizar schema Zod do step financeiro.
-- [ ] Garantir que `ResumoOrcamento` retorna ambos os custos.
+- [x] Atualizar `StepFinanceiroData`/`DadosFinanceiros` com `deslocamento` e `custos_adicionais`.
+- [x] Atualizar `calcularOrcamento(...)` aplicando a nova fórmula.
+- [x] Atualizar schema Zod do step financeiro.
+- [x] Garantir que `ResumoOrcamento` retorna ambos os custos.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
 |------|---------|-----------|
 | EDITAR | `src/lib/calcular-orcamento.ts` | tipos + fórmula |
-| EDITAR | `src/lib/schemas/...` (schema do step financeiro) | Zod |
+| EDITAR | `src/components/orcamento/step-financeiro.tsx` | schema Zod + hidden inputs |
+| EDITAR | `src/stores/useOrcamentoStore.ts` | defaults + recalcular + hydrate |
 
 **Critérios de aceitação**
-- [ ] Caso de teste manual: materiais 100 + mão de obra 50 + deslocamento 10 + custos 20 + margem 10% + ISS 5% → total = `(180) * 1.10 * 1.05 = 207.90`.
-- [ ] `npx tsc --noEmit` passa.
+- [x] Caso de teste manual: materiais 100 + mão de obra 50 + deslocamento 10 + custos 20 + margem 10% + ISS 5% → total = `(180) * 1.10 * 1.05 = 207.90`.
+- [x] `npx tsc --noEmit` passa.
 
 ---
 
-### [ISSUE-016] Renomear seção e adicionar campos em `step-financeiro.tsx`
+### [ISSUE-016] Renomear seção e adicionar campos em `step-financeiro.tsx` ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 3
 **Dependências**: ISSUE-015
 **Estimativa**: pequena (< 1h)
@@ -475,9 +476,9 @@ Nova base: `subtotal_materiais + subtotal_mao_obra + deslocamento + custos_adici
 Refletir na UI a nova fórmula e os campos novos (sem alterar o toggle do PDF).
 
 **O que fazer**
-- [ ] Renomear seção "Margem e impostos" → "Margem e Custos" em `step-financeiro.tsx:183`.
-- [ ] Adicionar inputs `deslocamento` e `custos_adicionais` (R$, mínimo 0, default 0).
-- [ ] Atualizar defaults no `useOrcamentoStore`.
+- [x] Renomear seção "Margem e impostos" → "Margem e Custos" em `step-financeiro.tsx:183`.
+- [x] Adicionar inputs `deslocamento` e `custos_adicionais` (R$, mínimo 0, default 0).
+- [x] Atualizar defaults no `useOrcamentoStore`.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -486,14 +487,14 @@ Refletir na UI a nova fórmula e os campos novos (sem alterar o toggle do PDF).
 | EDITAR | `src/stores/useOrcamentoStore.ts` | defaults |
 
 **Critérios de aceitação**
-- [ ] Campos aparecem no step e persistem no store.
-- [ ] Validação Zod rejeita valores negativos.
+- [x] Campos aparecem no step e persistem no store.
+- [x] Validação Zod rejeita valores negativos.
 
 ---
 
-### [ISSUE-017] Esconder custos sensíveis no PDF
+### [ISSUE-017] Esconder custos sensíveis no PDF ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 3
 **Dependências**: ISSUE-015
 **Estimativa**: pequena (< 1h)
@@ -502,8 +503,8 @@ Refletir na UI a nova fórmula e os campos novos (sem alterar o toggle do PDF).
 Regra de negócio: `deslocamento`, `custos_adicionais` e `valor_margem` jamais aparecem no PDF — independente do toggle "Detalhes no PDF".
 
 **O que fazer**
-- [ ] Em `pdf-document.tsx`, remover qualquer renderização desses três campos.
-- [ ] Adicionar comentário curto explicando a regra.
+- [x] Em `pdf-document.tsx`, remover qualquer renderização desses três campos.
+- [x] Adicionar comentário curto explicando a regra.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -511,13 +512,13 @@ Regra de negócio: `deslocamento`, `custos_adicionais` e `valor_margem` jamais a
 | EDITAR | `src/components/orcamento/pdf-document.tsx` | esconder campos |
 
 **Critérios de aceitação**
-- [ ] PDF gerado com toggle ON e OFF não exibe nenhum dos três campos.
+- [x] PDF gerado com toggle ON e OFF não exibe nenhum dos três campos.
 
 ---
 
 ### [ISSUE-018] Exibir custos em `resumo-orcamento.tsx`
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 3
 **Dependências**: ISSUE-015
 **Estimativa**: pequena (< 1h)
@@ -526,8 +527,8 @@ Regra de negócio: `deslocamento`, `custos_adicionais` e `valor_margem` jamais a
 Resumo interno (visto pelo carpinteiro) deve mostrar todos os custos para conferência.
 
 **O que fazer**
-- [ ] Adicionar linhas para `deslocamento` e `custos_adicionais` no resumo.
-- [ ] Manter ordem: materiais → mão de obra → deslocamento → custos adicionais → margem → imposto → total.
+- [x] Adicionar linhas para `deslocamento` e `custos_adicionais` no resumo.
+- [x] Manter ordem: materiais → mão de obra → deslocamento → custos adicionais → margem → imposto → total.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -535,7 +536,7 @@ Resumo interno (visto pelo carpinteiro) deve mostrar todos os custos para confer
 | EDITAR | `src/components/orcamento/resumo-orcamento.tsx` | linhas novas |
 
 **Critérios de aceitação**
-- [ ] Resumo bate com o total calculado (ISSUE-015).
+- [x] Resumo bate com o total calculado (ISSUE-015).
 
 ---
 

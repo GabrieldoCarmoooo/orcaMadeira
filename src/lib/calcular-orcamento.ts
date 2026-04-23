@@ -29,8 +29,11 @@ export interface DadosFinanceiros {
   mao_obra_tipo: 'fixo' | 'hora'
   mao_obra_valor: number
   mao_obra_horas: number | null
-  margem_lucro: number  // percentage 0–100
-  imposto: number       // percentage 0–100
+  margem_lucro: number      // percentage 0–100
+  imposto: number           // percentage 0–100
+  // Custos extras da migration 003 — integram a base de cálculo mas nunca aparecem no PDF
+  deslocamento: number
+  custos_adicionais: number
 }
 
 export interface ResumoOrcamento {
@@ -45,8 +48,9 @@ export interface ResumoOrcamento {
 }
 
 /**
- * Pure calculation function for a budget.
- * Formula: (Materiais + Mão de Obra) * (1 + margem%) * (1 + imposto%)
+ * Função pura de cálculo do orçamento.
+ * Fórmula: (Materiais + Mão de Obra + Deslocamento + Custos Adicionais) * (1 + margem%) * (1 + imposto%)
+ * Deslocamento e custos_adicionais compõem a base antes da margem e do imposto.
  */
 export function calcularOrcamento(
   itens: ItemOrcamentoCalculo[],
@@ -62,7 +66,13 @@ export function calcularOrcamento(
       ? financeiro.mao_obra_valor * (financeiro.mao_obra_horas ?? 0)
       : financeiro.mao_obra_valor
 
-  const base = subtotal_materiais + subtotal_mao_obra
+  // Base inclui custos extras: margem e imposto incidem sobre o total de entradas
+  const base =
+    subtotal_materiais +
+    subtotal_mao_obra +
+    financeiro.deslocamento +
+    financeiro.custos_adicionais
+
   const margem = financeiro.margem_lucro / 100
   const imposto = financeiro.imposto / 100
 
@@ -77,9 +87,8 @@ export function calcularOrcamento(
     valor_margem,
     valor_imposto,
     total,
-    // ISSUE-015 atualizará a fórmula e passará deslocamento/custos_adicionais como input
-    deslocamento: 0,
-    custos_adicionais: 0,
+    deslocamento: financeiro.deslocamento,
+    custos_adicionais: financeiro.custos_adicionais,
   }
 }
 
@@ -100,6 +109,9 @@ export interface StepFinanceiroData {
   mao_obra_horas: number | null
   margem_lucro: number
   imposto: number
+  // Custos extras da migration 003 — UI adicionada em ISSUE-016
+  deslocamento: number
+  custos_adicionais: number
   validade_dias: number
   termos_condicoes: string
 }

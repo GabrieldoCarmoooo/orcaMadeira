@@ -19,6 +19,7 @@ const CarpinteiroVinculacaoPage = lazy(() => import('@/pages/carpinteiro/vincula
 const CarpinteiroOrcamentosPage = lazy(() => import('@/pages/carpinteiro/orcamentos-page'))
 const CarpinteiroNovoOrcamentoPage = lazy(() => import('@/pages/carpinteiro/novo-orcamento-page'))
 const CarpinteiroOrcamentoDetalhePage = lazy(() => import('@/pages/carpinteiro/orcamento-detalhe-page'))
+const CarpinteiroEditarOrcamentoPage = lazy(() => import('@/pages/carpinteiro/editar-orcamento-page'))
 const CarpinteiroCatalogoPage = lazy(() => import('@/pages/carpinteiro/catalogo-page'))
 
 // Madeireira pages
@@ -88,6 +89,7 @@ export default function App() {
               <Route path={ROUTES.CARPINTEIRO_ORCAMENTOS} element={<CarpinteiroOrcamentosPage />} />
               <Route path={ROUTES.CARPINTEIRO_CATALOGO} element={<CarpinteiroCatalogoPage />} />
               <Route path={ROUTES.CARPINTEIRO_NOVO_ORCAMENTO} element={<CarpinteiroNovoOrcamentoPage />} />
+              <Route path="/carpinteiro/orcamentos/:id/editar" element={<CarpinteiroEditarOrcamentoPage />} />
               <Route path="/carpinteiro/orcamentos/:id" element={<CarpinteiroOrcamentoDetalhePage />} />
             </Route>
           </Route>

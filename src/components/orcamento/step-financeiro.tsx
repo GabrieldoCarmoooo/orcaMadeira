@@ -23,6 +23,13 @@ const schema = z
       .number({ error: 'Informe o imposto' })
       .min(0, 'Mínimo 0%')
       .max(100, 'Máximo 100%'),
+    // Custos extras — inputs visuais adicionados em ISSUE-016; validação já disponível
+    deslocamento: z
+      .number({ error: 'Informe o deslocamento' })
+      .min(0, 'Mínimo R$ 0'),
+    custos_adicionais: z
+      .number({ error: 'Informe os custos adicionais' })
+      .min(0, 'Mínimo R$ 0'),
     validade_dias: z
       .number({ error: 'Informe a validade' })
       .int()
@@ -75,6 +82,8 @@ export function StepFinanceiro({ onNext, onBack }: StepFinanceiroProps) {
     defaultValues: {
       ...stepFinanceiro,
       mao_obra_horas: stepFinanceiro.mao_obra_horas ?? null,
+      deslocamento: stepFinanceiro.deslocamento,
+      custos_adicionais: stepFinanceiro.custos_adicionais,
     },
   })
 
@@ -177,10 +186,10 @@ export function StepFinanceiro({ onNext, onBack }: StepFinanceiroProps) {
         )}
       </div>
 
-      {/* Margem e impostos */}
+      {/* Margem e Custos */}
       <div className="space-y-4">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Margem e impostos
+          Margem e Custos
         </p>
 
         <div className="grid grid-cols-2 gap-4">
@@ -219,6 +228,41 @@ export function StepFinanceiro({ onNext, onBack }: StepFinanceiroProps) {
             />
             {errors.imposto && (
               <p className="text-xs text-destructive">{errors.imposto.message}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Custos extras integram o total mas não aparecem no PDF — regra de negócio */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="deslocamento">Deslocamento (R$)</Label>
+            <Input
+              id="deslocamento"
+              type="number"
+              min={0}
+              step={0.01}
+              placeholder="0,00"
+              aria-invalid={!!errors.deslocamento}
+              {...register('deslocamento', { valueAsNumber: true })}
+            />
+            {errors.deslocamento && (
+              <p className="text-xs text-destructive">{errors.deslocamento.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="custos_adicionais">Custos adicionais (R$)</Label>
+            <Input
+              id="custos_adicionais"
+              type="number"
+              min={0}
+              step={0.01}
+              placeholder="0,00"
+              aria-invalid={!!errors.custos_adicionais}
+              {...register('custos_adicionais', { valueAsNumber: true })}
+            />
+            {errors.custos_adicionais && (
+              <p className="text-xs text-destructive">{errors.custos_adicionais.message}</p>
             )}
           </div>
         </div>

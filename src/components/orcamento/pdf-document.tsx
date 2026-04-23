@@ -526,16 +526,9 @@ export function OrcamentoPdfDocument({
                 <Text style={s.financeiroValue}>{maoObraLabel(orcamento)}</Text>
               </View>
 
-              {orcamento.margem_lucro > 0 && (
-                <View style={s.financeiroRow}>
-                  <Text style={s.financeiroLabel}>
-                    Margem de Lucro ({orcamento.margem_lucro}%)
-                  </Text>
-                  <Text style={s.financeiroValue}>
-                    {formatBRL(orcamento.valor_margem)}
-                  </Text>
-                </View>
-              )}
+              {/* valor_margem, deslocamento e custos_adicionais são omitidos intencionalmente:
+                  custos internos do carpinteiro nunca aparecem na proposta ao cliente,
+                  independente do toggle mostrarDetalhes. */}
 
               {orcamento.imposto > 0 && (
                 <View style={s.financeiroRow}>

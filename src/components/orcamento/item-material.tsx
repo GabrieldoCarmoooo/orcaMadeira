@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -42,10 +43,28 @@ export function ItemMaterial({ item }: ItemMaterialProps) {
   // Chave única da linha — uid composto para madeira m³, item_preco_id para legado/outro_produto
   const itemKey = item.uid ?? item.item_preco_id
 
+  // Estado local como string para permitir edição livre sem travar o input (ex: apagar e redigitar)
+  const [inputValue, setInputValue] = useState(String(item.quantidade))
+
+  // Sincroniza o input quando o store muda por fora (ex: hydrate, reset)
+  useEffect(() => {
+    setInputValue(String(item.quantidade))
+  }, [item.quantidade])
+
   function handleQuantidadeChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const val = parseFloat(e.target.value)
+    // Aceita qualquer string — validação ocorre só no blur
+    setInputValue(e.target.value)
+  }
+
+  function handleQuantidadeBlur() {
+    const val = parseFloat(inputValue)
     if (!isNaN(val) && val >= 0.01) {
+      // Valor válido: commita no store e normaliza a exibição
       updateQuantidade(itemKey, val)
+      setInputValue(String(val))
+    } else {
+      // Valor inválido ou zero/negativo: restaura o último valor válido do store
+      setInputValue(String(item.quantidade))
     }
   }
 
@@ -77,10 +96,10 @@ export function ItemMaterial({ item }: ItemMaterialProps) {
       <div className="w-20 shrink-0">
         <Input
           type="number"
-          min={0.01}
           step={0.01}
-          value={item.quantidade}
+          value={inputValue}
           onChange={handleQuantidadeChange}
+          onBlur={handleQuantidadeBlur}
           className="h-8 text-center text-sm"
           aria-label={`Quantidade de ${item.nome}`}
         />
