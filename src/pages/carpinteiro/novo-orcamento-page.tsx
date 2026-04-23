@@ -12,6 +12,7 @@ import { GrainProgress } from '@/components/ui/grain-progress'
 import { Button } from '@/components/ui/button'
 import { ROUTES } from '@/constants/routes'
 import type { ItemOrcamentoCalculo } from '@/lib/calcular-orcamento'
+import ToggleDetalhesPdf from '@/components/orcamento/toggle-detalhes-pdf'
 
 // Valida integridade dos itens antes do insert para evitar violação do CHECK constraint no banco.
 // Cada origem exige o campo relacional correspondente não-nulo.
@@ -384,21 +385,14 @@ export default function NovoOrcamentoPage() {
                 {resumo.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
               </span>
             </div>
-            <div className="mt-4 flex gap-4 text-xs opacity-60">
-              <div className="flex items-center gap-2">
-                <span className="font-medium">Mostrar detalhes no PDF</span>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={mostrarDetalhes}
-                  onClick={() => setMostrarDetalhes((v) => !v)}
-                  className={`relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full items-center px-0.5 transition-colors focus-visible:outline-none ${mostrarDetalhes ? 'bg-background/40' : 'bg-background/20'}`}
-                >
-                  <span
-                    className={`h-5 w-5 rounded-full bg-background shadow-sm transition-transform ${mostrarDetalhes ? 'translate-x-6' : 'translate-x-0'}`}
-                  />
-                </button>
-              </div>
+            <div className="mt-4">
+              {/* Componente compartilhado com AlertDialog de confirmação ao ligar */}
+              <ToggleDetalhesPdf
+                value={mostrarDetalhes}
+                onChange={setMostrarDetalhes}
+                variant="inverted"
+                label="Mostrar detalhes no PDF"
+              />
             </div>
           </div>
         </div>

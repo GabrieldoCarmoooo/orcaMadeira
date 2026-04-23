@@ -28,12 +28,12 @@
 | ISSUE-016 | 3 | Renomear seção e adicionar campos `deslocamento`/`custos_adicionais` em `step-financeiro.tsx` | concluída | ISSUE-015 |
 | ISSUE-017 | 3 | Esconder campos sensíveis em `pdf-document.tsx` | concluída | ISSUE-015 |
 | ISSUE-018 | 3 | Exibir custos em `resumo-orcamento.tsx` | concluída | ISSUE-015 |
-| ISSUE-019 | 4 | Criar componente `toggle-detalhes-pdf.tsx` com AlertDialog | pendente | — |
-| ISSUE-020 | 4 | Substituir toggles inline em criação e detalhe pelo componente compartilhado | pendente | ISSUE-019 |
-| ISSUE-021 | 5 | Adicionar rota `/carpinteiro/orcamentos/:id/proposta` | pendente | — |
-| ISSUE-022 | 5 | Criar `pdf-lista-materiais.tsx` (Document apenas materiais) | pendente | — |
-| ISSUE-023 | 5 | Adicionar `exportarMateriais` em `usePdf.ts` | pendente | ISSUE-022 |
-| ISSUE-024 | 5 | Criar `proposta-page.tsx` com `<PDFViewer>` + ações mobile | pendente | ISSUE-021, ISSUE-023 |
+| ISSUE-019 | 4 | Criar componente `toggle-detalhes-pdf.tsx` com AlertDialog | concluída | — |
+| ISSUE-020 | 4 | Substituir toggles inline em criação e detalhe pelo componente compartilhado | concluída | ISSUE-019 |
+| ISSUE-021 | 5 | Adicionar rota `/carpinteiro/orcamentos/:id/proposta` | concluída | — |
+| ISSUE-022 | 5 | Criar `pdf-lista-materiais.tsx` (Document apenas materiais) | concluída | — |
+| ISSUE-023 | 5 | Adicionar `exportarMateriais` em `usePdf.ts` | concluída | ISSUE-022 |
+| ISSUE-024 | 5 | Criar `proposta-page.tsx` com `<PDFViewer>` + ações mobile | concluída | ISSUE-021, ISSUE-023 |
 | ISSUE-025 | 5 | Atualizar `handleFinalizar` (criar/editar) para navegar à proposta + download automático | pendente | ISSUE-024, ISSUE-013 |
 | ISSUE-026 | 5 | Botão "Baixar lista de materiais" no detalhe do orçamento | pendente | ISSUE-023 |
 | ISSUE-027 | 6 | Badge "Parceria ativa" em `busca-madeireira.tsx` | pendente | — |
@@ -542,9 +542,9 @@ Resumo interno (visto pelo carpinteiro) deve mostrar todos os custos para confer
 
 ## Fase 4 — Toggle "Detalhes no PDF" compartilhado
 
-### [ISSUE-019] Componente `toggle-detalhes-pdf.tsx` com AlertDialog
+### [ISSUE-019] Componente `toggle-detalhes-pdf.tsx` com AlertDialog ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 4
 **Dependências**: nenhuma
 **Estimativa**: média (1–3h)
@@ -553,10 +553,10 @@ Resumo interno (visto pelo carpinteiro) deve mostrar todos os custos para confer
 Hoje o toggle está duplicado inline em criação e detalhe. Extrair e adicionar warning ao ligar (não ao desligar).
 
 **O que fazer**
-- [ ] Criar componente com props `value`, `onChange`, `disabled?`.
-- [ ] Ao mudar `false → true`, abrir `AlertDialog` shadcn com mensagem: "Ativar 'Detalhes no PDF' fará com que valores de mão de obra e materiais apareçam discriminados na proposta entregue ao cliente. Deseja continuar?".
-- [ ] Botões: "Cancelar" / "Sim, mostrar detalhes".
-- [ ] `true → false` muda direto, sem warning.
+- [x] Criar componente com props `value`, `onChange`, `disabled?`.
+- [x] Ao mudar `false → true`, abrir `AlertDialog` shadcn com mensagem: "Ativar 'Detalhes no PDF' fará com que valores de mão de obra e materiais apareçam discriminados na proposta entregue ao cliente. Deseja continuar?".
+- [x] Botões: "Cancelar" / "Sim, mostrar detalhes".
+- [x] `true → false` muda direto, sem warning.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -564,14 +564,14 @@ Hoje o toggle está duplicado inline em criação e detalhe. Extrair e adicionar
 | CRIAR | `src/components/orcamento/toggle-detalhes-pdf.tsx` | componente |
 
 **Critérios de aceitação**
-- [ ] Cancelar no dialog mantém o toggle desligado.
-- [ ] Confirmar liga; desligar não exibe diálogo.
+- [x] Cancelar no dialog mantém o toggle desligado.
+- [x] Confirmar liga; desligar não exibe diálogo.
 
 ---
 
-### [ISSUE-020] Substituir toggles inline pelo componente compartilhado
+### [ISSUE-020] Substituir toggles inline pelo componente compartilhado ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 4
 **Dependências**: ISSUE-019
 **Estimativa**: pequena (< 1h)
@@ -580,8 +580,8 @@ Hoje o toggle está duplicado inline em criação e detalhe. Extrair e adicionar
 Remover duplicação em `novo-orcamento-page.tsx:389-402` e `orcamento-detalhe-page.tsx:177-198`.
 
 **O que fazer**
-- [ ] Substituir os blocos inline pelo `<ToggleDetalhesPdf>`.
-- [ ] Garantir que o estado segue persistido como hoje (store ou prop).
+- [x] Substituir os blocos inline pelo `<ToggleDetalhesPdf>`.
+- [x] Garantir que o estado segue persistido como hoje (store ou prop).
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -590,8 +590,8 @@ Remover duplicação em `novo-orcamento-page.tsx:389-402` e `orcamento-detalhe-p
 | EDITAR | `src/pages/carpinteiro/orcamento-detalhe-page.tsx` | usar componente |
 
 **Critérios de aceitação**
-- [ ] Comportamento idêntico nas duas telas.
-- [ ] `npx tsc --noEmit` passa.
+- [x] Comportamento idêntico nas duas telas.
+- [x] `npx tsc --noEmit` passa.
 
 ---
 
@@ -599,7 +599,7 @@ Remover duplicação em `novo-orcamento-page.tsx:389-402` e `orcamento-detalhe-p
 
 ### [ISSUE-021] Rota `/carpinteiro/orcamentos/:id/proposta`
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 5
 **Dependências**: nenhuma
 **Estimativa**: pequena (< 1h)
@@ -608,23 +608,24 @@ Remover duplicação em `novo-orcamento-page.tsx:389-402` e `orcamento-detalhe-p
 Destino do redirect após finalizar e ponto de visualização in-app do PDF.
 
 **O que fazer**
-- [ ] Adicionar constante em `src/constants/routes.ts`.
-- [ ] Adicionar `<Route>` placeholder em `App.tsx` apontando para `PropostaPage` (a ser criada).
+- [x] Adicionar constante em `src/constants/routes.ts`.
+- [x] Adicionar `<Route>` placeholder em `App.tsx` apontando para `PropostaPage` (a ser criada).
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
 |------|---------|-----------|
 | EDITAR | `src/constants/routes.ts` | nova rota |
 | EDITAR | `src/App.tsx` | route element |
+| CRIAR | `src/pages/carpinteiro/proposta-page.tsx` | página placeholder |
 
 **Critérios de aceitação**
-- [ ] Acesso à URL renderiza a página (mesmo que esqueleto).
+- [x] Acesso à URL renderiza a página (mesmo que esqueleto).
 
 ---
 
-### [ISSUE-022] Criar `pdf-lista-materiais.tsx`
+### [ISSUE-022] Criar `pdf-lista-materiais.tsx` ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 5
 **Dependências**: nenhuma
 **Estimativa**: média (1–3h)
@@ -633,10 +634,10 @@ Destino do redirect após finalizar e ponto de visualização in-app do PDF.
 PDF reduzido apenas com a tabela de materiais — sem mão de obra, margem, impostos, custos extras ou totais financeiros.
 
 **O que fazer**
-- [ ] Criar `<MateriaisPdfDocument orcamento={...}>` com `Document` + `Page`.
-- [ ] Header com logo + dados do projeto/cliente.
-- [ ] Tabela com nome, dimensões/unidade, quantidade.
-- [ ] Footer com data e nome do carpinteiro.
+- [x] Criar `<MateriaisPdfDocument orcamento={...}>` com `Document` + `Page`.
+- [x] Header com logo + dados do projeto/cliente.
+- [x] Tabela com nome, dimensões/unidade, quantidade.
+- [x] Footer com data e nome do carpinteiro.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -644,14 +645,14 @@ PDF reduzido apenas com a tabela de materiais — sem mão de obra, margem, impo
 | CRIAR | `src/components/orcamento/pdf-lista-materiais.tsx` | document |
 
 **Critérios de aceitação**
-- [ ] Nenhum campo financeiro aparece no PDF.
-- [ ] Renderiza para um orçamento com 5 itens sem quebrar layout.
+- [x] Nenhum campo financeiro aparece no PDF.
+- [x] Renderiza para um orçamento com 5 itens sem quebrar layout.
 
 ---
 
-### [ISSUE-023] Adicionar `exportarMateriais` em `usePdf.ts`
+### [ISSUE-023] Adicionar `exportarMateriais` em `usePdf.ts` ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 5
 **Dependências**: ISSUE-022
 **Estimativa**: pequena (< 1h)
@@ -660,8 +661,8 @@ PDF reduzido apenas com a tabela de materiais — sem mão de obra, margem, impo
 Reutilizar a infra de geração/download para o novo Document.
 
 **O que fazer**
-- [ ] Adicionar `exportarMateriais(orcamento)` (ou hook irmão `usePdfMateriais`).
-- [ ] Usar `pdf().toBlob()` + `saveAs` (ou equivalente já usado).
+- [x] Adicionar `exportarMateriais(orcamento)` (ou hook irmão `usePdfMateriais`).
+- [x] Usar `pdf().toBlob()` + `saveAs` (ou equivalente já usado).
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -669,13 +670,13 @@ Reutilizar a infra de geração/download para o novo Document.
 | EDITAR | `src/hooks/usePdf.ts` | método novo |
 
 **Critérios de aceitação**
-- [ ] Chamar o método baixa um PDF nomeado `materiais-{id}.pdf`.
+- [x] Chamar o método baixa um PDF nomeado `materiais-{id}.pdf`.
 
 ---
 
-### [ISSUE-024] Criar `proposta-page.tsx` com `<PDFViewer>`
+### [ISSUE-024] Criar `proposta-page.tsx` com `<PDFViewer>` ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 5
 **Dependências**: ISSUE-021, ISSUE-023
 **Estimativa**: média (1–3h)
@@ -684,10 +685,10 @@ Reutilizar a infra de geração/download para o novo Document.
 Tela de pós-finalização: visualização in-app do PDF + ações.
 
 **O que fazer**
-- [ ] Carregar `useOrcamento(id)`.
-- [ ] Renderizar `<PDFViewer>` com `<OrcamentoPdfDocument />`.
-- [ ] Botões mobile: "Baixar novamente", "Compartilhar" (Web Share API com fallback), "Voltar para orçamentos".
-- [ ] Botão "Baixar lista de materiais" (`exportarMateriais`).
+- [x] Carregar `useOrcamento(id)`.
+- [x] Renderizar `<PDFViewer>` com `<OrcamentoPdfDocument />`.
+- [x] Botões mobile: "Baixar novamente", "Compartilhar" (Web Share API com fallback), "Voltar para orçamentos".
+- [x] Botão "Baixar lista de materiais" (`exportarMateriais`).
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -695,8 +696,8 @@ Tela de pós-finalização: visualização in-app do PDF + ações.
 | CRIAR | `src/pages/carpinteiro/proposta-page.tsx` | página |
 
 **Critérios de aceitação**
-- [ ] PDF renderiza no viewer em desktop e mobile (com fallback se viewer não suportado).
-- [ ] Web Share API só aparece quando `navigator.share` existe.
+- [x] PDF renderiza no viewer em desktop e mobile (com fallback se viewer não suportado).
+- [x] Web Share API só aparece quando `navigator.share` existe.
 
 ---
 

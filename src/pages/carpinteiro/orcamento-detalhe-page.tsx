@@ -23,6 +23,7 @@ import {
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog'
 import { BotaoExportarPdf } from '@/components/orcamento/botao-exportar-pdf'
+import ToggleDetalhesPdf from '@/components/orcamento/toggle-detalhes-pdf'
 import { ROUTES } from '@/constants/routes'
 import type { OrcamentoStatus } from '@/types/common'
 
@@ -294,28 +295,11 @@ export default function OrcamentoDetalhePage() {
                 itens={itens}
                 mostrarDetalhes={mostrarDetalhes}
               />
-              <button
-                type="button"
-                role="switch"
-                aria-checked={mostrarDetalhes}
-                onClick={() => setMostrarDetalhes((v) => !v)}
-                className="flex items-center gap-2 text-[11px] text-muted-foreground cursor-pointer select-none"
-              >
-                <span>Detalhes no PDF</span>
-                <span
-                  className={cn(
-                    'relative inline-flex h-5 w-9 shrink-0 rounded-full items-center px-0.5 transition-colors',
-                    mostrarDetalhes ? 'bg-primary' : 'bg-muted-foreground/30',
-                  )}
-                >
-                  <span
-                    className={cn(
-                      'h-4 w-4 rounded-full bg-white shadow-sm transition-transform',
-                      mostrarDetalhes ? 'translate-x-4' : 'translate-x-0',
-                    )}
-                  />
-                </span>
-              </button>
+              {/* Componente compartilhado com AlertDialog de confirmação ao ligar */}
+              <ToggleDetalhesPdf
+                value={mostrarDetalhes}
+                onChange={setMostrarDetalhes}
+              />
             </>
           )}
         </div>

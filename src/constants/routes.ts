@@ -14,6 +14,7 @@ export const ROUTES = {
   CARPINTEIRO_NOVO_ORCAMENTO: '/carpinteiro/orcamentos/novo',
   CARPINTEIRO_ORCAMENTO: (id: string) => `/carpinteiro/orcamentos/${id}`,
   CARPINTEIRO_ORCAMENTO_EDITAR: (id: string) => `/carpinteiro/orcamentos/${id}/editar`,
+  CARPINTEIRO_ORCAMENTO_PROPOSTA: (id: string) => `/carpinteiro/orcamentos/${id}/proposta`,
 
   // Madeireira
   MADEIREIRA_DASHBOARD: '/madeireira/dashboard',

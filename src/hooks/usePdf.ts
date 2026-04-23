@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/useAuthStore'
 interface UsePdfReturn {
   loading: boolean
   exportar: (orcamento: Orcamento, itens: ItemOrcamento[], mostrarDetalhes?: boolean) => Promise<void>
+  exportarMateriais: (orcamento: Orcamento, itens: ItemOrcamento[]) => Promise<void>
 }
 
 /** Fetches an image URL and returns a base64 data URI to avoid CORS issues in PDF. */
@@ -59,5 +60,32 @@ export function usePdf(): UsePdfReturn {
     }
   }
 
-  return { loading, exportar }
+  // Gera e baixa o PDF de lista de materiais (sem nenhum campo financeiro)
+  async function exportarMateriais(orcamento: Orcamento, itens: ItemOrcamento[]): Promise<void> {
+    if (!carpinteiro) return
+    setLoading(true)
+    try {
+      // Reutiliza a mesma conversão de logo para evitar CORS dentro do renderer
+      const logoBase64 = carpinteiro.logo_url
+        ? await fetchLogoBase64(carpinteiro.logo_url)
+        : undefined
+
+      // Lazy-load para não inflar o bundle principal com @react-pdf/renderer
+      const { MateriaisPdfDocument } = await import('@/components/orcamento/pdf-lista-materiais')
+
+      const element = MateriaisPdfDocument({ orcamento, itens, carpinteiro, logoBase64 })
+      const blob = await pdf(element).toBlob()
+
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `materiais-${orcamento.id.slice(0, 8)}.pdf`
+      link.click()
+      URL.revokeObjectURL(url)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return { loading, exportar, exportarMateriais }
 }
