@@ -1,13 +1,36 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Plus, ChevronRight, FileText, Loader2, ChevronLeft } from 'lucide-react'
-
+import {
+  Plus,
+  ChevronRight,
+  FileText,
+  Loader2,
+  ChevronLeft,
+  MoreVertical,
+  Pencil,
+  Trash2,
+} from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { ROUTES } from '@/constants/routes'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog'
 import type { OrcamentoStatus } from '@/types/common'
 import type { Orcamento } from '@/types/orcamento'
 
@@ -22,21 +45,28 @@ const PAGE_SIZE = 50
 
 const STATUS_LABEL: Record<OrcamentoStatus, string> = {
   rascunho: 'Rascunho',
-  finalizado: 'Finalizado',
+  salvo: 'Salvo',
   enviado: 'Enviado',
+  pedido_fechado: 'Pedido Fechado',
+  cancelado: 'Cancelado',
 }
 
+// Cores por status: cancelado vermelho discreto, pedido_fechado verde, salvo neutro positivo
 const STATUS_CLASS: Record<OrcamentoStatus, string> = {
   rascunho: 'bg-primary/10 text-primary',
-  finalizado: 'bg-secondary/10 text-secondary',
+  salvo: 'bg-secondary/10 text-secondary',
   enviado: 'bg-on-surface-variant/10 text-on-surface-variant',
+  pedido_fechado: 'bg-green-600/10 text-green-700',
+  cancelado: 'bg-red-500/10 text-red-600',
 }
 
 const FILTER_TABS: { value: FilterStatus; label: string }[] = [
   { value: 'todos', label: 'Todos' },
   { value: 'rascunho', label: 'Rascunhos' },
-  { value: 'finalizado', label: 'Finalizados' },
+  { value: 'salvo', label: 'Salvos' },
   { value: 'enviado', label: 'Enviados' },
+  { value: 'pedido_fechado', label: 'Pedido Fechado' },
+  { value: 'cancelado', label: 'Cancelados' },
 ]
 
 const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -55,8 +85,15 @@ export default function CarpinteiroOrcamentosPage() {
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
 
+  // Estado do dialog de confirmação de exclusão
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: string | null }>({
+    open: false,
+    id: null,
+  })
+  const [deleting, setDeleting] = useState(false)
+
   useEffect(() => {
-    // Reset to first page when filter changes
+    // Volta para a primeira página ao trocar o filtro
     setPage(0)
   }, [filter])
 
@@ -92,6 +129,26 @@ export default function CarpinteiroOrcamentosPage() {
     fetchOrcamentos()
   }, [carpinteiro, filter, page])
 
+  // Remove o orçamento do banco e atualiza a lista local sem refetch
+  async function handleDeleteConfirm() {
+    if (!deleteDialog.id || !carpinteiro) return
+    setDeleting(true)
+
+    const { error } = await supabase
+      .from('orcamentos')
+      .delete()
+      .eq('id', deleteDialog.id)
+      .eq('carpinteiro_id', carpinteiro.id)
+
+    if (!error) {
+      setOrcamentos((prev) => prev.filter((o) => o.id !== deleteDialog.id))
+      setTotal((t) => t - 1)
+    }
+
+    setDeleting(false)
+    setDeleteDialog({ open: false, id: null })
+  }
+
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
   return (
@@ -112,7 +169,7 @@ export default function CarpinteiroOrcamentosPage() {
         </Button>
       </div>
 
-      {/* Status filter tabs */}
+      {/* Abas de filtro por status */}
       <div className="flex border-b border-outline-variant/20 overflow-x-auto">
         {FILTER_TABS.map((tab) => (
           <button
@@ -131,7 +188,7 @@ export default function CarpinteiroOrcamentosPage() {
         ))}
       </div>
 
-      {/* List */}
+      {/* Lista de orçamentos */}
       {loading ? (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -163,39 +220,79 @@ export default function CarpinteiroOrcamentosPage() {
       ) : (
         <div className="space-y-2">
           {orcamentos.map((orc) => (
-            <Link
+            // Card dividido: Link cobre a área de conteúdo; DropdownMenu fica fora do Link
+            // para evitar que o clique no menu dispare a navegação
+            <div
               key={orc.id}
-              to={ROUTES.CARPINTEIRO_ORCAMENTO(orc.id)}
-              className="flex items-center gap-4 rounded-lg bg-surface-container-highest px-4 py-3.5 transition-all duration-200 hover:translate-x-1 hover:bg-surface-container-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex items-center rounded-lg bg-surface-container-highest transition-colors duration-200 hover:bg-surface-container-high"
             >
-              {/* Initial icon */}
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <span className="text-primary font-black text-xs uppercase">
-                  {orc.nome.charAt(0)}
-                </span>
-              </div>
+              <Link
+                to={ROUTES.CARPINTEIRO_ORCAMENTO(orc.id)}
+                className="flex flex-1 items-center gap-4 pl-4 pr-2 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg"
+              >
+                {/* Inicial do nome como ícone */}
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <span className="text-primary font-black text-xs uppercase">
+                    {orc.nome.charAt(0)}
+                  </span>
+                </div>
 
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-on-surface">{orc.nome}</p>
-                <p className="truncate text-xs text-on-surface-variant">{orc.cliente_nome}</p>
-              </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-on-surface">{orc.nome}</p>
+                  <p className="truncate text-xs text-on-surface-variant">{orc.cliente_nome}</p>
+                </div>
 
-              <div className="flex shrink-0 flex-col items-end gap-1.5">
-                <span className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest', STATUS_CLASS[orc.status])}>
-                  {STATUS_LABEL[orc.status]}
-                </span>
-                <span className="text-xs font-black tabular-nums text-on-surface tracking-tighter">
-                  {BRL.format(orc.total)}
-                </span>
-              </div>
+                <div className="flex shrink-0 flex-col items-end gap-1.5">
+                  <span
+                    className={cn(
+                      'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest',
+                      STATUS_CLASS[orc.status],
+                    )}
+                  >
+                    {STATUS_LABEL[orc.status]}
+                  </span>
+                  <span className="text-xs font-black tabular-nums text-on-surface tracking-tighter">
+                    {BRL.format(orc.total)}
+                  </span>
+                </div>
 
-              <ChevronRight className="size-4 text-on-surface-variant shrink-0" />
-            </Link>
+                <ChevronRight className="size-4 text-on-surface-variant shrink-0" />
+              </Link>
+
+              {/* Kebab menu: Editar navega para a tela de edição; Excluir abre o AlertDialog */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className="mx-2 shrink-0 text-on-surface-variant"
+                    aria-label="Ações do orçamento"
+                  >
+                    <MoreVertical className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => navigate(ROUTES.CARPINTEIRO_ORCAMENTO_EDITAR(orc.id))}
+                  >
+                    <Pencil />
+                    Editar
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={() => setDeleteDialog({ open: true, id: orc.id })}
+                  >
+                    <Trash2 />
+                    Excluir
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           ))}
         </div>
       )}
 
-      {/* Pagination */}
+      {/* Paginação */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-3 pt-2">
           <Button
@@ -224,12 +321,37 @@ export default function CarpinteiroOrcamentosPage() {
         </div>
       )}
 
-      {/* Loading spinner for page changes */}
+      {/* Spinner de carregamento na troca de página */}
       {loading && orcamentos.length > 0 && (
         <div className="flex justify-center py-4">
           <Loader2 className="size-5 animate-spin text-muted-foreground" />
         </div>
       )}
+
+      {/* Dialog de confirmação antes de excluir o orçamento */}
+      <AlertDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => {
+          // Bloqueia fechar o dialog enquanto a exclusão está em andamento
+          if (!deleting) setDeleteDialog({ open, id: open ? deleteDialog.id : null })
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir orçamento?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. O orçamento será removido permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+            <Button variant="destructive" disabled={deleting} onClick={handleDeleteConfirm}>
+              {deleting && <Loader2 className="size-4 animate-spin" />}
+              Excluir
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

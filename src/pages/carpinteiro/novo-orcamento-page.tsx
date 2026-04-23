@@ -186,7 +186,7 @@ export default function NovoOrcamentoPage() {
     try {
       const payload = {
         carpinteiro_id: carpinteiro.id, madeireira_id: madeireiraId,
-        tabela_snapshot_id: tabelaId, status: 'finalizado' as const,
+        tabela_snapshot_id: tabelaId, status: 'salvo' as const,
         tipo_projeto: stepProjeto.tipo_projeto,
         nome: stepProjeto.nome, descricao: stepProjeto.descricao || null,
         cliente_nome: stepProjeto.cliente_nome,

@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "mcp__supabase__execute_sql",
-      "mcp__supabase__list_migrations"
+      "mcp__supabase__list_migrations",
+      "mcp__supabase__generate_typescript_types",
+      "Bash(node -e \"const r = require\\('radix-ui'\\); console.log\\(Object.keys\\(r\\).filter\\(k => k.toLowerCase\\(\\).includes\\('alert'\\)\\)\\)\")"
     ]
   },
   "enableAllProjectMcpServers": true,

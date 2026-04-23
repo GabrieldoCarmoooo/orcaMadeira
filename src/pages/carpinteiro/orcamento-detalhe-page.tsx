@@ -1,9 +1,27 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Pencil, Loader2, AlertCircle } from 'lucide-react'
+import { ArrowLeft, Loader2, AlertCircle, Pencil, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { supabase } from '@/lib/supabase'
 import { useOrcamento } from '@/hooks/useOrcamento'
+import { useAuthStore } from '@/stores/useAuthStore'
 import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog'
 import { BotaoExportarPdf } from '@/components/orcamento/botao-exportar-pdf'
 import { ROUTES } from '@/constants/routes'
 import type { OrcamentoStatus } from '@/types/common'
@@ -15,17 +33,25 @@ const DATE_FMT = new Intl.DateTimeFormat('pt-BR', {
   year: 'numeric',
 })
 
+// Labels e cores alinhados com a migration 003 (5 status; finalizado removido)
 const STATUS_LABEL: Record<OrcamentoStatus, string> = {
   rascunho: 'Rascunho',
-  finalizado: 'Finalizado',
+  salvo: 'Salvo',
   enviado: 'Enviado',
+  pedido_fechado: 'Pedido Fechado',
+  cancelado: 'Cancelado',
 }
 
 const STATUS_CLASS: Record<OrcamentoStatus, string> = {
-  rascunho: 'bg-muted text-muted-foreground',
-  finalizado: 'bg-primary/15 text-primary',
-  enviado: 'bg-secondary/15 text-secondary',
+  rascunho: 'bg-primary/10 text-primary',
+  salvo: 'bg-secondary/10 text-secondary',
+  enviado: 'bg-on-surface-variant/10 text-on-surface-variant',
+  pedido_fechado: 'bg-green-600/10 text-green-700',
+  cancelado: 'bg-red-500/10 text-red-600',
 }
+
+// Status que permitem exportar PDF (proposta já finalizada)
+const STATUS_COM_PDF = new Set<OrcamentoStatus>(['salvo', 'enviado', 'pedido_fechado'])
 
 const TIPO_LABEL: Record<string, string> = {
   movel: 'Móveis',
@@ -34,9 +60,7 @@ const TIPO_LABEL: Record<string, string> = {
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[10px] font-bold uppercase tracking-widest text-secondary">
-      {children}
-    </p>
+    <p className="text-[10px] font-bold uppercase tracking-widest text-secondary">{children}</p>
   )
 }
 
@@ -92,8 +116,64 @@ function FinancialLine({
 export default function OrcamentoDetalhePage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { carpinteiro } = useAuthStore()
   const { orcamento, itens, loading, error } = useOrcamento(id)
   const [mostrarDetalhes, setMostrarDetalhes] = useState(true)
+
+  // Status local para atualização otimista ao usar o selector de status
+  const [localStatus, setLocalStatus] = useState<OrcamentoStatus | null>(null)
+  const [updatingStatus, setUpdatingStatus] = useState(false)
+
+  // Estado do dialog de confirmação de exclusão
+  const [deleteDialog, setDeleteDialog] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+
+  // Sincroniza o status local assim que o orçamento carrega do banco
+  useEffect(() => {
+    if (orcamento) setLocalStatus(orcamento.status)
+  }, [orcamento])
+
+  const statusAtual = localStatus ?? orcamento?.status
+
+  // Persiste a troca de status no banco; reverte em caso de erro
+  async function handleStatusChange(novoStatus: string) {
+    if (!orcamento || !carpinteiro) return
+    const statusAnterior = localStatus
+    setLocalStatus(novoStatus as OrcamentoStatus)
+    setUpdatingStatus(true)
+
+    const { error: updateError } = await supabase
+      .from('orcamentos')
+      .update({ status: novoStatus as OrcamentoStatus })
+      .eq('id', orcamento.id)
+      .eq('carpinteiro_id', carpinteiro.id)
+
+    if (updateError) {
+      // Reverte para o status anterior quando a escrita falha
+      setLocalStatus(statusAnterior)
+    }
+
+    setUpdatingStatus(false)
+  }
+
+  // Exclui o orçamento e redireciona para a lista após confirmação
+  async function handleDeleteConfirm() {
+    if (!orcamento || !carpinteiro) return
+    setDeleting(true)
+
+    const { error: deleteError } = await supabase
+      .from('orcamentos')
+      .delete()
+      .eq('id', orcamento.id)
+      .eq('carpinteiro_id', carpinteiro.id)
+
+    setDeleting(false)
+
+    if (!deleteError) {
+      setDeleteDialog(false)
+      navigate(ROUTES.CARPINTEIRO_ORCAMENTOS)
+    }
+  }
 
   if (loading) {
     return (
@@ -104,7 +184,7 @@ export default function OrcamentoDetalhePage() {
     )
   }
 
-  if (error || !orcamento) {
+  if (error || !orcamento || !statusAtual) {
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center">
         <AlertCircle className="mx-auto mb-4 size-10 text-muted-foreground/50" />
@@ -125,9 +205,14 @@ export default function OrcamentoDetalhePage() {
       ? `Mão de obra (${orcamento.mao_obra_horas ?? 0}h × ${BRL.format(orcamento.mao_obra_valor)})`
       : 'Mão de obra (fixo)'
 
+  const temPdf = STATUS_COM_PDF.has(statusAtual)
+
+  // Replica o status local no objeto para manter BotaoExportarPdf consistente com o selector
+  const orcamentoComStatus = { ...orcamento, status: statusAtual }
+
   return (
     <div className="space-y-6">
-      {/* Back nav */}
+      {/* Navegação de volta */}
       <button
         type="button"
         onClick={() => navigate(ROUTES.CARPINTEIRO_ORCAMENTOS)}
@@ -137,31 +222,51 @@ export default function OrcamentoDetalhePage() {
         Orçamentos
       </button>
 
-      {/* Header */}
+      {/* Header: selector de status + título + ações */}
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <div className="mb-1 flex items-center gap-2">
-            <span
-              className={cn(
-                'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest',
-                STATUS_CLASS[orcamento.status],
-              )}
+          {/* Selector de status com transições livres entre os 5 valores */}
+          <div className="mb-2 flex items-center gap-2 flex-wrap">
+            <Select
+              value={statusAtual}
+              onValueChange={handleStatusChange}
+              disabled={updatingStatus}
             >
-              {STATUS_LABEL[orcamento.status]}
-            </span>
+              <SelectTrigger size="sm" className="w-auto">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.entries(STATUS_LABEL) as [OrcamentoStatus, string][]).map(
+                  ([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      <span
+                        className={cn(
+                          'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest',
+                          STATUS_CLASS[value],
+                        )}
+                      >
+                        {label}
+                      </span>
+                    </SelectItem>
+                  ),
+                )}
+              </SelectContent>
+            </Select>
+            {updatingStatus && <Loader2 className="size-3.5 animate-spin text-muted-foreground" />}
             <span className="text-xs text-muted-foreground">
               {TIPO_LABEL[orcamento.tipo_projeto] ?? orcamento.tipo_projeto}
             </span>
           </div>
+
           <h1 className="text-xl font-bold text-foreground">{orcamento.nome}</h1>
           {orcamento.descricao && (
             <p className="mt-1 text-sm text-muted-foreground">{orcamento.descricao}</p>
           )}
         </div>
 
-        {/* Actions */}
+        {/* Ações: Editar e Excluir disponíveis para todos os status */}
         <div className="flex shrink-0 flex-col gap-2 items-end">
-          {orcamento.status === 'rascunho' && (
+          <div className="flex items-center gap-2">
             <Button
               size="sm"
               variant="outline"
@@ -170,10 +275,25 @@ export default function OrcamentoDetalhePage() {
               <Pencil className="size-3.5" />
               Editar
             </Button>
-          )}
-          {(orcamento.status === 'finalizado' || orcamento.status === 'enviado') && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              onClick={() => setDeleteDialog(true)}
+            >
+              <Trash2 className="size-3.5" />
+              Excluir
+            </Button>
+          </div>
+
+          {/* Exportar PDF disponível apenas para propostas finalizadas */}
+          {temPdf && (
             <>
-              <BotaoExportarPdf orcamento={orcamento} itens={itens} mostrarDetalhes={mostrarDetalhes} />
+              <BotaoExportarPdf
+                orcamento={orcamentoComStatus}
+                itens={itens}
+                mostrarDetalhes={mostrarDetalhes}
+              />
               <button
                 type="button"
                 role="switch"
@@ -201,7 +321,7 @@ export default function OrcamentoDetalhePage() {
         </div>
       </div>
 
-      {/* Client info */}
+      {/* Informações do cliente */}
       <div className="bg-surface-container-highest rounded-lg px-5 py-4 space-y-1">
         <SectionTitle>Cliente</SectionTitle>
         <div className="mt-3">
@@ -211,14 +331,11 @@ export default function OrcamentoDetalhePage() {
         </div>
       </div>
 
-      {/* Dates */}
+      {/* Datas */}
       <div className="bg-surface-container-highest rounded-lg px-5 py-4 space-y-1">
         <SectionTitle>Datas</SectionTitle>
         <div className="mt-3">
-          <InfoRow
-            label="Criado em"
-            value={DATE_FMT.format(new Date(orcamento.created_at))}
-          />
+          <InfoRow label="Criado em" value={DATE_FMT.format(new Date(orcamento.created_at))} />
           {orcamento.finalizado_at && (
             <InfoRow
               label="Finalizado em"
@@ -229,7 +346,7 @@ export default function OrcamentoDetalhePage() {
         </div>
       </div>
 
-      {/* Materiais */}
+      {/* Lista de materiais */}
       {itens.length > 0 && (
         <div className="space-y-3">
           <SectionTitle>Materiais ({itens.length})</SectionTitle>
@@ -254,7 +371,7 @@ export default function OrcamentoDetalhePage() {
         </div>
       )}
 
-      {/* Financial summary */}
+      {/* Resumo financeiro */}
       <div className="bg-surface-container-highest rounded-lg px-5 py-4 space-y-1">
         <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-secondary">
           Resumo financeiro
@@ -277,15 +394,15 @@ export default function OrcamentoDetalhePage() {
         />
       </div>
 
-      {/* Dark total block */}
+      {/* Bloco de total destacado */}
       <div className="rounded-lg bg-foreground text-background px-6 py-5 flex items-center justify-between">
-        <span className="text-sm font-bold uppercase tracking-widest opacity-70">Total da Proposta</span>
-        <span className="text-3xl font-black tracking-tighter">
-          {BRL.format(orcamento.total)}
+        <span className="text-sm font-bold uppercase tracking-widest opacity-70">
+          Total da Proposta
         </span>
+        <span className="text-3xl font-black tracking-tighter">{BRL.format(orcamento.total)}</span>
       </div>
 
-      {/* Terms */}
+      {/* Termos e condições */}
       {orcamento.termos_condicoes && (
         <div className="bg-surface-container-highest rounded-lg px-5 py-4 space-y-2">
           <SectionTitle>Termos e condições</SectionTitle>
@@ -294,6 +411,31 @@ export default function OrcamentoDetalhePage() {
           </p>
         </div>
       )}
+
+      {/* Dialog de confirmação antes de excluir o orçamento */}
+      <AlertDialog
+        open={deleteDialog}
+        onOpenChange={(open) => {
+          // Bloqueia fechar o dialog enquanto a exclusão está em andamento
+          if (!deleting) setDeleteDialog(open)
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir orçamento?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. O orçamento será removido permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+            <Button variant="destructive" disabled={deleting} onClick={handleDeleteConfirm}>
+              {deleting && <Loader2 className="size-4 animate-spin" />}
+              Excluir
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

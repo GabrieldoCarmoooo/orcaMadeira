@@ -17,8 +17,10 @@ export type Database = {
       carpinteiros: {
         Row: {
           cidade: string
+          cor_primaria: string | null
           cpf_cnpj: string
           created_at: string
+          custos_adicionais_padrao: number
           endereco: string
           estado: string
           id: string
@@ -28,14 +30,17 @@ export type Database = {
           margem_lucro_padrao: number
           nome: string
           telefone: string
+          termos_condicoes_padrao: string | null
           updated_at: string
           user_id: string
           valor_hora_mao_obra: number
         }
         Insert: {
           cidade?: string
+          cor_primaria?: string | null
           cpf_cnpj: string
           created_at?: string
+          custos_adicionais_padrao?: number
           endereco?: string
           estado?: string
           id?: string
@@ -45,14 +50,17 @@ export type Database = {
           margem_lucro_padrao?: number
           nome: string
           telefone: string
+          termos_condicoes_padrao?: string | null
           updated_at?: string
           user_id: string
           valor_hora_mao_obra?: number
         }
         Update: {
           cidade?: string
+          cor_primaria?: string | null
           cpf_cnpj?: string
           created_at?: string
+          custos_adicionais_padrao?: number
           endereco?: string
           estado?: string
           id?: string
@@ -62,6 +70,7 @@ export type Database = {
           margem_lucro_padrao?: number
           nome?: string
           telefone?: string
+          termos_condicoes_padrao?: string | null
           updated_at?: string
           user_id?: string
           valor_hora_mao_obra?: number
@@ -402,7 +411,9 @@ export type Database = {
           cliente_nome: string
           cliente_telefone: string | null
           created_at: string
+          custos_adicionais: number
           descricao: string | null
+          deslocamento: number
           finalizado_at: string | null
           id: string
           imposto: number
@@ -430,7 +441,9 @@ export type Database = {
           cliente_nome: string
           cliente_telefone?: string | null
           created_at?: string
+          custos_adicionais?: number
           descricao?: string | null
+          deslocamento?: number
           finalizado_at?: string | null
           id?: string
           imposto?: number
@@ -458,7 +471,9 @@ export type Database = {
           cliente_nome?: string
           cliente_telefone?: string | null
           created_at?: string
+          custos_adicionais?: number
           descricao?: string | null
+          deslocamento?: number
           finalizado_at?: string | null
           id?: string
           imposto?: number
@@ -669,7 +684,12 @@ export type Database = {
     }
     Enums: {
       mao_obra_tipo: "fixo" | "hora"
-      orcamento_status: "rascunho" | "finalizado" | "enviado"
+      orcamento_status:
+        | "rascunho"
+        | "enviado"
+        | "salvo"
+        | "pedido_fechado"
+        | "cancelado"
       tipo_projeto: "movel" | "estrutura"
       vinculacao_status: "pendente" | "aprovada" | "rejeitada"
     }
@@ -800,7 +820,13 @@ export const Constants = {
   public: {
     Enums: {
       mao_obra_tipo: ["fixo", "hora"],
-      orcamento_status: ["rascunho", "finalizado", "enviado"],
+      orcamento_status: [
+        "rascunho",
+        "enviado",
+        "salvo",
+        "pedido_fechado",
+        "cancelado",
+      ],
       tipo_projeto: ["movel", "estrutura"],
       vinculacao_status: ["pendente", "aprovada", "rejeitada"],
     },

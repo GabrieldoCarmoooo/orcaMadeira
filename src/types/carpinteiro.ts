@@ -12,6 +12,9 @@ export interface Carpinteiro {
   valor_hora_mao_obra: number
   imposto_padrao: number
   madeireira_id: string | null
+  cor_primaria?: string
+  custos_adicionais_padrao: number
+  termos_condicoes_padrao?: string
   created_at: string
   updated_at: string
 }

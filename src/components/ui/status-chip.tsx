@@ -3,14 +3,19 @@ import type { OrcamentoStatus } from '@/types/common'
 
 const STATUS_LABELS: Record<OrcamentoStatus, string> = {
   rascunho: 'Rascunho',
-  finalizado: 'Finalizado',
+  salvo: 'Salvo',
   enviado: 'Enviado',
+  pedido_fechado: 'Pedido Fechado',
+  cancelado: 'Cancelado',
 }
 
+// Cores: cancelado vermelho discreto, pedido_fechado verde, salvo neutro positivo
 const STATUS_STYLES: Record<OrcamentoStatus, string> = {
   rascunho: 'bg-primary/10 text-primary',
-  finalizado: 'bg-secondary/10 text-secondary',
+  salvo: 'bg-secondary/10 text-secondary',
   enviado: 'bg-on-surface-variant/10 text-on-surface-variant',
+  pedido_fechado: 'bg-green-600/10 text-green-700',
+  cancelado: 'bg-red-500/10 text-red-600',
 }
 
 interface StatusChipProps {

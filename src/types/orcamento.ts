@@ -24,6 +24,9 @@ export interface Orcamento {
   valor_margem: number
   valor_imposto: number
   total: number
+  // Custos extras introduzidos na migration 003 — não aparecem no PDF (regra de negócio)
+  deslocamento: number
+  custos_adicionais: number
   created_at: string
   updated_at: string
   finalizado_at: string | null

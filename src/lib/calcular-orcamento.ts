@@ -39,6 +39,9 @@ export interface ResumoOrcamento {
   valor_margem: number
   valor_imposto: number
   total: number
+  // Custos extras da migration 003 — somam à base mas jamais aparecem no PDF
+  deslocamento: number
+  custos_adicionais: number
 }
 
 /**
@@ -74,6 +77,9 @@ export function calcularOrcamento(
     valor_margem,
     valor_imposto,
     total,
+    // ISSUE-015 atualizará a fórmula e passará deslocamento/custos_adicionais como input
+    deslocamento: 0,
+    custos_adicionais: 0,
   }
 }
 

@@ -105,8 +105,6 @@ OrçaMadeira é um SaaS web responsivo mobile-first para marceneiros e carpintei
 - Design (mockups por tela): `references/design-atualizado/`
 - PRD: `PRD.md`
 - Spec técnica: `spec.md`
-- Plano catálogo: `Plano-catalogo-produtos-adaptacao-orcamento.md`
-- Backlog atual: `ISSUES-catalogo-produtos.md`
 
 ## Skills
 - **Banco de dados** → `supabase-postgres-best-practices` + MCP (`mcp__supabase__apply_migration`, `mcp__supabase__generate_typescript_types`).

@@ -1,13 +1,25 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Link2, FileText } from 'lucide-react'
+import { Plus, Link2, FileText, Calendar } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { useDashboardMetricas } from '@/hooks/useDashboardMetricas'
+import type { DateRange } from '@/hooks/useDashboardMetricas'
 import { ROUTES } from '@/constants/routes'
 import { Button } from '@/components/ui/button'
 import { MetricCard } from '@/components/ui/metric-card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import OrcamentoRecenteCard from '@/components/orcamento/orcamento-recente-card'
 import type { Orcamento } from '@/types/orcamento'
+
+// Presets de período disponíveis no seletor
+type DatePreset = 'mes_atual' | 'ultimos_30' | 'ultimos_90' | 'personalizado'
 
 type OrcamentoResumo = Pick<
   Orcamento,
@@ -17,14 +29,59 @@ type OrcamentoResumo = Pick<
 interface DashboardStats {
   totalConvertido: number
   totalPendente: number
-  totalPerdido: number
   countConvertidos: number
   countPendentes: number
-  countPerdidos: number
+  countRascunhos: number
   recentes: OrcamentoResumo[]
 }
 
+const PRESET_LABELS: Record<DatePreset, string> = {
+  mes_atual: 'Mês atual',
+  ultimos_30: 'Últimos 30 dias',
+  ultimos_90: 'Últimos 90 dias',
+  personalizado: 'Personalizado',
+}
+
 const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
+
+// Converte Date para string YYYY-MM-DD usando o fuso local (evita off-by-one do toISOString em UTC-3)
+function toLocalDateStr(date: Date): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
+// Calcula o range de datas correspondente a cada preset fixo
+function calcularRangePreset(preset: Exclude<DatePreset, 'personalizado'>): DateRange {
+  const hoje = new Date()
+  const to = toLocalDateStr(hoje)
+
+  if (preset === 'mes_atual') {
+    const from = new Date(hoje.getFullYear(), hoje.getMonth(), 1)
+    return { from: toLocalDateStr(from), to }
+  }
+  if (preset === 'ultimos_30') {
+    const from = new Date(hoje)
+    from.setDate(hoje.getDate() - 30)
+    return { from: toLocalDateStr(from), to }
+  }
+  // ultimos_90
+  const from = new Date(hoje)
+  from.setDate(hoje.getDate() - 90)
+  return { from: toLocalDateStr(from), to }
+}
+
+// Formata data YYYY-MM-DD para exibição pt-BR
+function formatarDataPtBR(dateStr: string, incluirAno = false): string {
+  // Usar T12:00:00 local para evitar ambiguidade de fuso
+  const d = new Date(`${dateStr}T12:00:00`)
+  return d.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'short',
+    ...(incluirAno ? { year: 'numeric' } : {}),
+  })
+}
 
 function Skeleton({ className }: { className?: string }) {
   return <div className={`animate-pulse rounded-md bg-muted ${className ?? ''}`} />
@@ -35,37 +92,70 @@ export default function CarpinteiroDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Estado do filtro de período — inicia em "Mês atual" (critério de aceite)
+  const [preset, setPreset] = useState<DatePreset>('mes_atual')
+  const [dateRange, setDateRange] = useState<DateRange>(calcularRangePreset('mes_atual'))
+  const [customFrom, setCustomFrom] = useState('')
+  const [customTo, setCustomTo] = useState('')
+
+  // Métricas de pedidos fechados — exclusivas de negócios efetivamente realizados
+  const metricas = useDashboardMetricas(carpinteiro?.id, dateRange)
+
+  // Ao trocar preset fixo, recalcula o range imediatamente
+  function handlePresetChange(value: DatePreset) {
+    setPreset(value)
+    if (value !== 'personalizado') {
+      setDateRange(calcularRangePreset(value))
+    }
+  }
+
+  // Confirma período personalizado após o usuário preencher as duas datas
+  function handleCustomApply() {
+    if (customFrom && customTo && customFrom <= customTo) {
+      setDateRange({ from: customFrom, to: customTo })
+    }
+  }
+
+  // Busca métricas gerais toda vez que o carpinteiro ou o range de datas muda
   useEffect(() => {
     if (!carpinteiro) return
 
     async function fetchStats() {
       setLoading(true)
       try {
-        const now = new Date()
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
-        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString()
+        // Timestamps de início e fim do período selecionado
+        const fromIso = `${dateRange.from}T00:00:00`
+        const toIso = `${dateRange.to}T23:59:59`
 
         const [convertidosRes, pendentesRes, rascunhosRes, recentesRes] = await Promise.all([
+          // Orçamentos finalizados (salvo + pedido_fechado) no período
           supabase
             .from('orcamentos')
             .select('total')
             .eq('carpinteiro_id', carpinteiro!.id)
-            .in('status', ['finalizado', 'enviado'])
-            .gte('finalizado_at', startOfMonth)
-            .lte('finalizado_at', endOfMonth),
+            .in('status', ['salvo', 'pedido_fechado'])
+            .gte('created_at', fromIso)
+            .lte('created_at', toIso),
 
+          // Orçamentos enviados (aguardando resposta) no período
           supabase
             .from('orcamentos')
             .select('total')
             .eq('carpinteiro_id', carpinteiro!.id)
-            .eq('status', 'enviado'),
+            .eq('status', 'enviado')
+            .gte('created_at', fromIso)
+            .lte('created_at', toIso),
 
+          // Rascunhos em andamento no período
           supabase
             .from('orcamentos')
-            .select('total, id')
+            .select('id')
             .eq('carpinteiro_id', carpinteiro!.id)
-            .eq('status', 'rascunho'),
+            .eq('status', 'rascunho')
+            .gte('created_at', fromIso)
+            .lte('created_at', toIso),
 
+          // Últimas 5 propostas (sem filtro de período — mostra o histórico recente sempre)
           supabase
             .from('orcamentos')
             .select('id, nome, cliente_nome, status, total, created_at')
@@ -80,10 +170,9 @@ export default function CarpinteiroDashboardPage() {
         setStats({
           totalConvertido: sum(convertidosRes.data ?? []),
           totalPendente: sum(pendentesRes.data ?? []),
-          totalPerdido: sum(rascunhosRes.data ?? []),
           countConvertidos: convertidosRes.data?.length ?? 0,
           countPendentes: pendentesRes.data?.length ?? 0,
-          countPerdidos: rascunhosRes.data?.length ?? 0,
+          countRascunhos: rascunhosRes.data?.length ?? 0,
           recentes: (recentesRes.data ?? []) as OrcamentoResumo[],
         })
       } finally {
@@ -92,7 +181,7 @@ export default function CarpinteiroDashboardPage() {
     }
 
     fetchStats()
-  }, [carpinteiro])
+  }, [carpinteiro, dateRange])
 
   const semMadeireira = carpinteiro?.madeireira_id === null
 
@@ -100,7 +189,7 @@ export default function CarpinteiroDashboardPage() {
     <div className="space-y-8">
       {/* Hero Section */}
       <section className="relative overflow-hidden rounded-xl bg-surface-container-highest min-h-[160px] flex flex-col justify-between p-6">
-        {/* Wood grain decorative overlay */}
+        {/* Overlay decorativo estilo wood grain */}
         <div className="absolute inset-0 wood-hero-overlay rounded-xl pointer-events-none" />
 
         <div className="relative z-10">
@@ -108,8 +197,10 @@ export default function CarpinteiroDashboardPage() {
             Bem-vindo de volta
           </p>
           <h1 className="text-4xl font-extrabold tracking-tighter text-on-surface leading-none">
-            Painel de{' '}
-            <em className="not-italic font-black text-primary">Controle</em>
+            Olá,{' '}
+            <em className="not-italic font-black text-primary">
+              {carpinteiro?.nome ?? 'Carpinteiro'}
+            </em>
           </h1>
         </div>
 
@@ -135,7 +226,77 @@ export default function CarpinteiroDashboardPage() {
         </div>
       </section>
 
-      {/* Metrics grid */}
+      {/* Seletor de período — filtra todas as métricas abaixo */}
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="flex flex-col gap-1">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant flex items-center gap-1.5">
+            <Calendar size={10} />
+            Período
+          </p>
+          <Select value={preset} onValueChange={(v) => handlePresetChange(v as DatePreset)}>
+            <SelectTrigger className="h-9 min-w-[160px] bg-surface-container-low border-0 font-medium text-on-surface">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {(Object.keys(PRESET_LABELS) as DatePreset[]).map((key) => (
+                <SelectItem key={key} value={key}>
+                  {PRESET_LABELS[key]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Inputs de data personalizados — exibidos apenas no modo "Personalizado" */}
+        {preset === 'personalizado' && (
+          <>
+            <div className="flex flex-col gap-1">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                De
+              </p>
+              <input
+                type="date"
+                value={customFrom}
+                max={customTo || undefined}
+                onChange={(e) => setCustomFrom(e.target.value)}
+                className="h-9 rounded-lg bg-surface-container-low px-3 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/40"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                Até
+              </p>
+              <input
+                type="date"
+                value={customTo}
+                min={customFrom || undefined}
+                onChange={(e) => setCustomTo(e.target.value)}
+                className="h-9 rounded-lg bg-surface-container-low px-3 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/40"
+              />
+            </div>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={handleCustomApply}
+              disabled={!customFrom || !customTo || customFrom > customTo}
+              className="h-9 font-bold text-primary"
+            >
+              Aplicar
+            </Button>
+          </>
+        )}
+
+        {/* Descrição textual do período ativo (para presets fixos) */}
+        {preset !== 'personalizado' && (
+          <p className="text-xs text-on-surface-variant pb-1.5">
+            {formatarDataPtBR(dateRange.from)}
+            {' — '}
+            {formatarDataPtBR(dateRange.to, true)}
+          </p>
+        )}
+      </div>
+
+      {/* Grade de métricas gerais filtradas pelo período */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <MetricCard
           label="Propostas Convertidas"
@@ -153,14 +314,62 @@ export default function CarpinteiroDashboardPage() {
         />
         <MetricCard
           label="Rascunhos"
-          value={loading ? '—' : String(stats?.countPerdidos ?? 0)}
+          value={loading ? '—' : String(stats?.countRascunhos ?? 0)}
           description="em andamento"
           dot="outline"
           loading={loading}
         />
       </div>
 
-      {/* Recent proposals */}
+      {/* Seção de métricas financeiras — exclusivas de pedidos fechados no período */}
+      <section className="space-y-4">
+        <h2 className="text-[10px] font-bold uppercase tracking-widest text-secondary">
+          Análise de Pedidos Fechados
+        </h2>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <MetricCard
+            label="Mão de Obra"
+            value={metricas.loading ? '—' : BRL.format(metricas.totalMaoObra)}
+            description="total de pedidos fechados"
+            dot="secondary"
+            loading={metricas.loading}
+          />
+          <MetricCard
+            label="Margem de Lucro"
+            value={metricas.loading ? '—' : BRL.format(metricas.totalMargem)}
+            description="total de pedidos fechados"
+            dot="primary"
+            loading={metricas.loading}
+          />
+          <MetricCard
+            label="Margem + Mão de Obra"
+            value={metricas.loading ? '—' : BRL.format(metricas.totalMargemMaoObra)}
+            description="rentabilidade operacional"
+            dot="primary"
+            loading={metricas.loading}
+          />
+          <MetricCard
+            label="Total de Custos"
+            value={metricas.loading ? '—' : BRL.format(metricas.totalCustos)}
+            description="imposto + deslocamento + adicionais"
+            dot="outline"
+            loading={metricas.loading}
+          />
+          <MetricCard
+            label="Pedidos Fechados"
+            value={metricas.loading ? '—' : BRL.format(metricas.valorPedidosFechados)}
+            description={
+              metricas.loading ? '' : `${metricas.countPedidosFechados} pedido${metricas.countPedidosFechados !== 1 ? 's' : ''}`
+            }
+            dot="primary"
+            loading={metricas.loading}
+            className="sm:col-span-2 lg:col-span-1"
+          />
+        </div>
+      </section>
+
+      {/* Últimas propostas — sempre os 5 mais recentes, independente do filtro de período */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-[10px] font-bold uppercase tracking-widest text-secondary">

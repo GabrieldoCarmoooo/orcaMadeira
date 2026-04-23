@@ -11,7 +11,8 @@ interface BotaoExportarPdfProps {
 
 export function BotaoExportarPdf({ orcamento, itens, mostrarDetalhes = true }: BotaoExportarPdfProps) {
   const { loading, exportar } = usePdf()
-  const canExport = orcamento.status === 'finalizado' || orcamento.status === 'enviado'
+  // PDF exportável para orçamentos salvo, enviado e pedido_fechado; não para rascunho/cancelado
+  const canExport = orcamento.status === 'salvo' || orcamento.status === 'enviado' || orcamento.status === 'pedido_fechado'
 
   return (
     <Button
