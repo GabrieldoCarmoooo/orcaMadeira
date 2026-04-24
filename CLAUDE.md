@@ -11,6 +11,7 @@ OrçaMadeira é um SaaS web responsivo mobile-first para marceneiros e carpintei
 - Configura margem de lucro, mão de obra, impostos, frete e demais campos.
 - Aplica, quando desejar, um **Serviço de Acabamento** (markup percentual) em itens de madeira.
 - Gera PDF profissional personalizado com logo e cores da sua marca.
+- Cria e compartilha um **Portfólio** de trabalhos (imagens + PDFs) com link público por slug.
 
 ### Madeireira
 - Cadastra o catálogo **diretamente no app** (fluxo principal), dividido em 4 categorias:
@@ -23,12 +24,15 @@ OrçaMadeira é um SaaS web responsivo mobile-first para marceneiros e carpintei
 ## Regras de Negócio Críticas
 
 ### Orçamentos
-1. Fórmula: **Materiais + Mão de Obra + Margem de Lucro + Impostos = Preço Final**
+**Status possíveis**: `rascunho` → `salvo` | `enviado` | `pedido_fechado` | `cancelado`.
+
+1. Fórmula: **Materiais + Mão de Obra + Deslocamento + Custos Adicionais + Margem de Lucro + Impostos = Preço Final**
 2. Preços de materiais vêm SEMPRE do catálogo da madeireira vinculada.
 3. O carpinteiro define mão de obra por projeto (fixo) ou por hora × horas estimadas.
 4. Margem de lucro é um percentual definido pelo carpinteiro.
 5. Impostos são configuráveis (ISS etc.).
 6. O orçamento gera um PDF profissional com logo, detalhes e preços (opção de exibir ou ocultar materiais/mão de obra).
+7. **Regra de privacidade do PDF**: `deslocamento`, `custos_adicionais` e `valor_margem` **jamais aparecem no PDF** — independente do toggle "Detalhes".
 
 ### Catálogo — regras de cálculo
 - **Espécie:** `valor_m3_venda = custo_m3 * (1 + margem_lucro_pct / 100)` — **calculado, nunca armazenado**. Ajustar custo ou margem reflete automaticamente em todas as madeiras da espécie.
@@ -44,7 +48,7 @@ OrçaMadeira é um SaaS web responsivo mobile-first para marceneiros e carpintei
 ### Vinculação Carpinteiro ↔ Madeireira
 - Cada carpinteiro vincula-se a uma madeireira principal (status `pendente` → `aprovada`/`rejeitada`).
 - Se a madeireira atualizar custo, margem ou comprimentos, **orçamentos em rascunho** usam os valores novos.
-- **Orçamentos finalizados** mantêm os preços do momento da finalização (snapshot em `itens_orcamento.preco_unitario` e demais colunas de snapshot).
+- **Orçamentos com status `salvo`, `enviado` ou `pedido_fechado`** mantêm os preços do momento da finalização (snapshot em `itens_orcamento.preco_unitario` e demais colunas de snapshot).
 
 ### Importação via Planilha (legado / bulk)
 - Aceita CSV e Excel (`.xlsx`, `.xls`).
@@ -63,6 +67,7 @@ OrçaMadeira é um SaaS web responsivo mobile-first para marceneiros e carpintei
 - **Roteamento**: React Router v7.
 - **Font**: Inter Variable. **Ícones**: Lucide React.
 - **Backend**: Supabase (Auth + Postgres + Storage). Todas as tabelas com RLS.
+  - Tabelas principais de portfólio: `portfolios`, `portfolio_arquivos`. Bucket de storage: `portfolios`.
 - **PDF**: `@react-pdf/renderer` 4.
 - **Planilhas**: PapaParse + SheetJS (xlsx).
 - **Path alias**: `@/` → `./src/`.

@@ -27,11 +27,11 @@ type OrcamentoResumo = Pick<
 >
 
 interface DashboardStats {
-  totalConvertido: number
-  totalPendente: number
-  countConvertidos: number
-  countPendentes: number
-  countRascunhos: number
+  totalPedidosFechados: number
+  totalSalvos: number
+  countPedidosFechados: number
+  countSalvos: number
+  countCancelados: number
   recentes: OrcamentoResumo[]
 }
 
@@ -127,31 +127,31 @@ export default function CarpinteiroDashboardPage() {
         const fromIso = `${dateRange.from}T00:00:00`
         const toIso = `${dateRange.to}T23:59:59`
 
-        const [convertidosRes, pendentesRes, rascunhosRes, recentesRes] = await Promise.all([
-          // Orçamentos finalizados (salvo + pedido_fechado) no período
+        const [pedidosFechadosRes, salvosRes, canceladosRes, recentesRes] = await Promise.all([
+          // Apenas pedidos efetivamente fechados no período — base das métricas de receita
           supabase
             .from('orcamentos')
             .select('total')
             .eq('carpinteiro_id', carpinteiro!.id)
-            .in('status', ['salvo', 'pedido_fechado'])
+            .eq('status', 'pedido_fechado')
             .gte('created_at', fromIso)
             .lte('created_at', toIso),
 
-          // Orçamentos enviados (aguardando resposta) no período
+          // Orçamentos salvos (prontos mas ainda não convertidos em pedido)
           supabase
             .from('orcamentos')
             .select('total')
             .eq('carpinteiro_id', carpinteiro!.id)
-            .eq('status', 'enviado')
+            .eq('status', 'salvo')
             .gte('created_at', fromIso)
             .lte('created_at', toIso),
 
-          // Rascunhos em andamento no período
+          // Orçamentos cancelados no período
           supabase
             .from('orcamentos')
             .select('id')
             .eq('carpinteiro_id', carpinteiro!.id)
-            .eq('status', 'rascunho')
+            .eq('status', 'cancelado')
             .gte('created_at', fromIso)
             .lte('created_at', toIso),
 
@@ -168,11 +168,11 @@ export default function CarpinteiroDashboardPage() {
           (rows ?? []).reduce((acc, r) => acc + (r.total as number), 0)
 
         setStats({
-          totalConvertido: sum(convertidosRes.data ?? []),
-          totalPendente: sum(pendentesRes.data ?? []),
-          countConvertidos: convertidosRes.data?.length ?? 0,
-          countPendentes: pendentesRes.data?.length ?? 0,
-          countRascunhos: rascunhosRes.data?.length ?? 0,
+          totalPedidosFechados: sum(pedidosFechadosRes.data ?? []),
+          totalSalvos: sum(salvosRes.data ?? []),
+          countPedidosFechados: pedidosFechadosRes.data?.length ?? 0,
+          countSalvos: salvosRes.data?.length ?? 0,
+          countCancelados: canceladosRes.data?.length ?? 0,
           recentes: (recentesRes.data ?? []) as OrcamentoResumo[],
         })
       } finally {
@@ -299,25 +299,42 @@ export default function CarpinteiroDashboardPage() {
       {/* Grade de métricas gerais filtradas pelo período */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <MetricCard
-          label="Propostas Convertidas"
-          value={loading ? '—' : BRL.format(stats?.totalConvertido ?? 0)}
-          description={loading ? '' : `${stats?.countConvertidos ?? 0} finalizadas`}
+          label="Pedidos Fechados"
+          value={loading ? '—' : BRL.format(stats?.totalPedidosFechados ?? 0)}
+          description={
+            loading
+              ? ''
+              : `${stats?.countPedidosFechados ?? 0} ${
+                  (stats?.countPedidosFechados ?? 0) === 1 ? 'pedido' : 'pedidos'
+                }`
+          }
           dot="primary"
           loading={loading}
+          hideable
         />
         <MetricCard
-          label="Pendentes"
-          value={loading ? '—' : BRL.format(stats?.totalPendente ?? 0)}
-          description={loading ? '' : `${stats?.countPendentes ?? 0} aguardando assinatura`}
+          label="Orçamentos Salvos"
+          value={loading ? '—' : BRL.format(stats?.totalSalvos ?? 0)}
+          description={
+            loading
+              ? ''
+              : `${stats?.countSalvos ?? 0} ${
+                  (stats?.countSalvos ?? 0) === 1 ? 'salvo' : 'salvos'
+                }`
+          }
           dot="secondary"
           loading={loading}
+          hideable
         />
         <MetricCard
-          label="Rascunhos"
-          value={loading ? '—' : String(stats?.countRascunhos ?? 0)}
-          description="em andamento"
+          label="Orçamentos Cancelados"
+          value={loading ? '—' : String(stats?.countCancelados ?? 0)}
+          description={
+            (stats?.countCancelados ?? 0) === 1 ? 'cancelado no período' : 'cancelados no período'
+          }
           dot="outline"
           loading={loading}
+          hideable
         />
       </div>
 
@@ -331,16 +348,16 @@ export default function CarpinteiroDashboardPage() {
           <MetricCard
             label="Mão de Obra"
             value={metricas.loading ? '—' : BRL.format(metricas.totalMaoObra)}
-            description="total de pedidos fechados"
             dot="secondary"
             loading={metricas.loading}
+            hideable
           />
           <MetricCard
             label="Margem de Lucro"
             value={metricas.loading ? '—' : BRL.format(metricas.totalMargem)}
-            description="total de pedidos fechados"
             dot="primary"
             loading={metricas.loading}
+            hideable
           />
           <MetricCard
             label="Margem + Mão de Obra"
@@ -348,6 +365,7 @@ export default function CarpinteiroDashboardPage() {
             description="rentabilidade operacional"
             dot="primary"
             loading={metricas.loading}
+            hideable
           />
           <MetricCard
             label="Total de Custos"
@@ -355,6 +373,7 @@ export default function CarpinteiroDashboardPage() {
             description="imposto + deslocamento + adicionais"
             dot="outline"
             loading={metricas.loading}
+            hideable
           />
           <MetricCard
             label="Pedidos Fechados"
@@ -364,6 +383,7 @@ export default function CarpinteiroDashboardPage() {
             }
             dot="primary"
             loading={metricas.loading}
+            hideable
             className="sm:col-span-2 lg:col-span-1"
           />
         </div>

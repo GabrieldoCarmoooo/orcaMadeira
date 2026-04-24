@@ -23,6 +23,9 @@ const CarpinteiroEditarOrcamentoPage = lazy(() => import('@/pages/carpinteiro/ed
 const CarpinteiroCatalogoPage = lazy(() => import('@/pages/carpinteiro/catalogo-page'))
 const CarpinteiroPropostaPage = lazy(() => import('@/pages/carpinteiro/proposta-page'))
 
+// Página pública (sem autenticação)
+const PortfolioPublicoPage = lazy(() => import('@/pages/public/portfolio-publico-page'))
+
 // Madeireira pages
 const MadeireiraDashboardPage = lazy(() => import('@/pages/madeireira/dashboard-page'))
 const MadeireiraPerfilPage = lazy(() => import('@/pages/madeireira/perfil-page'))
@@ -81,8 +84,15 @@ export default function App() {
           <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
           <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordPage />} />
 
+          {/* Portfólio público — acessível sem autenticação */}
+          <Route path="/p/:slug" element={<PortfolioPublicoPage />} />
+
           {/* Carpinteiro — requires role "carpinteiro" */}
           <Route element={<AuthGuard requiredRole="carpinteiro" />}>
+            {/* Proposta PDF renderiza em tela cheia (fora do DashboardLayout)
+                para que o PDFViewer ocupe toda a altura disponível da viewport */}
+            <Route path="/carpinteiro/orcamentos/:id/proposta" element={<CarpinteiroPropostaPage />} />
+
             <Route element={<DashboardLayout role="carpinteiro" />}>
               <Route path={ROUTES.CARPINTEIRO_DASHBOARD} element={<CarpinteiroDashboardPage />} />
               <Route path={ROUTES.CARPINTEIRO_PERFIL} element={<CarpinteiroPerfilPage />} />
@@ -91,7 +101,6 @@ export default function App() {
               <Route path={ROUTES.CARPINTEIRO_CATALOGO} element={<CarpinteiroCatalogoPage />} />
               <Route path={ROUTES.CARPINTEIRO_NOVO_ORCAMENTO} element={<CarpinteiroNovoOrcamentoPage />} />
               <Route path="/carpinteiro/orcamentos/:id/editar" element={<CarpinteiroEditarOrcamentoPage />} />
-              <Route path="/carpinteiro/orcamentos/:id/proposta" element={<CarpinteiroPropostaPage />} />
               <Route path="/carpinteiro/orcamentos/:id" element={<CarpinteiroOrcamentoDetalhePage />} />
             </Route>
           </Route>

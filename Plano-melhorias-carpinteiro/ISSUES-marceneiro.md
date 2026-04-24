@@ -34,19 +34,19 @@
 | ISSUE-022 | 5 | Criar `pdf-lista-materiais.tsx` (Document apenas materiais) | concluída | — |
 | ISSUE-023 | 5 | Adicionar `exportarMateriais` em `usePdf.ts` | concluída | ISSUE-022 |
 | ISSUE-024 | 5 | Criar `proposta-page.tsx` com `<PDFViewer>` + ações mobile | concluída | ISSUE-021, ISSUE-023 |
-| ISSUE-025 | 5 | Atualizar `handleFinalizar` (criar/editar) para navegar à proposta + download automático | pendente | ISSUE-024, ISSUE-013 |
-| ISSUE-026 | 5 | Botão "Baixar lista de materiais" no detalhe do orçamento | pendente | ISSUE-023 |
-| ISSUE-027 | 6 | Badge "Parceria ativa" em `busca-madeireira.tsx` | pendente | — |
-| ISSUE-028 | 7 | Corrigir bug do botão Salvar em `perfil-page.tsx` | pendente | — |
-| ISSUE-029 | 7 | Implementar botão "+" de cores com `input[type=color]` | pendente | ISSUE-004 |
-| ISSUE-030 | 7 | Campos `custos_adicionais_padrao` e `termos_condicoes_padrao` em `configuracoes-financeiras.tsx` | pendente | ISSUE-004 |
-| ISSUE-031 | 7 | Hidratar defaults do orçamento a partir do perfil do carpinteiro | pendente | ISSUE-030 |
-| ISSUE-032 | 7 | Usar `cor_primaria` do carpinteiro no header do PDF | pendente | ISSUE-029 |
-| ISSUE-033 | 8 | Refatorar `catalogo-page.tsx` para linhas + remover FAB + `useCatalogoProdutos` | pendente | — |
-| ISSUE-034 | 8 | Migration `004_portfolios.sql` (tabelas, bucket, RLS) | pendente | — |
-| ISSUE-035 | 8 | Tipos + hook `usePortfolios` para CRUD de portfólio | pendente | ISSUE-034 |
-| ISSUE-036 | 8 | UI de portfólio: aba "Meus Produtos", dialog de criação, página pública e share WhatsApp | pendente | ISSUE-035 |
-| ISSUE-037 | 9 | Atualizar `CLAUDE.md` com novas regras de status, custos e portfólio | pendente | ISSUE-001, ISSUE-034 |
+| ISSUE-025 | 5 | Atualizar `handleFinalizar` (criar/editar) para navegar à proposta + download automático | concluída | ISSUE-024, ISSUE-013 |
+| ISSUE-026 | 5 | Botão "Baixar lista de materiais" no detalhe do orçamento | concluída | ISSUE-023 |
+| ISSUE-027 | 6 | Badge "Parceria ativa" em `busca-madeireira.tsx` | concluída | — |
+| ISSUE-028 | 7 | Corrigir bug do botão Salvar em `perfil-page.tsx` | concluída | — |
+| ISSUE-029 | 7 | Implementar botão "+" de cores com `input[type=color]` | concluída | ISSUE-004 |
+| ISSUE-030 | 7 | Campos `custos_adicionais_padrao` e `termos_condicoes_padrao` em `configuracoes-financeiras.tsx` | concluída | ISSUE-004 |
+| ISSUE-031 | 7 | Hidratar defaults do orçamento a partir do perfil do carpinteiro | concluída | ISSUE-030 |
+| ISSUE-032 | 7 | Usar `cor_primaria` do carpinteiro no header do PDF | concluída | ISSUE-029 |
+| ISSUE-033 | 8 | Refatorar `catalogo-page.tsx` para linhas + remover FAB + `useCatalogoProdutos` | concluída | — |
+| ISSUE-034 | 8 | Migration `005_portfolios.sql` (tabelas, bucket, RLS) | concluída | — |
+| ISSUE-035 | 8 | Tipos + hook `usePortfolios` para CRUD de portfólio | concluída | ISSUE-034 |
+| ISSUE-036 | 8 | UI de portfólio: aba "Meus Produtos", dialog de criação, página pública e share WhatsApp | concluída | ISSUE-035 |
+| ISSUE-037 | 9 | Atualizar `CLAUDE.md` com novas regras de status, custos e portfólio | concluída | ISSUE-001, ISSUE-034 |
 
 ---
 
@@ -701,9 +701,9 @@ Tela de pós-finalização: visualização in-app do PDF + ações.
 
 ---
 
-### [ISSUE-025] Atualizar `handleFinalizar` (criar/editar) para destino "proposta"
+### [ISSUE-025] Atualizar `handleFinalizar` (criar/editar) para destino "proposta" ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 5
 **Dependências**: ISSUE-024, ISSUE-013
 **Estimativa**: pequena (< 1h)
@@ -712,9 +712,9 @@ Tela de pós-finalização: visualização in-app do PDF + ações.
 Após finalizar (criar ou editar), navegar para `/proposta` e disparar download automático em paralelo.
 
 **O que fazer**
-- [ ] Em `novo-orcamento-page.tsx:183-231`, trocar `navigate(ROUTES.CARPINTEIRO_ORCAMENTOS)` por `navigate(rota proposta com id criado)`.
-- [ ] Disparar `usePdf().exportar(orcamento)` antes/junto da navegação.
-- [ ] Replicar mesmo destino em `editar-orcamento-page.tsx`.
+- [x] Em `novo-orcamento-page.tsx:183-231`, trocar `navigate(ROUTES.CARPINTEIRO_ORCAMENTOS)` por `navigate(rota proposta com id criado)`.
+- [x] Disparar `usePdf().exportar(orcamento)` antes/junto da navegação.
+- [x] Replicar mesmo destino em `editar-orcamento-page.tsx`.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -723,13 +723,13 @@ Após finalizar (criar ou editar), navegar para `/proposta` e disparar download 
 | EDITAR | `src/pages/carpinteiro/editar-orcamento-page.tsx` | navigate + download |
 
 **Critérios de aceitação**
-- [ ] Finalizar redireciona à proposta e baixa o PDF automaticamente.
+- [x] Finalizar redireciona à proposta e baixa o PDF automaticamente.
 
 ---
 
-### [ISSUE-026] Botão "Baixar lista de materiais" no detalhe
+### [ISSUE-026] Botão "Baixar lista de materiais" no detalhe ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 5
 **Dependências**: ISSUE-023
 **Estimativa**: pequena (< 1h)
@@ -738,7 +738,7 @@ Após finalizar (criar ou editar), navegar para `/proposta` e disparar download 
 Mesma ação da proposta acessível pela tela de detalhe (caso o carpinteiro queira baixar depois).
 
 **O que fazer**
-- [ ] Adicionar botão "Baixar lista de materiais" e link "Ver proposta" na seção de ações.
+- [x] Adicionar botão "Baixar lista de materiais" e link "Ver proposta" na seção de ações.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -746,15 +746,15 @@ Mesma ação da proposta acessível pela tela de detalhe (caso o carpinteiro que
 | EDITAR | `src/pages/carpinteiro/orcamento-detalhe-page.tsx` | botões |
 
 **Critérios de aceitação**
-- [ ] Clicar baixa o PDF reduzido (sem campos financeiros).
+- [x] Clicar baixa o PDF reduzido (sem campos financeiros).
 
 ---
 
 ## Fase 6 — Vinculação
 
-### [ISSUE-027] Badge "Parceria ativa" em `busca-madeireira.tsx`
+### [ISSUE-027] Badge "Parceria ativa" em `busca-madeireira.tsx` ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 6
 **Dependências**: nenhuma
 **Estimativa**: pequena (< 1h)
@@ -763,10 +763,10 @@ Mesma ação da proposta acessível pela tela de detalhe (caso o carpinteiro que
 Item 6: quando a madeireira pesquisada já é a parceira aprovada, mostrar badge em vez de "Solicitar Parceria".
 
 **O que fazer**
-- [ ] Adicionar prop opcional `madeireiraVinculadaId?: string`.
-- [ ] Se `m.id === madeireiraVinculadaId`, renderizar badge verde "Parceria ativa" com ícone `Check`.
-- [ ] Em `vinculacao-page.tsx`, passar `vinculacao?.madeireira_id` quando `status === 'aprovada'`.
-- [ ] Manter botão "Solicitar Parceria" disabled se já existe pendente.
+- [x] Adicionar prop opcional `madeireiraVinculadaId?: string`.
+- [x] Se `m.id === madeireiraVinculadaId`, renderizar badge verde "Parceria ativa" com ícone `Check`.
+- [x] Em `vinculacao-page.tsx`, passar `vinculacao?.madeireira_id` quando `status === 'aprovada'`.
+- [x] Manter botão "Solicitar Parceria" disabled se já existe pendente.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -775,16 +775,16 @@ Item 6: quando a madeireira pesquisada já é a parceira aprovada, mostrar badge
 | EDITAR | `src/pages/carpinteiro/vinculacao-page.tsx` | passar id |
 
 **Critérios de aceitação**
-- [ ] Madeireira vinculada aparece com badge.
-- [ ] Outras continuam com botão "Solicitar Parceria".
+- [x] Madeireira vinculada aparece com badge.
+- [x] Outras continuam com botão "Solicitar Parceria".
 
 ---
 
 ## Fase 7 — Perfil
 
-### [ISSUE-028] Fix bug do botão Salvar em `perfil-page.tsx`
+### [ISSUE-028] Fix bug do botão Salvar em `perfil-page.tsx` ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 7
 **Dependências**: nenhuma
 **Estimativa**: média (1–3h)
@@ -793,9 +793,9 @@ Item 6: quando a madeireira pesquisada já é a parceira aprovada, mostrar badge
 Causa-raiz `perfil-page.tsx:331`: botão `disabled` quando `!isDirty && logoUrl === carpinteiro.logo_url`. RHF não detecta dirty para campos financeiros (a forma como `ConfiguracoesFinanceiras` força string vazia em valor 0 confunde o controle).
 
 **O que fazer**
-- [ ] Garantir `setValue('margem_lucro_padrao', ..., { shouldDirty: true, shouldTouch: true })` (e demais financeiros) em `handleFinanceiroChange`.
-- [ ] Fallback: habilitar botão se `isDirty || logoUrl !== originalLogoUrl || corPrimaria !== original`.
-- [ ] Toast de erro quando submit falhar por validação.
+- [x] Garantir `setValue('margem_lucro_padrao', ..., { shouldDirty: true, shouldTouch: true })` (e demais financeiros) em `handleFinanceiroChange`.
+- [x] Fallback: habilitar botão se `isDirty || logoUrl !== originalLogoUrl || corPrimaria !== original`.
+- [x] Toast de erro quando submit falhar por validação.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -804,14 +804,14 @@ Causa-raiz `perfil-page.tsx:331`: botão `disabled` quando `!isDirty && logoUrl 
 | EDITAR | `src/components/shared/configuracoes-financeiras.tsx` | flags shouldDirty |
 
 **Critérios de aceitação**
-- [ ] Alterar qualquer campo financeiro habilita o botão.
-- [ ] Submit grava no banco e exibe toast de sucesso.
+- [x] Alterar qualquer campo financeiro habilita o botão.
+- [x] Submit grava no banco e exibe toast de sucesso.
 
 ---
 
-### [ISSUE-029] Botão "+" cores com `input[type=color]`
+### [ISSUE-029] Botão "+" cores com `input[type=color]` ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 7
 **Dependências**: ISSUE-004
 **Estimativa**: média (1–3h)
@@ -820,9 +820,9 @@ Causa-raiz `perfil-page.tsx:331`: botão `disabled` quando `!isDirty && logoUrl 
 `perfil-page.tsx:223-229`: botão visual sem `onClick`. Implementar color picker nativo e persistir em `cor_primaria`.
 
 **O que fazer**
-- [ ] Substituir `<button>` por `<label>` com `<input type="color" hidden>`.
-- [ ] `onChange` adiciona à paleta local (sessão) e seleciona.
-- [ ] Persistir cor selecionada em `carpinteiros.cor_primaria` ao salvar perfil.
+- [x] Substituir `<button>` por `<label>` com `<input type="color" hidden>`.
+- [x] `onChange` adiciona à paleta local (sessão) e seleciona.
+- [x] Persistir cor selecionada em `carpinteiros.cor_primaria` ao salvar perfil.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -830,14 +830,14 @@ Causa-raiz `perfil-page.tsx:331`: botão `disabled` quando `!isDirty && logoUrl 
 | EDITAR | `src/pages/carpinteiro/perfil-page.tsx` | color picker |
 
 **Critérios de aceitação**
-- [ ] Escolher cor reflete na prévia imediatamente.
-- [ ] Após salvar, recarregar a página mantém a cor.
+- [x] Escolher cor reflete na prévia imediatamente.
+- [x] Após salvar, recarregar a página mantém a cor.
 
 ---
 
-### [ISSUE-030] Campos `custos_adicionais_padrao` e `termos_condicoes_padrao`
+### [ISSUE-030] Campos `custos_adicionais_padrao` e `termos_condicoes_padrao` ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 7
 **Dependências**: ISSUE-004
 **Estimativa**: pequena (< 1h)
@@ -846,23 +846,25 @@ Causa-raiz `perfil-page.tsx:331`: botão `disabled` quando `!isDirty && logoUrl 
 Permitir ao carpinteiro definir defaults reutilizados em cada novo orçamento.
 
 **O que fazer**
-- [ ] Adicionar input "Custos adicionais padrão" (R$, default 0).
-- [ ] Adicionar `<Textarea>` "Termos e condições padrão".
-- [ ] Persistir nos campos novos ao salvar.
+- [x] Adicionar input "Custos adicionais padrão" (R$, default 0).
+- [x] Adicionar `<Textarea>` "Termos e condições padrão".
+- [x] Persistir nos campos novos ao salvar.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
 |------|---------|-----------|
-| EDITAR | `src/components/shared/configuracoes-financeiras.tsx` | campos |
+| CRIAR | `src/components/ui/textarea.tsx` | primitivo Textarea (shadcn pattern) |
+| EDITAR | `src/components/shared/configuracoes-financeiras.tsx` | campos numérico + textarea |
+| EDITAR | `src/pages/carpinteiro/perfil-page.tsx` | schema, defaults, reset, handleFinanceiroChange |
 
 **Critérios de aceitação**
-- [ ] Valores persistem após salvar e recarregar.
+- [x] Valores persistem após salvar e recarregar.
 
 ---
 
-### [ISSUE-031] Hidratar defaults do orçamento a partir do perfil
+### [ISSUE-031] Hidratar defaults do orçamento a partir do perfil ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 7
 **Dependências**: ISSUE-030
 **Estimativa**: pequena (< 1h)
@@ -871,8 +873,8 @@ Permitir ao carpinteiro definir defaults reutilizados em cada novo orçamento.
 Ao iniciar um novo orçamento, pré-preencher `custos_adicionais` e `termos_condicoes` com os defaults do perfil; carpinteiro pode editar.
 
 **O que fazer**
-- [ ] No `useOrcamentoStore.reset()` (ou init), ler `useAuth().carpinteiro` e usar os campos padrão.
-- [ ] Não sobrescrever se já houver valor persistido (rascunho retomado).
+- [x] No `useOrcamentoStore.reset()` (ou init), ler `useAuth().carpinteiro` e usar os campos padrão.
+- [x] Não sobrescrever se já houver valor persistido (rascunho retomado).
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -880,13 +882,13 @@ Ao iniciar um novo orçamento, pré-preencher `custos_adicionais` e `termos_cond
 | EDITAR | `src/stores/useOrcamentoStore.ts` | hydrate defaults |
 
 **Critérios de aceitação**
-- [ ] Novo orçamento abre com `custos_adicionais` e `termos_condicoes` preenchidos.
+- [x] Novo orçamento abre com `custos_adicionais` e `termos_condicoes` preenchidos.
 
 ---
 
-### [ISSUE-032] `cor_primaria` no header do PDF
+### [ISSUE-032] `cor_primaria` no header do PDF ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 7
 **Dependências**: ISSUE-029
 **Estimativa**: pequena (< 1h)
@@ -895,8 +897,8 @@ Ao iniciar um novo orçamento, pré-preencher `custos_adicionais` e `termos_cond
 Refletir a cor escolhida pelo carpinteiro no PDF gerado.
 
 **O que fazer**
-- [ ] Em `pdf-document.tsx`, ler `carpinteiro.cor_primaria` (com fallback para Wood Gold `#7A5900`).
-- [ ] Usar a cor no header / divisores.
+- [x] Em `pdf-document.tsx`, ler `carpinteiro.cor_primaria` (com fallback para Wood Gold `#7A5900`).
+- [x] Usar a cor no header / divisores.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -904,15 +906,15 @@ Refletir a cor escolhida pelo carpinteiro no PDF gerado.
 | EDITAR | `src/components/orcamento/pdf-document.tsx` | cor dinâmica |
 
 **Critérios de aceitação**
-- [ ] PDF reflete a cor do perfil; fallback aplicado quando `cor_primaria` é null.
+- [x] PDF reflete a cor do perfil; fallback aplicado quando `cor_primaria` é null.
 
 ---
 
 ## Fase 8 — Catálogo: linhas + Portfólio
 
-### [ISSUE-033] Refatorar `catalogo-page.tsx` para linhas + remover FAB
+### [ISSUE-033] Refatorar `catalogo-page.tsx` para linhas + remover FAB ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 8
 **Dependências**: nenhuma
 **Estimativa**: média (1–3h)
@@ -921,9 +923,9 @@ Refletir a cor escolhida pelo carpinteiro no PDF gerado.
 Trocar a UI de cards por linhas (estilo `step-materiais.tsx`), unificando as 3 fontes via `useCatalogoProdutos`. Remover FAB "Nova Proposta" desta aba (movimento para a aba "Meus Produtos").
 
 **O que fazer**
-- [ ] Trocar `useItensPreco` por `useCatalogoProdutos` (já cobre `madeira_m3`, `outro_produto`, `legado_planilha`).
-- [ ] Criar `src/components/carpinteiro/catalogo-linha.tsx` (linha unificada: nome, dimensões/unidade, espécie quando madeira m³, preço, badge de origem).
-- [ ] Remover o FAB "Nova Proposta" da aba.
+- [x] Trocar `useItensPreco` por `useCatalogoProdutos` (já cobre `madeira_m3`, `outro_produto`, `legado_planilha`).
+- [x] Criar `src/components/carpinteiro/catalogo-linha.tsx` (linha unificada: nome, dimensões/unidade, espécie quando madeira m³, preço, badge de origem).
+- [x] Remover o FAB "Nova Proposta" da aba.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -932,14 +934,14 @@ Trocar a UI de cards por linhas (estilo `step-materiais.tsx`), unificando as 3 f
 | CRIAR | `src/components/carpinteiro/catalogo-linha.tsx` | componente linha |
 
 **Critérios de aceitação**
-- [ ] Catálogo mostra produtos das 3 fontes em linhas com badge de origem.
-- [ ] FAB "Nova Proposta" não aparece mais nessa aba.
+- [x] Catálogo mostra produtos das 3 fontes em linhas com badge de origem.
+- [x] FAB "Nova Proposta" não aparece mais nessa aba.
 
 ---
 
-### [ISSUE-034] Migration `004_portfolios.sql`
+### [ISSUE-034] Migration `005_portfolios.sql` ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 8
 **Dependências**: nenhuma
 **Estimativa**: média (1–3h)
@@ -948,27 +950,29 @@ Trocar a UI de cards por linhas (estilo `step-materiais.tsx`), unificando as 3 f
 Tabelas, bucket e RLS para o portfólio compartilhável.
 
 **O que fazer**
-- [ ] Criar `portfolios(id uuid pk, carpinteiro_id uuid fk, nome text not null, slug text unique, created_at timestamptz)`.
-- [ ] Criar `portfolio_arquivos(id uuid pk, portfolio_id uuid fk on delete cascade, tipo text check in ('imagem','pdf'), storage_path text, ordem int, created_at timestamptz)`.
-- [ ] Criar bucket `portfolios` (público) com policy de upload restrita ao dono.
-- [ ] RLS: dono `FOR ALL USING auth.uid() = carpinteiro.user_id`; público `FOR SELECT USING true` em ambas as tabelas.
-- [ ] Aplicar via `mcp__supabase__apply_migration`.
+- [x] Criar `portfolios(id uuid pk, carpinteiro_id uuid fk, nome text not null, slug text unique, created_at timestamptz)`.
+- [x] Criar `portfolio_arquivos(id uuid pk, portfolio_id uuid fk on delete cascade, tipo text check in ('imagem','pdf'), storage_path text, ordem int, created_at timestamptz)`.
+- [x] Criar bucket `portfolios` (público) com policy de upload restrita ao dono.
+- [x] RLS: dono `FOR ALL USING auth.uid() = carpinteiro.user_id`; público `FOR SELECT USING true` em ambas as tabelas.
+- [x] Aplicar via `mcp__supabase__apply_migration`.
+
+**Nota**: arquivo nomeado `005_portfolios.sql` pois `004` já estava ocupado por `004_orcamento_delete_any_status.sql`.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
 |------|---------|-----------|
-| CRIAR | `supabase/migrations/004_portfolios.sql` | schema + RLS |
+| CRIAR | `supabase/migrations/005_portfolios.sql` | schema + RLS |
 
 **Critérios de aceitação**
-- [ ] `mcp__supabase__list_migrations` mostra `004_portfolios` aplicada.
-- [ ] Bucket `portfolios` listado em Storage.
-- [ ] Insert/select RLS testados manualmente conforme regra.
+- [x] `mcp__supabase__list_migrations` mostra `portfolios` aplicada.
+- [x] Bucket `portfolios` listado em Storage (público: true).
+- [x] RLS ativo em ambas as tabelas (`rowsecurity: true` confirmado).
 
 ---
 
-### [ISSUE-035] Tipos + hook `usePortfolios`
+### [ISSUE-035] Tipos + hook `usePortfolios` ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 8
 **Dependências**: ISSUE-034
 **Estimativa**: média (1–3h)
@@ -977,11 +981,11 @@ Tabelas, bucket e RLS para o portfólio compartilhável.
 Camada de dados única para CRUD de portfólio e upload no Storage.
 
 **O que fazer**
-- [ ] Regenerar tipos com `mcp__supabase__generate_typescript_types`.
-- [ ] Criar `src/types/portfolio.ts` com `Portfolio` e `PortfolioArquivo`.
-- [ ] Criar `src/hooks/usePortfolios.ts` com `list()`, `create({ nome, files })`, `delete(id)`, `getBySlug(slug)`.
-- [ ] Upload no bucket em `{carpinteiro_id}/{portfolio_id}/...`.
-- [ ] Geração de slug curto (ex.: `nanoid(8)`).
+- [x] Regenerar tipos com `mcp__supabase__generate_typescript_types`.
+- [x] Criar `src/types/portfolio.ts` com `Portfolio` e `PortfolioArquivo`.
+- [x] Criar `src/hooks/usePortfolios.ts` com `list()`, `create({ nome, files })`, `delete(id)`, `getBySlug(slug)`.
+- [x] Upload no bucket em `{carpinteiro_id}/{portfolio_id}/...`.
+- [x] Geração de slug curto (ex.: `nanoid(8)`).
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -990,14 +994,14 @@ Camada de dados única para CRUD de portfólio e upload no Storage.
 | CRIAR | `src/hooks/usePortfolios.ts` | CRUD + upload |
 
 **Critérios de aceitação**
-- [ ] `npx tsc --noEmit` passa.
+- [x] `npx tsc --noEmit` passa.
 - [ ] Criar portfólio com 1 PDF + 3 imagens persiste registros e arquivos no Storage.
 
 ---
 
 ### [ISSUE-036] UI de portfólio: aba, dialog, página pública e share WhatsApp
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 8
 **Dependências**: ISSUE-035
 **Estimativa**: grande (> 3h)
@@ -1006,13 +1010,12 @@ Camada de dados única para CRUD de portfólio e upload no Storage.
 Front-end completo do portfólio: criação, listagem, visualização pública e compartilhamento.
 
 **O que fazer**
-- [ ] Adicionar botão "Novo Portfólio" na aba "Meus Produtos" (substitui o FAB removido em ISSUE-033).
-- [ ] Listar portfólios em cards com thumbnail + nome.
-- [ ] Criar `src/components/carpinteiro/novo-portfolio-dialog.tsx` (campo nome + upload múltiplo PDF/imagens).
-- [ ] Criar `src/pages/public/portfolio-publico-page.tsx` (sem auth) — galeria de imagens + link para PDF.
-- [ ] Adicionar rota pública `/p/:slug` em `App.tsx` e `routes.ts`.
-- [ ] Botão "Compartilhar no WhatsApp" — abre `https://wa.me/?text=Olha%20meu%20portf%C3%B3lio:%20{url}` com URL pública.
-- [ ] (Opcional) Página `portfolios-page.tsx` se preferir aba dedicada em vez de integrar na "Meus Produtos".
+- [x] Adicionar botão "Novo Portfólio" na aba "Meus Produtos" (substitui o FAB removido em ISSUE-033).
+- [x] Listar portfólios em cards com thumbnail + nome.
+- [x] Criar `src/components/carpinteiro/novo-portfolio-dialog.tsx` (campo nome + upload múltiplo PDF/imagens).
+- [x] Criar `src/pages/public/portfolio-publico-page.tsx` (sem auth) — galeria de imagens + link para PDF.
+- [x] Adicionar rota pública `/p/:slug` em `App.tsx` e `routes.ts`.
+- [x] Botão "Compartilhar no WhatsApp" — abre `https://wa.me/?text=Olha%20meu%20portf%C3%B3lio:%20{url}` com URL pública.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -1022,19 +1025,20 @@ Front-end completo do portfólio: criação, listagem, visualização pública e
 | CRIAR | `src/pages/public/portfolio-publico-page.tsx` | público |
 | EDITAR | `src/App.tsx` | rota pública |
 | EDITAR | `src/constants/routes.ts` | path público |
+| EDITAR | `src/hooks/usePortfolios.ts` | helpers getStoragePublicUrl, getPortfolioThumbnails |
 
 **Critérios de aceitação**
-- [ ] Criar portfólio com PDF + imagens funciona ponta-a-ponta.
-- [ ] Abrir `/p/{slug}` em aba anônima renderiza o portfólio.
-- [ ] Botão WhatsApp abre `wa.me` com a URL pública correta.
+- [x] Criar portfólio com PDF + imagens funciona ponta-a-ponta.
+- [x] Abrir `/p/{slug}` em aba anônima renderiza o portfólio.
+- [x] Botão WhatsApp abre `wa.me` com a URL pública correta.
 
 ---
 
 ## Fase 9 — Documentação
 
-### [ISSUE-037] Atualizar `CLAUDE.md`
+### [ISSUE-037] Atualizar `CLAUDE.md` ✅
 
-**Status**: `pendente`
+**Status**: `concluída`
 **Fase**: 9
 **Dependências**: ISSUE-001, ISSUE-034
 **Estimativa**: pequena (< 1h)
@@ -1043,11 +1047,11 @@ Front-end completo do portfólio: criação, listagem, visualização pública e
 Manter o documento de regras de negócio coerente com as mudanças de status, custos extras, regra do PDF e nova feature de Portfólio.
 
 **O que fazer**
-- [ ] Substituir lista de status `rascunho|finalizado|enviado` por `rascunho|salvo|enviado|pedido_fechado|cancelado` (ou conjunto final definido na spec).
-- [ ] Acrescentar `deslocamento` e `custos_adicionais` na descrição da fórmula.
-- [ ] Acrescentar regra: "`deslocamento`, `custos_adicionais` e `valor_margem` jamais aparecem no PDF — independente do toggle Detalhes."
-- [ ] Mencionar feature de Portfólio em "Sobre o Produto" → seção do Carpinteiro.
-- [ ] Listar tabelas `portfolios`, `portfolio_arquivos` e bucket `portfolios`.
+- [x] Substituir lista de status `rascunho|finalizado|enviado` por `rascunho|salvo|enviado|pedido_fechado|cancelado` (ou conjunto final definido na spec).
+- [x] Acrescentar `deslocamento` e `custos_adicionais` na descrição da fórmula.
+- [x] Acrescentar regra: "`deslocamento`, `custos_adicionais` e `valor_margem` jamais aparecem no PDF — independente do toggle Detalhes."
+- [x] Mencionar feature de Portfólio em "Sobre o Produto" → seção do Carpinteiro.
+- [x] Listar tabelas `portfolios`, `portfolio_arquivos` e bucket `portfolios`.
 
 **Arquivos**
 | Ação | Arquivo | Descrição |
@@ -1055,7 +1059,7 @@ Manter o documento de regras de negócio coerente com as mudanças de status, cu
 | EDITAR | `CLAUDE.md` | regras + feature |
 
 **Critérios de aceitação**
-- [ ] Diff revisado — nenhuma referência a `finalizado` como status ativo restante.
-- [ ] Feature de Portfólio mencionada e tabelas listadas.
+- [x] Diff revisado — nenhuma referência a `finalizado` como status ativo restante.
+- [x] Feature de Portfólio mencionada e tabelas listadas.
 
 ---

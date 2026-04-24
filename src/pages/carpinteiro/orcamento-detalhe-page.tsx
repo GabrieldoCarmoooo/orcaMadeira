@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Loader2, AlertCircle, Pencil, Trash2 } from 'lucide-react'
+import { ArrowLeft, Loader2, AlertCircle, Pencil, Trash2, FileDown, Eye } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { useOrcamento } from '@/hooks/useOrcamento'
@@ -25,6 +25,7 @@ import {
 import { BotaoExportarPdf } from '@/components/orcamento/botao-exportar-pdf'
 import ToggleDetalhesPdf from '@/components/orcamento/toggle-detalhes-pdf'
 import { ROUTES } from '@/constants/routes'
+import { usePdf } from '@/hooks/usePdf'
 import type { OrcamentoStatus } from '@/types/common'
 
 const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -50,9 +51,6 @@ const STATUS_CLASS: Record<OrcamentoStatus, string> = {
   pedido_fechado: 'bg-green-600/10 text-green-700',
   cancelado: 'bg-red-500/10 text-red-600',
 }
-
-// Status que permitem exportar PDF (proposta já finalizada)
-const STATUS_COM_PDF = new Set<OrcamentoStatus>(['salvo', 'enviado', 'pedido_fechado'])
 
 const TIPO_LABEL: Record<string, string> = {
   movel: 'Móveis',
@@ -119,7 +117,9 @@ export default function OrcamentoDetalhePage() {
   const navigate = useNavigate()
   const { carpinteiro } = useAuthStore()
   const { orcamento, itens, loading, error } = useOrcamento(id)
-  const [mostrarDetalhes, setMostrarDetalhes] = useState(true)
+  const { exportarMateriais, loading: pdfLoading } = usePdf()
+  // Default desligado: "Baixar PDF" parte sempre de detalhes ocultos até o toggle ser ativado
+  const [mostrarDetalhes, setMostrarDetalhes] = useState(false)
 
   // Status local para atualização otimista ao usar o selector de status
   const [localStatus, setLocalStatus] = useState<OrcamentoStatus | null>(null)
@@ -128,6 +128,7 @@ export default function OrcamentoDetalhePage() {
   // Estado do dialog de confirmação de exclusão
   const [deleteDialog, setDeleteDialog] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   // Sincroniza o status local assim que o orçamento carrega do banco
   useEffect(() => {
@@ -136,44 +137,60 @@ export default function OrcamentoDetalhePage() {
 
   const statusAtual = localStatus ?? orcamento?.status
 
-  // Persiste a troca de status no banco; reverte em caso de erro
+  // Persiste a troca de status no banco; reverte em caso de erro.
+  // `.select()` retorna as linhas afetadas — array vazio = RLS bloqueou.
   async function handleStatusChange(novoStatus: string) {
     if (!orcamento || !carpinteiro) return
     const statusAnterior = localStatus
     setLocalStatus(novoStatus as OrcamentoStatus)
     setUpdatingStatus(true)
 
-    const { error: updateError } = await supabase
+    const { data, error: updateError } = await supabase
       .from('orcamentos')
       .update({ status: novoStatus as OrcamentoStatus })
       .eq('id', orcamento.id)
       .eq('carpinteiro_id', carpinteiro.id)
-
-    if (updateError) {
-      // Reverte para o status anterior quando a escrita falha
-      setLocalStatus(statusAnterior)
-    }
+      .select('id')
 
     setUpdatingStatus(false)
+
+    if (updateError || !data || data.length === 0) {
+      setLocalStatus(statusAnterior)
+      window.alert(
+        updateError?.message ?? 'Não foi possível alterar o status. Verifique suas permissões.',
+      )
+    }
   }
 
-  // Exclui o orçamento e redireciona para a lista após confirmação
+  // Exclui o orçamento e redireciona para a lista após confirmação.
+  // `.select()` garante que identificamos DELETE silenciosamente filtrado
+  // por RLS (data vazio) em vez de assumir sucesso no happy path.
   async function handleDeleteConfirm() {
     if (!orcamento || !carpinteiro) return
     setDeleting(true)
+    setDeleteError(null)
 
-    const { error: deleteError } = await supabase
+    const { data, error: deleteErr } = await supabase
       .from('orcamentos')
       .delete()
       .eq('id', orcamento.id)
       .eq('carpinteiro_id', carpinteiro.id)
+      .select('id')
 
     setDeleting(false)
 
-    if (!deleteError) {
-      setDeleteDialog(false)
-      navigate(ROUTES.CARPINTEIRO_ORCAMENTOS)
+    if (deleteErr) {
+      setDeleteError(deleteErr.message)
+      return
     }
+
+    if (!data || data.length === 0) {
+      setDeleteError('Não foi possível excluir o orçamento. Verifique suas permissões.')
+      return
+    }
+
+    setDeleteDialog(false)
+    navigate(ROUTES.CARPINTEIRO_ORCAMENTOS)
   }
 
   if (loading) {
@@ -205,8 +222,6 @@ export default function OrcamentoDetalhePage() {
     orcamento.mao_obra_tipo === 'hora'
       ? `Mão de obra (${orcamento.mao_obra_horas ?? 0}h × ${BRL.format(orcamento.mao_obra_valor)})`
       : 'Mão de obra (fixo)'
-
-  const temPdf = STATUS_COM_PDF.has(statusAtual)
 
   // Replica o status local no objeto para manter BotaoExportarPdf consistente com o selector
   const orcamentoComStatus = { ...orcamento, status: statusAtual }
@@ -287,21 +302,40 @@ export default function OrcamentoDetalhePage() {
             </Button>
           </div>
 
-          {/* Exportar PDF disponível apenas para propostas finalizadas */}
-          {temPdf && (
-            <>
-              <BotaoExportarPdf
-                orcamento={orcamentoComStatus}
-                itens={itens}
-                mostrarDetalhes={mostrarDetalhes}
-              />
-              {/* Componente compartilhado com AlertDialog de confirmação ao ligar */}
-              <ToggleDetalhesPdf
-                value={mostrarDetalhes}
-                onChange={setMostrarDetalhes}
-              />
-            </>
-          )}
+          {/* Ações de PDF disponíveis em qualquer status do orçamento */}
+          <BotaoExportarPdf
+            orcamento={orcamentoComStatus}
+            itens={itens}
+            mostrarDetalhes={mostrarDetalhes}
+          />
+          {/* Baixa o PDF de materiais sem campos financeiros (ISSUE-026) */}
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={pdfLoading}
+            onClick={() => exportarMateriais(orcamentoComStatus, itens)}
+          >
+            {pdfLoading ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <FileDown className="size-3.5" />
+            )}
+            Baixar lista de materiais
+          </Button>
+          {/* Navega para a página de visualização in-app da proposta (ISSUE-021/024) */}
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => navigate(ROUTES.CARPINTEIRO_ORCAMENTO_PROPOSTA(orcamento.id))}
+          >
+            <Eye className="size-3.5" />
+            Ver proposta
+          </Button>
+          {/* Componente compartilhado com AlertDialog de confirmação ao ligar */}
+          <ToggleDetalhesPdf
+            value={mostrarDetalhes}
+            onChange={setMostrarDetalhes}
+          />
         </div>
       </div>
 
@@ -401,7 +435,9 @@ export default function OrcamentoDetalhePage() {
         open={deleteDialog}
         onOpenChange={(open) => {
           // Bloqueia fechar o dialog enquanto a exclusão está em andamento
-          if (!deleting) setDeleteDialog(open)
+          if (deleting) return
+          setDeleteDialog(open)
+          if (!open) setDeleteError(null)
         }}
       >
         <AlertDialogContent>
@@ -411,6 +447,11 @@ export default function OrcamentoDetalhePage() {
               Esta ação não pode ser desfeita. O orçamento será removido permanentemente.
             </AlertDialogDescription>
           </AlertDialogHeader>
+          {deleteError && (
+            <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {deleteError}
+            </p>
+          )}
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
             <Button variant="destructive" disabled={deleting} onClick={handleDeleteConfirm}>

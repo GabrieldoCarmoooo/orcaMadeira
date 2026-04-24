@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Search, Building2, MapPin, Loader2 } from 'lucide-react'
+import { Search, Building2, MapPin, Loader2, Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -16,9 +16,11 @@ interface BuscaMadeireiraProps {
   onSolicitar: (madeireiraId: string) => Promise<void>
   /** Disable the solicitar button while a request is being sent */
   disabled?: boolean
+  /** ID da madeireira com parceria aprovada — exibe badge em vez de botão para essa entrada */
+  madeireiraVinculadaId?: string
 }
 
-export default function BuscaMadeireira({ onSolicitar, disabled = false }: BuscaMadeireiraProps) {
+export default function BuscaMadeireira({ onSolicitar, disabled = false, madeireiraVinculadaId }: BuscaMadeireiraProps) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<MadeireiraResult[]>([])
   const [searching, setSearching] = useState(false)
@@ -104,18 +106,26 @@ export default function BuscaMadeireira({ onSolicitar, disabled = false }: Busca
                   </div>
                 )}
               </div>
-              <Button
-                size="sm"
-                disabled={disabled || solicitandoId === m.id}
-                onClick={() => handleSolicitar(m)}
-                className="shrink-0"
-              >
-                {solicitandoId === m.id ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  'Solicitar Parceria'
-                )}
-              </Button>
+              {/* Parceria aprovada: badge no lugar do botão */}
+              {m.id === madeireiraVinculadaId ? (
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                  <Check className="h-3 w-3" />
+                  Parceria ativa
+                </span>
+              ) : (
+                <Button
+                  size="sm"
+                  disabled={disabled || solicitandoId === m.id}
+                  onClick={() => handleSolicitar(m)}
+                  className="shrink-0"
+                >
+                  {solicitandoId === m.id ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    'Solicitar Parceria'
+                  )}
+                </Button>
+              )}
             </li>
           ))}
         </ul>

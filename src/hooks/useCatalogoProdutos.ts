@@ -15,6 +15,8 @@ import type {
 interface UseCatalogoProdutosReturn {
   items: CatalogoItem[]
   isLoading: boolean
+  // true após a resolução da vinculação confirmar que existe vínculo aprovado
+  hasVinculacao: boolean
 }
 
 // Tipo interno para a row de madeira_m3 retornada pelo PostgREST com relações aninhadas
@@ -51,9 +53,13 @@ export function useCatalogoProdutos(query: string): UseCatalogoProdutosReturn {
   const [madeireiraId, setMadeireiraId] = useState<string | null>(null)
   const [tabelaId, setTabelaId] = useState<string | null>(null)
 
+  // Indica se foi encontrada vinculação aprovada — false até a resolução completar
+  const [hasVinculacao, setHasVinculacao] = useState(false)
+
   // Lista completa de itens (sem filtro de texto) — recarregada quando madeireiraId muda
   const [allItems, setAllItems] = useState<CatalogoItem[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  // Inicia true para evitar flash do estado "sem vinculação" antes da resolução terminar
+  const [isLoading, setIsLoading] = useState(true)
 
   // Query com debounce aplicado para filtrar client-side sem disparar fetch extra
   const [debouncedQuery, setDebouncedQuery] = useState(query)
@@ -65,6 +71,8 @@ export function useCatalogoProdutos(query: string): UseCatalogoProdutosReturn {
     if (!carpinteiro) {
       setMadeireiraId(null)
       setTabelaId(null)
+      setHasVinculacao(false)
+      setIsLoading(false)
       return
     }
 
@@ -77,11 +85,15 @@ export function useCatalogoProdutos(query: string): UseCatalogoProdutosReturn {
         .maybeSingle()
 
       if (!vinculacao) {
+        // Sem vínculo aprovado: encerra o loading e expõe o estado para a UI
         setMadeireiraId(null)
         setTabelaId(null)
+        setHasVinculacao(false)
+        setIsLoading(false)
         return
       }
 
+      setHasVinculacao(true)
       setMadeireiraId(vinculacao.madeireira_id)
 
       // Tabela de preço ativa — pode não existir se a madeireira ainda não importou planilha
@@ -93,6 +105,7 @@ export function useCatalogoProdutos(query: string): UseCatalogoProdutosReturn {
         .maybeSingle()
 
       setTabelaId(tabela?.id ?? null)
+      // fetchAll assume o controle do isLoading a partir daqui
     }
 
     resolveVinculacao()
@@ -206,5 +219,5 @@ export function useCatalogoProdutos(query: string): UseCatalogoProdutosReturn {
     return allItems.filter((item) => item.data.nome.toLowerCase().includes(lower))
   }, [allItems, debouncedQuery])
 
-  return { items, isLoading }
+  return { items, isLoading, hasVinculacao }
 }

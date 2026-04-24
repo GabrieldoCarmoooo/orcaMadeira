@@ -23,6 +23,8 @@ const perfilCarpinteiroSchema = z.object({
   margem_lucro_padrao: z.number().min(0).max(100),
   valor_hora_mao_obra: z.number().min(0),
   imposto_padrao: z.number().min(0).max(100),
+  custos_adicionais_padrao: z.number().min(0),
+  termos_condicoes_padrao: z.string(),
 })
 
 type PerfilFormValues = z.infer<typeof perfilCarpinteiroSchema>
@@ -46,6 +48,11 @@ export default function CarpinteiroPerfilPage() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null)
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [selectedColor, setSelectedColor] = useState(BRAND_COLORS[0])
+  // Cores personalizadas adicionadas via color picker durante a sessão
+  const [customColors, setCustomColors] = useState<string[]>([])
+  // Valores originais usados como fallback quando isDirty do RHF falha em detectar mudanças externas
+  const [originalLogoUrl, setOriginalLogoUrl] = useState<string | null>(null)
+  const [originalColor, setOriginalColor] = useState<string>(BRAND_COLORS[0])
 
   const {
     register,
@@ -61,6 +68,7 @@ export default function CarpinteiroPerfilPage() {
       nome: '', cpf_cnpj: '', telefone: '',
       endereco: '', cidade: '', estado: '',
       margem_lucro_padrao: 20, valor_hora_mao_obra: 0, imposto_padrao: 0,
+      custos_adicionais_padrao: 0, termos_condicoes_padrao: '',
     },
   })
 
@@ -73,35 +81,70 @@ export default function CarpinteiroPerfilPage() {
       margem_lucro_padrao: carpinteiro.margem_lucro_padrao,
       valor_hora_mao_obra: carpinteiro.valor_hora_mao_obra,
       imposto_padrao: carpinteiro.imposto_padrao,
+      custos_adicionais_padrao: carpinteiro.custos_adicionais_padrao ?? 0,
+      termos_condicoes_padrao: carpinteiro.termos_condicoes_padrao ?? '',
     })
+    // Sincroniza logo e cor a partir do perfil salvo no banco, guardando os originais para comparação
     setLogoUrl(carpinteiro.logo_url)
+    setOriginalLogoUrl(carpinteiro.logo_url)
+    const savedColor = carpinteiro.cor_primaria ?? BRAND_COLORS[0]
+    setSelectedColor(savedColor)
+    setOriginalColor(savedColor)
+    // Se a cor salva não for um preset, adiciona à paleta personalizada para exibição
+    if (carpinteiro.cor_primaria && !BRAND_COLORS.includes(carpinteiro.cor_primaria)) {
+      setCustomColors([carpinteiro.cor_primaria])
+    }
   }, [carpinteiro, reset])
 
   const financeiroValue = {
     margem_lucro_padrao: watch('margem_lucro_padrao'),
     valor_hora_mao_obra: watch('valor_hora_mao_obra'),
     imposto_padrao: watch('imposto_padrao'),
+    custos_adicionais_padrao: watch('custos_adicionais_padrao'),
+    termos_condicoes_padrao: watch('termos_condicoes_padrao'),
   }
 
   function handleFinanceiroChange(v: typeof financeiroValue) {
-    setValue('margem_lucro_padrao', v.margem_lucro_padrao, { shouldDirty: true })
-    setValue('valor_hora_mao_obra', v.valor_hora_mao_obra, { shouldDirty: true })
-    setValue('imposto_padrao', v.imposto_padrao, { shouldDirty: true })
+    // shouldTouch: true é necessário para garantir que isDirty do RHF seja atualizado
+    // após mudanças em campos controlados externamente (fora do register nativo do RHF)
+    setValue('margem_lucro_padrao', v.margem_lucro_padrao, { shouldDirty: true, shouldTouch: true })
+    setValue('valor_hora_mao_obra', v.valor_hora_mao_obra, { shouldDirty: true, shouldTouch: true })
+    setValue('imposto_padrao', v.imposto_padrao, { shouldDirty: true, shouldTouch: true })
+    setValue('custos_adicionais_padrao', v.custos_adicionais_padrao, { shouldDirty: true, shouldTouch: true })
+    setValue('termos_condicoes_padrao', v.termos_condicoes_padrao, { shouldDirty: true, shouldTouch: true })
+  }
+
+  // Durante o arrasto no picker nativo, atualiza apenas a prévia — não toca na paleta.
+  // O onChange do input[type=color] dispara a cada hover/drag; adicionar aqui criaria
+  // dezenas de bolinhas de cores intermediárias na paleta.
+  function handleCustomColorChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setSelectedColor(e.target.value)
+  }
+
+  // Commit: adiciona à paleta apenas quando o picker é fechado (blur no input oculto).
+  function handleCustomColorCommit(e: React.FocusEvent<HTMLInputElement>) {
+    const color = e.target.value
+    setCustomColors(prev => prev.includes(color) ? prev : [...prev, color])
+    setSelectedColor(color)
   }
 
   async function onSubmit(values: PerfilFormValues) {
     if (!carpinteiro) return
     setSaveSuccess(false)
     try {
+      // Persiste todos os campos do perfil, incluindo logo e cor_primaria controlados por estado local
       const { error } = await supabase
         .from('carpinteiros')
-        .update({ ...values, logo_url: logoUrl })
+        .update({ ...values, logo_url: logoUrl, cor_primaria: selectedColor })
         .eq('id', carpinteiro.id)
       if (error) throw error
 
       const { data: { session } } = await supabase.auth.getSession()
       await useAuthStore.getState().setSession(session)
       setSaveSuccess(true)
+      // Sincroniza os originais após salvar para que o botão volte a ficar desabilitado
+      setOriginalLogoUrl(logoUrl)
+      setOriginalColor(selectedColor)
       setTimeout(() => setSaveSuccess(false), 4000)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
@@ -109,8 +152,19 @@ export default function CarpinteiroPerfilPage() {
     }
   }
 
+  // Toast de erro exibido quando a validação do RHF rejeita o submit (campos inválidos)
+  function handleValidationError() {
+    setError('root', { message: 'Corrija os campos com erro antes de salvar.' })
+  }
+
   const nomeValue = watch('nome')
   const cidadeValue = watch('cidade')
+
+  // Fallback para isDirty: compara diretamente quando o RHF não detecta mudanças em campos externos
+  const hasUnsavedChanges =
+    isDirty ||
+    logoUrl !== originalLogoUrl ||
+    selectedColor !== originalColor
 
   if (!carpinteiro) {
     return (
@@ -121,7 +175,7 @@ export default function CarpinteiroPerfilPage() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate>
+    <form onSubmit={handleSubmit(onSubmit, handleValidationError)} noValidate>
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         {/* Left column — forms */}
         <div className="lg:col-span-7 space-y-6">
@@ -220,13 +274,42 @@ export default function CarpinteiroPerfilPage() {
                       title={color}
                     />
                   ))}
-                  <button
-                    type="button"
-                    className="w-12 h-12 rounded-full border-2 border-dashed border-on-surface-variant/30 flex items-center justify-center text-on-surface-variant/50 hover:border-primary/50 transition-colors"
-                    aria-label="Cor personalizada"
+
+                  {/* Cores personalizadas adicionadas via picker nesta sessão */}
+                  {customColors.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => setSelectedColor(color)}
+                      className="w-12 h-12 rounded-full transition-transform hover:scale-110 active:scale-95"
+                      style={{
+                        backgroundColor: color,
+                        boxShadow: selectedColor === color
+                          ? `0 0 0 3px white, 0 0 0 5px ${color}`
+                          : undefined,
+                      }}
+                      aria-label={`Selecionar cor ${color}`}
+                      title={color}
+                    />
+                  ))}
+
+                  {/* Label abre o color picker nativo do browser; input sr-only evita layout shift */}
+                  <label
+                    htmlFor="custom-color-input"
+                    className="w-12 h-12 rounded-full border-2 border-dashed border-on-surface-variant/30 flex items-center justify-center text-on-surface-variant/50 hover:border-primary/50 transition-colors cursor-pointer"
+                    aria-label="Escolher cor personalizada"
+                    title="Cor personalizada"
                   >
-                    <span className="text-lg leading-none">+</span>
-                  </button>
+                    <span className="text-lg leading-none select-none">+</span>
+                    <input
+                      id="custom-color-input"
+                      type="color"
+                      className="sr-only"
+                      value={selectedColor}
+                      onChange={handleCustomColorChange}
+                      onBlur={handleCustomColorCommit}
+                    />
+                  </label>
                 </div>
               </div>
 
@@ -328,7 +411,7 @@ export default function CarpinteiroPerfilPage() {
               type="submit"
               className="w-full font-bold uppercase tracking-widest"
               size="lg"
-              disabled={isSubmitting || (!isDirty && logoUrl === carpinteiro.logo_url)}
+              disabled={isSubmitting || !hasUnsavedChanges}
             >
               {isSubmitting && <Loader2 className="animate-spin" />}
               {isSubmitting ? 'Salvando…' : 'SALVAR ALTERAÇÕES'}

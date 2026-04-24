@@ -11,7 +11,9 @@ import { ResumoOrcamento } from '@/components/orcamento/resumo-orcamento'
 import { GrainProgress } from '@/components/ui/grain-progress'
 import { Button } from '@/components/ui/button'
 import { ROUTES } from '@/constants/routes'
+import { usePdf } from '@/hooks/usePdf'
 import type { ItemOrcamentoCalculo } from '@/lib/calcular-orcamento'
+import type { Orcamento, ItemOrcamento } from '@/types/orcamento'
 import ToggleDetalhesPdf from '@/components/orcamento/toggle-detalhes-pdf'
 
 // Valida integridade dos itens antes do insert para evitar violação do CHECK constraint no banco.
@@ -84,6 +86,8 @@ export default function NovoOrcamentoPage() {
   const { carpinteiro } = useAuthStore()
   const { step, stepProjeto, itens, stepFinanceiro, resumo, reset } = useOrcamentoStore()
 
+  const { exportar } = usePdf()
+
   const [loadingVinculacao, setLoadingVinculacao] = useState(true)
   const [madeireiraId, setMadeireiraId] = useState<string | null>(null)
   const [tabelaId, setTabelaId] = useState<string | null>(null)
@@ -93,11 +97,20 @@ export default function NovoOrcamentoPage() {
   const [saving, setSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
-  const [mostrarDetalhes, setMostrarDetalhes] = useState(true)
+  // Default desligado: PDFs novos não expõem mão de obra/materiais discriminados
+  // até que o carpinteiro explicitamente ligue o toggle (com AlertDialog de confirmação)
+  const [mostrarDetalhes, setMostrarDetalhes] = useState(false)
 
   useEffect(() => {
-    reset()
-  }, [reset])
+    // Pré-preenche defaults do perfil do carpinteiro; rascunhos retomados usam hydrate() e não passam por aqui
+    reset({
+      margem_lucro: carpinteiro?.margem_lucro_padrao ?? 0,
+      valor_hora_mao_obra: carpinteiro?.valor_hora_mao_obra ?? 0,
+      imposto: carpinteiro?.imposto_padrao ?? 0,
+      custos_adicionais: carpinteiro?.custos_adicionais_padrao ?? 0,
+      termos_condicoes: carpinteiro?.termos_condicoes_padrao ?? '',
+    })
+  }, [reset, carpinteiro])
 
   useEffect(() => {
     if (!carpinteiro) return
@@ -225,8 +238,68 @@ export default function NovoOrcamentoPage() {
           itens.map((item) => mapItemParaInsert(id!, item))
         )
       }
+
+      // Monta snapshot local do orçamento finalizado para o download automático do PDF.
+      // Evita um round-trip ao banco — todos os campos já estão disponíveis no state do wizard.
+      const now = new Date().toISOString()
+      const orcamentoParaPdf: Orcamento = {
+        id: id!,
+        carpinteiro_id: carpinteiro.id,
+        madeireira_id: madeireiraId,
+        tabela_snapshot_id: tabelaId,
+        status: 'salvo',
+        tipo_projeto: stepProjeto.tipo_projeto,
+        nome: stepProjeto.nome,
+        descricao: stepProjeto.descricao || null,
+        cliente_nome: stepProjeto.cliente_nome,
+        cliente_telefone: stepProjeto.cliente_telefone || null,
+        cliente_email: stepProjeto.cliente_email || null,
+        mao_obra_tipo: stepFinanceiro.mao_obra_tipo,
+        mao_obra_valor: stepFinanceiro.mao_obra_valor,
+        mao_obra_horas: stepFinanceiro.mao_obra_horas,
+        margem_lucro: stepFinanceiro.margem_lucro,
+        imposto: stepFinanceiro.imposto,
+        validade_dias: stepFinanceiro.validade_dias,
+        termos_condicoes: stepFinanceiro.termos_condicoes || null,
+        subtotal_materiais: resumo.subtotal_materiais,
+        subtotal_mao_obra: resumo.subtotal_mao_obra,
+        valor_margem: resumo.valor_margem,
+        valor_imposto: resumo.valor_imposto,
+        total: resumo.total,
+        deslocamento: resumo.deslocamento,
+        custos_adicionais: resumo.custos_adicionais,
+        created_at: now,
+        updated_at: now,
+        finalizado_at: now,
+      }
+      // Mapeia itens do store para ItemOrcamento para passar ao gerador de PDF
+      const itensParaPdf: ItemOrcamento[] = itens.map((item, idx) => ({
+        id: item.uid ?? item.item_preco_id ?? String(idx),
+        orcamento_id: id!,
+        item_preco_id: item.item_preco_id,
+        nome: item.nome,
+        unidade: item.unidade,
+        preco_unitario: item.preco_unitario,
+        quantidade: item.quantidade,
+        subtotal: item.preco_unitario * item.quantidade,
+        origem: item.origem,
+        madeira_m3_id: item.madeira_m3_id ?? null,
+        outro_produto_id: item.outro_produto_id ?? null,
+        especie_nome: item.especie_nome ?? null,
+        espessura_cm: item.espessura_cm ?? null,
+        largura_cm: item.largura_cm ?? null,
+        comprimento_real_m: item.comprimento_real_m ?? null,
+        comprimento_id: item.comprimento_id ?? null,
+        acabamento_id: item.acabamento_id ?? null,
+        acabamento_nome: item.acabamento_nome ?? null,
+        acabamento_percentual: item.acabamento_percentual ?? null,
+      }))
+
+      // Dispara download em paralelo — fire-and-forget para não bloquear a navegação
+      void exportar(orcamentoParaPdf, itensParaPdf, mostrarDetalhes)
+
       reset()
-      navigate(ROUTES.CARPINTEIRO_ORCAMENTOS)
+      navigate(ROUTES.CARPINTEIRO_ORCAMENTO_PROPOSTA(id!))
     } catch { setSaveError('Erro ao finalizar orçamento.') }
     finally { setSaving(false) }
   }

@@ -9,6 +9,8 @@ import {
   MoreVertical,
   Pencil,
   Trash2,
+  CircleDot,
+  Check,
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -21,6 +23,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
 import {
   AlertDialog,
@@ -91,6 +97,10 @@ export default function CarpinteiroOrcamentosPage() {
     id: null,
   })
   const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+
+  // Id do item cujo status está sendo atualizado (para desabilitar o menu durante a escrita)
+  const [statusUpdatingId, setStatusUpdatingId] = useState<string | null>(null)
 
   useEffect(() => {
     // Volta para a primeira página ao trocar o filtro
@@ -129,24 +139,73 @@ export default function CarpinteiroOrcamentosPage() {
     fetchOrcamentos()
   }, [carpinteiro, filter, page])
 
-  // Remove o orçamento do banco e atualiza a lista local sem refetch
+  // Remove o orçamento do banco e atualiza a lista local sem refetch.
+  // `.select()` obriga o Supabase a retornar as linhas removidas — se a
+  // política RLS filtrar o DELETE, o array vem vazio e conseguimos
+  // diferenciar "sem permissão" de "sucesso" (antes o erro era silencioso).
   async function handleDeleteConfirm() {
     if (!deleteDialog.id || !carpinteiro) return
     setDeleting(true)
+    setDeleteError(null)
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('orcamentos')
       .delete()
       .eq('id', deleteDialog.id)
       .eq('carpinteiro_id', carpinteiro.id)
-
-    if (!error) {
-      setOrcamentos((prev) => prev.filter((o) => o.id !== deleteDialog.id))
-      setTotal((t) => t - 1)
-    }
+      .select('id')
 
     setDeleting(false)
+
+    if (error) {
+      setDeleteError(error.message)
+      return
+    }
+
+    if (!data || data.length === 0) {
+      setDeleteError('Não foi possível excluir o orçamento. Verifique suas permissões.')
+      return
+    }
+
+    setOrcamentos((prev) => prev.filter((o) => o.id !== deleteDialog.id))
+    setTotal((t) => t - 1)
     setDeleteDialog({ open: false, id: null })
+  }
+
+  // Atualiza status do orçamento direto da lista. Otimista: aplica na UI
+  // e reverte se o banco rejeitar.
+  async function handleStatusChange(id: string, novoStatus: OrcamentoStatus) {
+    if (!carpinteiro) return
+
+    const anterior = orcamentos.find((o) => o.id === id)?.status
+    if (!anterior || anterior === novoStatus) return
+
+    setStatusUpdatingId(id)
+    setOrcamentos((prev) => prev.map((o) => (o.id === id ? { ...o, status: novoStatus } : o)))
+
+    const { data, error } = await supabase
+      .from('orcamentos')
+      .update({ status: novoStatus })
+      .eq('id', id)
+      .eq('carpinteiro_id', carpinteiro.id)
+      .select('id')
+
+    setStatusUpdatingId(null)
+
+    if (error || !data || data.length === 0) {
+      // Reverte em caso de erro ou 0 linhas afetadas (RLS bloqueou)
+      setOrcamentos((prev) => prev.map((o) => (o.id === id ? { ...o, status: anterior } : o)))
+      window.alert(
+        error?.message ?? 'Não foi possível alterar o status. Verifique suas permissões.',
+      )
+      return
+    }
+
+    // Se o filtro atual deixa o item fora da aba, remove da lista exibida
+    if (filter !== 'todos' && filter !== novoStatus) {
+      setOrcamentos((prev) => prev.filter((o) => o.id !== id))
+      setTotal((t) => Math.max(0, t - 1))
+    }
   }
 
   const totalPages = Math.ceil(total / PAGE_SIZE)
@@ -259,7 +318,7 @@ export default function CarpinteiroOrcamentosPage() {
                 <ChevronRight className="size-4 text-on-surface-variant shrink-0" />
               </Link>
 
-              {/* Kebab menu: Editar navega para a tela de edição; Excluir abre o AlertDialog */}
+              {/* Kebab menu: Editar, Alterar status (submenu) e Excluir */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -267,8 +326,13 @@ export default function CarpinteiroOrcamentosPage() {
                     size="icon-sm"
                     className="mx-2 shrink-0 text-on-surface-variant"
                     aria-label="Ações do orçamento"
+                    disabled={statusUpdatingId === orc.id}
                   >
-                    <MoreVertical className="size-4" />
+                    {statusUpdatingId === orc.id ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <MoreVertical className="size-4" />
+                    )}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -278,9 +342,41 @@ export default function CarpinteiroOrcamentosPage() {
                     <Pencil />
                     Editar
                   </DropdownMenuItem>
+
+                  {/* Submenu com os 5 status; marca o atual com Check */}
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <CircleDot />
+                      Alterar status
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      {(Object.entries(STATUS_LABEL) as [OrcamentoStatus, string][]).map(
+                        ([value, label]) => (
+                          <DropdownMenuItem
+                            key={value}
+                            onClick={() => handleStatusChange(orc.id, value)}
+                            disabled={orc.status === value}
+                          >
+                            {orc.status === value ? (
+                              <Check />
+                            ) : (
+                              <span className="size-4 shrink-0" />
+                            )}
+                            {label}
+                          </DropdownMenuItem>
+                        ),
+                      )}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+
+                  <DropdownMenuSeparator />
+
                   <DropdownMenuItem
                     variant="destructive"
-                    onClick={() => setDeleteDialog({ open: true, id: orc.id })}
+                    onClick={() => {
+                      setDeleteError(null)
+                      setDeleteDialog({ open: true, id: orc.id })
+                    }}
                   >
                     <Trash2 />
                     Excluir
@@ -333,7 +429,9 @@ export default function CarpinteiroOrcamentosPage() {
         open={deleteDialog.open}
         onOpenChange={(open) => {
           // Bloqueia fechar o dialog enquanto a exclusão está em andamento
-          if (!deleting) setDeleteDialog({ open, id: open ? deleteDialog.id : null })
+          if (deleting) return
+          setDeleteDialog({ open, id: open ? deleteDialog.id : null })
+          if (!open) setDeleteError(null)
         }}
       >
         <AlertDialogContent>
@@ -343,6 +441,11 @@ export default function CarpinteiroOrcamentosPage() {
               Esta ação não pode ser desfeita. O orçamento será removido permanentemente.
             </AlertDialogDescription>
           </AlertDialogHeader>
+          {deleteError && (
+            <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {deleteError}
+            </p>
+          )}
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
             <Button variant="destructive" disabled={deleting} onClick={handleDeleteConfirm}>

@@ -371,6 +371,9 @@ export function OrcamentoPdfDocument({
   const idCurto = orcamento.id.slice(0, 8).toUpperCase()
   const dataEmissao = formatDate(orcamento.finalizado_at ?? orcamento.created_at)
 
+  // Usa a cor primária do perfil do carpinteiro; fallback para Wood Gold do Timber Grain
+  const corPrimaria = carpinteiro.cor_primaria ?? C.primary
+
   return (
     <Document
       title={`Orçamento ${idCurto}`}
@@ -381,19 +384,19 @@ export function OrcamentoPdfDocument({
     >
       <Page size="A4" style={s.page}>
         {/* ── Header ──────────────────────────────────────────────────────── */}
-        <View style={s.header} fixed>
+        <View style={[s.header, { borderBottomColor: corPrimaria }]} fixed>
           <View style={s.headerLeft}>
             {logoBase64 ? (
               <Image style={s.logo} src={logoBase64} />
             ) : (
               <View style={s.logoPlaceholder}>
-                <Text style={s.logoPlaceholderText}>
+                <Text style={[s.logoPlaceholderText, { color: corPrimaria }]}>
                   {carpinteiro.nome.charAt(0).toUpperCase()}
                 </Text>
               </View>
             )}
             <View style={s.carpinteiroInfo}>
-              <Text style={s.carpinteiroNome}>{carpinteiro.nome}</Text>
+              <Text style={[s.carpinteiroNome, { color: corPrimaria }]}>{carpinteiro.nome}</Text>
               {carpinteiro.cpf_cnpj && (
                 <Text style={s.carpinteiroDetail}>
                   CPF/CNPJ: {carpinteiro.cpf_cnpj}
@@ -442,13 +445,13 @@ export function OrcamentoPdfDocument({
         <Text style={s.sectionLabel}>Projeto</Text>
         <View style={s.projetoBox}>
           <View style={s.projetoCol}>
-            <Text style={s.projetoNome}>{orcamento.nome}</Text>
+            <Text style={[s.projetoNome, { color: corPrimaria }]}>{orcamento.nome}</Text>
             {orcamento.descricao && (
               <Text style={s.projetoDesc}>{orcamento.descricao}</Text>
             )}
           </View>
           <View style={s.projetoBadge}>
-            <Text style={s.projetoBadgeText}>
+            <Text style={[s.projetoBadgeText, { color: corPrimaria }]}>
               {tipoProjeto(orcamento.tipo_projeto)}
             </Text>
           </View>
@@ -459,7 +462,7 @@ export function OrcamentoPdfDocument({
           <>
             <Text style={s.sectionLabel}>Materiais</Text>
             <View style={s.table}>
-              <View style={s.tableHeader} fixed>
+              <View style={[s.tableHeader, { backgroundColor: corPrimaria }]} fixed>
                 <Text style={[s.tableHeaderText, s.colNome]}>Item</Text>
                 <Text style={[s.tableHeaderText, s.colUnidade]}>Unid.</Text>
                 <Text style={[s.tableHeaderText, s.colQtd]}>Qtd.</Text>
@@ -541,12 +544,12 @@ export function OrcamentoPdfDocument({
                 </View>
               )}
 
-              <View style={s.financeiroSeparator} />
+              <View style={[s.financeiroSeparator, { borderBottomColor: corPrimaria }]} />
             </>
           )}
 
           <View style={s.financeiroTotalRow}>
-            <Text style={s.financeiroTotalLabel}>TOTAL</Text>
+            <Text style={[s.financeiroTotalLabel, { color: corPrimaria }]}>TOTAL</Text>
             <Text style={s.financeiroTotalValue}>
               {formatBRL(orcamento.total)}
             </Text>
@@ -574,7 +577,7 @@ export function OrcamentoPdfDocument({
               `Página ${pageNumber} de ${totalPages}`
             }
           />
-          <Text style={s.footerBrand}>OrçaMadeira</Text>
+          <Text style={[s.footerBrand, { color: corPrimaria }]}>OrçaMadeira</Text>
         </View>
       </Page>
     </Document>

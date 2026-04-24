@@ -563,6 +563,73 @@ export type Database = {
           },
         ]
       }
+      portfolio_arquivos: {
+        Row: {
+          created_at: string
+          id: string
+          ordem: number
+          portfolio_id: string
+          storage_path: string
+          tipo: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ordem?: number
+          portfolio_id: string
+          storage_path: string
+          tipo: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ordem?: number
+          portfolio_id?: string
+          storage_path?: string
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_arquivos_portfolio_id_fkey"
+            columns: ["portfolio_id"]
+            isOneToOne: false
+            referencedRelation: "portfolios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portfolios: {
+        Row: {
+          carpinteiro_id: string
+          created_at: string
+          id: string
+          nome: string
+          slug: string | null
+        }
+        Insert: {
+          carpinteiro_id: string
+          created_at?: string
+          id?: string
+          nome: string
+          slug?: string | null
+        }
+        Update: {
+          carpinteiro_id?: string
+          created_at?: string
+          id?: string
+          nome?: string
+          slug?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolios_carpinteiro_id_fkey"
+            columns: ["carpinteiro_id"]
+            isOneToOne: false
+            referencedRelation: "carpinteiros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       servicos_acabamento: {
         Row: {
           ativo: boolean

@@ -9,16 +9,14 @@ interface BotaoExportarPdfProps {
   mostrarDetalhes?: boolean
 }
 
-export function BotaoExportarPdf({ orcamento, itens, mostrarDetalhes = true }: BotaoExportarPdfProps) {
+export function BotaoExportarPdf({ orcamento, itens, mostrarDetalhes = false }: BotaoExportarPdfProps) {
   const { loading, exportar } = usePdf()
-  // PDF exportável para orçamentos salvo, enviado e pedido_fechado; não para rascunho/cancelado
-  const canExport = orcamento.status === 'salvo' || orcamento.status === 'enviado' || orcamento.status === 'pedido_fechado'
 
   return (
     <Button
       size="sm"
       variant="outline"
-      disabled={!canExport || loading}
+      disabled={loading}
       onClick={() => exportar(orcamento, itens, mostrarDetalhes)}
     >
       {loading ? (
@@ -26,7 +24,7 @@ export function BotaoExportarPdf({ orcamento, itens, mostrarDetalhes = true }: B
       ) : (
         <FileDown className="size-3.5" />
       )}
-      {loading ? 'Gerando...' : 'PDF'}
+      {loading ? 'Gerando...' : 'Baixar PDF'}
     </Button>
   )
 }

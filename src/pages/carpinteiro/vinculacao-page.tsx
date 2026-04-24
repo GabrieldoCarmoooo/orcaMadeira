@@ -141,9 +141,11 @@ export default function CarpinteiroVinculacaoPage() {
           )}
         </div>
 
+        {/* Passa o id da parceira aprovada para exibir badge na busca */}
         <BuscaMadeireira
           onSolicitar={handleSolicitar}
           disabled={vinculacao?.status === 'aprovada'}
+          madeireiraVinculadaId={vinculacao?.status === 'aprovada' ? vinculacao.madeireira_id : undefined}
         />
 
         {vinculacao?.status === 'aprovada' && (

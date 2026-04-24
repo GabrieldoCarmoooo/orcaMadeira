@@ -11,7 +11,10 @@ import { ResumoOrcamento } from '@/components/orcamento/resumo-orcamento'
 import { GrainProgress } from '@/components/ui/grain-progress'
 import { Button } from '@/components/ui/button'
 import { ROUTES } from '@/constants/routes'
+import { usePdf } from '@/hooks/usePdf'
 import type { ItemOrcamentoCalculo } from '@/lib/calcular-orcamento'
+import type { ItemOrcamento } from '@/types/orcamento'
+import ToggleDetalhesPdf from '@/components/orcamento/toggle-detalhes-pdf'
 
 // Valida integridade dos itens antes do upsert — fail-fast no cliente para evitar
 // violação do CHECK constraint (origem × campo relacional) no banco.
@@ -87,11 +90,14 @@ export default function EditarOrcamentoPage() {
 
   const { step, stepProjeto, itens, stepFinanceiro, resumo, hydrate, reset } = useOrcamentoStore()
 
+  const { exportar } = usePdf()
+
   const [phase, setPhase] = useState<Phase>('wizard')
   const [saving, setSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
-  const [mostrarDetalhes, setMostrarDetalhes] = useState(true)
+  // Default desligado: o toggle só ativa a exibição de valores detalhados quando o carpinteiro confirma
+  const [mostrarDetalhes, setMostrarDetalhes] = useState(false)
 
   // Ref para garantir que o hydrate ocorre apenas uma vez — evita re-hidratação por
   // mudança de referência das listas retornadas pelo hook após o carregamento inicial.
@@ -209,8 +215,61 @@ export default function EditarOrcamentoPage() {
           .insert(itens.map((item) => mapItemParaInsert(orcamento.id, item)))
       }
 
+      // Monta versão atualizada do orçamento para o PDF — reflete os valores recém-gravados
+      // sem precisar rebuscar do banco (evita round-trip extra após o UPDATE).
+      const orcamentoAtualizado = {
+        ...orcamento,
+        status: 'salvo' as const,
+        tipo_projeto: stepProjeto.tipo_projeto,
+        nome: stepProjeto.nome,
+        descricao: stepProjeto.descricao || null,
+        cliente_nome: stepProjeto.cliente_nome,
+        cliente_telefone: stepProjeto.cliente_telefone || null,
+        cliente_email: stepProjeto.cliente_email || null,
+        mao_obra_tipo: stepFinanceiro.mao_obra_tipo,
+        mao_obra_valor: stepFinanceiro.mao_obra_valor,
+        mao_obra_horas: stepFinanceiro.mao_obra_horas,
+        margem_lucro: stepFinanceiro.margem_lucro,
+        imposto: stepFinanceiro.imposto,
+        validade_dias: stepFinanceiro.validade_dias,
+        termos_condicoes: stepFinanceiro.termos_condicoes || null,
+        subtotal_materiais: resumo.subtotal_materiais,
+        subtotal_mao_obra: resumo.subtotal_mao_obra,
+        valor_margem: resumo.valor_margem,
+        valor_imposto: resumo.valor_imposto,
+        total: resumo.total,
+        deslocamento: resumo.deslocamento,
+        custos_adicionais: resumo.custos_adicionais,
+        finalizado_at: orcamento.finalizado_at ?? new Date().toISOString(),
+      }
+      // Mapeia itens do store para ItemOrcamento para o gerador de PDF
+      const itensParaPdf: ItemOrcamento[] = itens.map((item, idx) => ({
+        id: item.uid ?? item.item_preco_id ?? String(idx),
+        orcamento_id: orcamento.id,
+        item_preco_id: item.item_preco_id,
+        nome: item.nome,
+        unidade: item.unidade,
+        preco_unitario: item.preco_unitario,
+        quantidade: item.quantidade,
+        subtotal: item.preco_unitario * item.quantidade,
+        origem: item.origem,
+        madeira_m3_id: item.madeira_m3_id ?? null,
+        outro_produto_id: item.outro_produto_id ?? null,
+        especie_nome: item.especie_nome ?? null,
+        espessura_cm: item.espessura_cm ?? null,
+        largura_cm: item.largura_cm ?? null,
+        comprimento_real_m: item.comprimento_real_m ?? null,
+        comprimento_id: item.comprimento_id ?? null,
+        acabamento_id: item.acabamento_id ?? null,
+        acabamento_nome: item.acabamento_nome ?? null,
+        acabamento_percentual: item.acabamento_percentual ?? null,
+      }))
+
+      // Dispara download em paralelo — fire-and-forget para não bloquear a navegação
+      void exportar(orcamentoAtualizado, itensParaPdf, mostrarDetalhes)
+
       reset()
-      navigate(ROUTES.CARPINTEIRO_ORCAMENTOS)
+      navigate(ROUTES.CARPINTEIRO_ORCAMENTO_PROPOSTA(orcamento.id))
     } catch {
       setSaveError('Erro ao finalizar edição do orçamento.')
     } finally {
@@ -399,25 +458,14 @@ export default function EditarOrcamentoPage() {
                 {resumo.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
               </span>
             </div>
-            <div className="mt-4 flex gap-4 text-xs opacity-60">
-              <div className="flex items-center gap-2">
-                <span className="font-medium">Mostrar detalhes no PDF</span>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={mostrarDetalhes}
-                  onClick={() => setMostrarDetalhes((v) => !v)}
-                  className={`relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full items-center px-0.5 transition-colors focus-visible:outline-none ${
-                    mostrarDetalhes ? 'bg-background/40' : 'bg-background/20'
-                  }`}
-                >
-                  <span
-                    className={`h-5 w-5 rounded-full bg-background shadow-sm transition-transform ${
-                      mostrarDetalhes ? 'translate-x-6' : 'translate-x-0'
-                    }`}
-                  />
-                </button>
-              </div>
+            <div className="mt-4">
+              {/* Componente compartilhado com AlertDialog de confirmação ao ligar */}
+              <ToggleDetalhesPdf
+                value={mostrarDetalhes}
+                onChange={setMostrarDetalhes}
+                variant="inverted"
+                label="Mostrar detalhes no PDF"
+              />
             </div>
           </div>
         </div>

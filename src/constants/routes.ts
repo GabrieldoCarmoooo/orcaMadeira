@@ -16,6 +16,9 @@ export const ROUTES = {
   CARPINTEIRO_ORCAMENTO_EDITAR: (id: string) => `/carpinteiro/orcamentos/${id}/editar`,
   CARPINTEIRO_ORCAMENTO_PROPOSTA: (id: string) => `/carpinteiro/orcamentos/${id}/proposta`,
 
+  // Portfólio público (sem autenticação)
+  PORTFOLIO_PUBLICO: (slug: string) => `/p/${slug}`,
+
   // Madeireira
   MADEIREIRA_DASHBOARD: '/madeireira/dashboard',
   MADEIREIRA_PERFIL: '/madeireira/perfil',

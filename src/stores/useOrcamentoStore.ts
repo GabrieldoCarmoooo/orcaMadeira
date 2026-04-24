@@ -64,7 +64,16 @@ interface OrcamentoStore {
   setFinanceiro: (data: Partial<StepFinanceiroData>) => void
   // Popula todas as steps a partir de um orçamento existente — usado pela tela de edição
   hydrate: (orcamento: Orcamento, itens: ItemOrcamento[]) => void
-  reset: () => void
+  // Defaults opcionais pré-preenchidos a partir do perfil do carpinteiro (novo orçamento).
+  // Quando `valor_hora_mao_obra` vem preenchido, assumimos mao_obra_tipo='hora' para que
+  // o valor configurado no perfil seja aplicado automaticamente; o usuário pode trocar depois.
+  reset: (defaults?: {
+    margem_lucro?: number
+    valor_hora_mao_obra?: number
+    imposto?: number
+    custos_adicionais?: number
+    termos_condicoes?: string
+  }) => void
 }
 
 // Retorna a chave única da linha: uid composto (madeira m³) ou item_preco_id (legado/outro_produto)
@@ -212,12 +221,25 @@ export const useOrcamentoStore = create<OrcamentoStore>((set) => ({
     set({ step: 1, stepProjeto, itens: itensCalculo, stepFinanceiro, resumo })
   },
 
-  reset() {
+  reset(defaults) {
+    // Mescla defaults do perfil do carpinteiro ao step financeiro inicial;
+    // valores explícitos sobrescrevem os defaults da constante apenas quando fornecidos.
+    // Se o perfil tem valor/hora cadastrado, o tipo de mão de obra inicia como 'hora'
+    // (o usuário pode alternar para 'fixo' manualmente no StepFinanceiro).
+    const temValorHora = defaults?.valor_hora_mao_obra && defaults.valor_hora_mao_obra > 0
     set({
       step: 1,
       stepProjeto: { ...DEFAULT_PROJETO },
       itens: [],
-      stepFinanceiro: { ...DEFAULT_FINANCEIRO },
+      stepFinanceiro: {
+        ...DEFAULT_FINANCEIRO,
+        mao_obra_tipo: temValorHora ? 'hora' : DEFAULT_FINANCEIRO.mao_obra_tipo,
+        mao_obra_valor: defaults?.valor_hora_mao_obra ?? DEFAULT_FINANCEIRO.mao_obra_valor,
+        margem_lucro: defaults?.margem_lucro ?? DEFAULT_FINANCEIRO.margem_lucro,
+        imposto: defaults?.imposto ?? DEFAULT_FINANCEIRO.imposto,
+        custos_adicionais: defaults?.custos_adicionais ?? DEFAULT_FINANCEIRO.custos_adicionais,
+        termos_condicoes: defaults?.termos_condicoes ?? DEFAULT_FINANCEIRO.termos_condicoes,
+      },
       resumo: { ...EMPTY_RESUMO },
     })
   },

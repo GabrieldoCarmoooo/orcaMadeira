@@ -68,7 +68,8 @@ export default function PropostaPage() {
   const { orcamento, itens, loading: orcamentoLoading, error } = useOrcamento(id)
   const { loading: pdfLoading, exportar, exportarMateriais } = usePdf()
 
-  const [mostrarDetalhes, setMostrarDetalhes] = useState(true)
+  // Default desligado: a visualização in-app também inicia sem detalhes financeiros
+  const [mostrarDetalhes, setMostrarDetalhes] = useState(false)
   const [pdfModules, setPdfModules] = useState<PdfModules | null>(null)
   const [viewerLoading, setViewerLoading] = useState(false)
   const [sharing, setSharing] = useState(false)
@@ -188,7 +189,7 @@ export default function PropostaPage() {
   const Viewer = pdfModules?.PDFViewer
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="fixed inset-0 z-50 flex flex-col bg-background">
       {/* ── Cabeçalho ──────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-10 flex items-center gap-3 border-b bg-background/90 px-4 py-3 backdrop-blur">
         <Button
@@ -211,7 +212,7 @@ export default function PropostaPage() {
       </header>
 
       {/* ── Área de visualização do PDF ────────────────────────────────────── */}
-      <main className="flex flex-1 flex-col">
+      <main className="flex min-h-0 flex-1 flex-col">
         {isMobile ? (
           // Fallback mobile: exibe CTA em vez do viewer (não suportado em mobile browsers)
           <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
@@ -234,8 +235,8 @@ export default function PropostaPage() {
             </div>
           </div>
         ) : (
-          // Viewer desktop — renderiza o PDF em iframe fornecido pelo @react-pdf/renderer
-          <div className="flex-1" style={{ minHeight: '500px', height: '70vh' }}>
+          // Viewer desktop — ocupa toda a altura disponível entre header e footer
+          <div className="min-h-0 flex-1">
             <Viewer width="100%" height="100%">
               {docElement}
             </Viewer>
