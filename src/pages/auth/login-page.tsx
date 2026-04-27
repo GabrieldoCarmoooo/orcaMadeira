@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { ROUTES } from '@/constants/routes'
+import { logError } from '@/lib/log-error'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -49,6 +50,7 @@ export default function LoginPage() {
       await login(values.email, values.password)
       // Redirect handled by the useEffect above watching role changes
     } catch (err) {
+      logError('login/handleSubmit', err)
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       setError('root', { message: mapAuthError(message) })
     }

@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label'
 import { usePortfolios } from '@/hooks/usePortfolios'
 import type { Portfolio } from '@/types/portfolio'
 import { cn } from '@/lib/utils'
+import { logError } from '@/lib/log-error'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB por arquivo
 
@@ -89,6 +90,7 @@ export function NovoPortfolioDialog({ open, onOpenChange, onCreate }: NovoPortfo
       onCreate?.(portfolio)
       handleOpenChange(false)
     } catch (err) {
+      logError('novo-portfolio-dialog/handleSubmit', err)
       setError(err instanceof Error ? err.message : 'Erro ao criar portfólio.')
     } finally {
       setIsLoading(false)

@@ -151,6 +151,8 @@ export function usePortfolios(): UsePortfoliosReturn {
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
+        // noUncheckedIndexedAccess: o loop é delimitado por files.length, portanto file sempre existe
+        if (!file) continue
         // Caminho convencional do bucket: {carpinteiro_id}/{portfolio_id}/{nome_arquivo}
         const storagePath = `${carpinteiro.id}/${portfolio.id}/${file.name}`
 

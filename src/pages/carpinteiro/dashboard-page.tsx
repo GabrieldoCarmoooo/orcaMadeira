@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/select'
 import OrcamentoRecenteCard from '@/components/orcamento/orcamento-recente-card'
 import type { Orcamento } from '@/types/orcamento'
+import { ORCAMENTO_STATUS } from '@/constants/orcamento-status'
 
 // Presets de período disponíveis no seletor
 type DatePreset = 'mes_atual' | 'ultimos_30' | 'ultimos_90' | 'personalizado'
@@ -133,7 +134,7 @@ export default function CarpinteiroDashboardPage() {
             .from('orcamentos')
             .select('total')
             .eq('carpinteiro_id', carpinteiro!.id)
-            .eq('status', 'pedido_fechado')
+            .eq('status', ORCAMENTO_STATUS.pedido_fechado.value)
             .gte('created_at', fromIso)
             .lte('created_at', toIso),
 
@@ -142,7 +143,7 @@ export default function CarpinteiroDashboardPage() {
             .from('orcamentos')
             .select('total')
             .eq('carpinteiro_id', carpinteiro!.id)
-            .eq('status', 'salvo')
+            .eq('status', ORCAMENTO_STATUS.salvo.value)
             .gte('created_at', fromIso)
             .lte('created_at', toIso),
 
@@ -151,7 +152,7 @@ export default function CarpinteiroDashboardPage() {
             .from('orcamentos')
             .select('id')
             .eq('carpinteiro_id', carpinteiro!.id)
-            .eq('status', 'cancelado')
+            .eq('status', ORCAMENTO_STATUS.cancelado.value)
             .gte('created_at', fromIso)
             .lte('created_at', toIso),
 
@@ -318,9 +319,7 @@ export default function CarpinteiroDashboardPage() {
           description={
             loading
               ? ''
-              : `${stats?.countSalvos ?? 0} ${
-                  (stats?.countSalvos ?? 0) === 1 ? 'salvo' : 'salvos'
-                }`
+              : `${stats?.countSalvos ?? 0} ${(stats?.countSalvos ?? 0) === 1 ? 'orçamento' : 'orçamentos'} no período`
           }
           dot="secondary"
           loading={loading}

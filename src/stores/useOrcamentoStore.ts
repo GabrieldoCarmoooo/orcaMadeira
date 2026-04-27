@@ -7,6 +7,7 @@ import {
   type StepFinanceiroData,
   type StepProjetoData,
 } from '@/lib/calcular-orcamento'
+import { buildMadeiraKey } from '@/lib/item-key'
 import type { Orcamento, ItemOrcamento } from '@/types/orcamento'
 
 export type WizardStep = 1 | 2 | 3
@@ -87,27 +88,29 @@ function itemOrcamentoToCalculo(item: ItemOrcamento): ItemOrcamentoCalculo {
   // garantindo que removeItem e updateQuantidade funcionem corretamente após hydrate
   const uid =
     item.origem === 'madeira_m3' && item.madeira_m3_id && item.comprimento_id
-      ? `madeira:${item.madeira_m3_id}:${item.comprimento_id}:${item.acabamento_id ?? 'none'}`
+      ? buildMadeiraKey({ id: item.madeira_m3_id, comprimentoId: item.comprimento_id, acabamentoId: item.acabamento_id ?? null })
       : undefined
 
+  // exactOptionalPropertyTypes: campos opcionais só são incluídos quando possuem valor real,
+  // pois passar `chave: undefined` explicitamente viola o contrato da flag.
   return {
-    uid,
+    ...(uid !== undefined ? { uid } : {}),
     item_preco_id: item.item_preco_id,
     nome: item.nome,
     unidade: item.unidade,
     preco_unitario: item.preco_unitario,
     quantidade: item.quantidade,
-    origem: item.origem,
-    madeira_m3_id: item.madeira_m3_id ?? undefined,
-    outro_produto_id: item.outro_produto_id ?? undefined,
-    especie_nome: item.especie_nome ?? undefined,
-    espessura_cm: item.espessura_cm ?? undefined,
-    largura_cm: item.largura_cm ?? undefined,
-    comprimento_id: item.comprimento_id ?? undefined,
-    comprimento_real_m: item.comprimento_real_m ?? undefined,
-    acabamento_id: item.acabamento_id ?? undefined,
-    acabamento_nome: item.acabamento_nome ?? undefined,
-    acabamento_percentual: item.acabamento_percentual ?? undefined,
+    ...(item.origem !== undefined ? { origem: item.origem } : {}),
+    ...(item.madeira_m3_id != null ? { madeira_m3_id: item.madeira_m3_id } : {}),
+    ...(item.outro_produto_id != null ? { outro_produto_id: item.outro_produto_id } : {}),
+    ...(item.especie_nome != null ? { especie_nome: item.especie_nome } : {}),
+    ...(item.espessura_cm != null ? { espessura_cm: item.espessura_cm } : {}),
+    ...(item.largura_cm != null ? { largura_cm: item.largura_cm } : {}),
+    ...(item.comprimento_id != null ? { comprimento_id: item.comprimento_id } : {}),
+    ...(item.comprimento_real_m != null ? { comprimento_real_m: item.comprimento_real_m } : {}),
+    ...(item.acabamento_id != null ? { acabamento_id: item.acabamento_id } : {}),
+    ...(item.acabamento_nome != null ? { acabamento_nome: item.acabamento_nome } : {}),
+    ...(item.acabamento_percentual != null ? { acabamento_percentual: item.acabamento_percentual } : {}),
   }
 }
 

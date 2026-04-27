@@ -41,7 +41,9 @@ function SummaryLine({ label, value, highlight, muted }: LineProps) {
 }
 
 export function ResumoOrcamento() {
-  const { resumo, stepFinanceiro } = useOrcamentoStore()
+  // Selectors granulares: re-render isolado por campo do store
+  const resumo = useOrcamentoStore(s => s.resumo)
+  const stepFinanceiro = useOrcamentoStore(s => s.stepFinanceiro)
 
   const { mao_obra_tipo, mao_obra_valor, mao_obra_horas, margem_lucro, imposto } = stepFinanceiro
 

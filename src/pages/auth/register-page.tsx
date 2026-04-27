@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useAuth } from '@/hooks/useAuth'
 import { ROUTES } from '@/constants/routes'
+import { logError } from '@/lib/log-error'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -93,9 +94,10 @@ export default function RegisterPage() {
       if (!data.user) throw new Error('Erro ao criar conta.')
 
       // Email confirmation required — can't insert profile without session.
-      // Persist profile data locally so setSession can complete the insert after confirmation.
+      // Persiste dados do perfil na sessão atual para setSession completar o insert após confirmação.
+      // sessionStorage é preferido ao localStorage: limpa ao fechar a aba e é menos exposto a XSS.
       if (!data.session) {
-        localStorage.setItem(
+        sessionStorage.setItem(
           'pending_profile',
           JSON.stringify({
             userId: data.user.id,
@@ -138,6 +140,7 @@ export default function RegisterPage() {
       await useAuthStore.getState().setSession(data.session)
       // useEffect watching currentRole will trigger navigation
     } catch (err) {
+      logError('register/handleSubmit', err)
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       setError('root', { message: mapAuthError(message) })
     }

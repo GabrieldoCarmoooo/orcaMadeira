@@ -4,12 +4,12 @@ import { CARPINTEIRO_NAV, MADEIREIRA_NAV } from '@/constants/nav-items'
 import type { UserRole } from '@/types/common'
 
 interface AppSidebarProps {
-  role: UserRole
+  userRole: UserRole
 }
 
-export default function AppSidebar({ role }: AppSidebarProps) {
-  const navItems = role === 'carpinteiro' ? CARPINTEIRO_NAV : MADEIREIRA_NAV
-  const roleLabel = role === 'carpinteiro' ? 'Carpinteiro / Marceneiro' : 'Madeireira'
+export default function AppSidebar({ userRole }: AppSidebarProps) {
+  const navItems = userRole === 'carpinteiro' ? CARPINTEIRO_NAV : MADEIREIRA_NAV
+  const roleLabel = userRole === 'carpinteiro' ? 'Carpinteiro / Marceneiro' : 'Madeireira'
 
   return (
     <aside className="hidden lg:flex w-60 flex-col bg-sidebar border-r border-outline-variant/10">

@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react'
 import { Upload, FileSpreadsheet, Loader2, X } from 'lucide-react'
 import { parsePlanilha, ParseError } from '@/lib/parse-planilha'
 import { useUploadStore } from '@/stores/useUploadStore'
+import { logError } from '@/lib/log-error'
 import { Button } from '@/components/ui/button'
 import { ACCEPTED_TYPES, MAX_UPLOAD_SIZE } from '@/constants/upload'
 
@@ -40,6 +41,7 @@ export default function UploadPlanilha() {
         }
         setParsed(result)
       } catch (err) {
+        logError('upload-planilha/handleFile', err)
         setError(err instanceof ParseError ? err.message : 'Erro inesperado ao ler o arquivo.')
       }
     },
@@ -48,7 +50,9 @@ export default function UploadPlanilha() {
 
   function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return
-    processFile(files[0])
+    const file = files[0]
+    if (!file) return
+    processFile(file)
   }
 
   function handleDrop(e: React.DragEvent<HTMLDivElement>) {

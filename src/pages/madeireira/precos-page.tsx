@@ -5,10 +5,12 @@ import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useUploadStore } from '@/stores/useUploadStore'
 import { ROUTES } from '@/constants/routes'
+import { logError } from '@/lib/log-error'
 import { Button } from '@/components/ui/button'
 import UploadPlanilha from '@/components/madeireira/upload-planilha'
 import MapeamentoColunas from '@/components/madeireira/mapeamento-colunas'
-import PreviaDados, { type ValidatedItemPreco } from '@/components/madeireira/previa-dados'
+import PreviaDados from '@/components/madeireira/previa-dados'
+import { type ValidatedItemPreco } from '@/lib/schemas/preco-item-schema'
 import HistoricoUploads from '@/components/madeireira/historico-uploads'
 import { TabsProdutos } from '@/components/madeireira/catalogo/tabs-produtos'
 import { EspeciesPanel } from '@/components/madeireira/catalogo/especies-panel'
@@ -174,6 +176,7 @@ export default function MadeireiraPrecosPage() {
         await batchInsert(tabela.id, validRows)
       } catch (err) {
         // Rollback: delete the orphaned table
+        logError('precos/batchInsert', err)
         await supabase.from('tabelas_preco').delete().eq('id', tabela.id)
         throw err
       }
@@ -200,6 +203,7 @@ export default function MadeireiraPrecosPage() {
       )
       navigate(ROUTES.MADEIREIRA_PRECOS)
     } catch (err) {
+      logError('precos/handleSalvar', err)
       setSaveError(
         err instanceof Error ? err.message : 'Erro inesperado ao salvar. Tente novamente.',
       )

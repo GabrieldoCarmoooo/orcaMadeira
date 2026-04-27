@@ -4,11 +4,11 @@ import { CARPINTEIRO_NAV, MADEIREIRA_NAV } from '@/constants/nav-items'
 import type { UserRole } from '@/types/common'
 
 interface BottomNavProps {
-  role: UserRole
+  userRole: UserRole
 }
 
-export default function BottomNav({ role }: BottomNavProps) {
-  const navItems = role === 'carpinteiro' ? CARPINTEIRO_NAV : MADEIREIRA_NAV
+export default function BottomNav({ userRole }: BottomNavProps) {
+  const navItems = userRole === 'carpinteiro' ? CARPINTEIRO_NAV : MADEIREIRA_NAV
 
   return (
     <nav

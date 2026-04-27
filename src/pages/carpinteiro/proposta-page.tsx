@@ -9,6 +9,7 @@ import { usePdf } from '@/hooks/usePdf'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { ROUTES } from '@/constants/routes'
 import ToggleDetalhesPdf from '@/components/orcamento/toggle-detalhes-pdf'
+import { logError } from '@/lib/log-error'
 import type { OrcamentoPdfProps } from '@/components/orcamento/pdf-document'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -44,7 +45,8 @@ async function fetchLogoBase64(url: string): Promise<string | undefined> {
       reader.onerror = () => resolve(undefined)
       reader.readAsDataURL(blob)
     })
-  } catch {
+  } catch (err) {
+    logError('proposta/fetchLogoBase64', err)
     return undefined
   }
 }
@@ -155,7 +157,7 @@ export default function PropostaPage() {
     } catch (err) {
       // AbortError é esperado quando o usuário fecha o seletor nativo sem compartilhar
       if (err instanceof Error && err.name !== 'AbortError') {
-        console.error('Erro ao compartilhar proposta:', err)
+        logError('proposta/handleCompartilhar', err)
       }
     } finally {
       setSharing(false)

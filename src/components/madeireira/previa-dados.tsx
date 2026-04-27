@@ -1,24 +1,9 @@
 import { useMemo, useState } from 'react'
-import { z } from 'zod'
 import { CheckCircle2, XCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useUploadStore } from '@/stores/useUploadStore'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-
-// Zod schema for a single price item row (raw values are strings — coerce numerics)
-export const itemPrecoSchema = z.object({
-  nome: z.string().min(1, 'Nome obrigatório'),
-  unidade: z.string().min(1, 'Unidade obrigatória'),
-  preco_unitario: z.coerce.number().positive('Preço deve ser maior que zero'),
-  codigo: z.string().optional(),
-  descricao: z.string().optional(),
-  especie: z.string().optional(),
-  espessura: z.coerce.number().optional(),
-  largura: z.coerce.number().optional(),
-  comprimento: z.coerce.number().optional(),
-})
-
-export type ValidatedItemPreco = z.infer<typeof itemPrecoSchema>
+import { itemPrecoSchema, type ValidatedItemPreco } from '@/lib/schemas/preco-item-schema'
 
 interface ValidatedRow {
   index: number

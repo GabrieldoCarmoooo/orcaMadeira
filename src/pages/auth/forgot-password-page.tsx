@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom'
 import { Loader2, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { ROUTES } from '@/constants/routes'
+import { logError } from '@/lib/log-error'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -40,6 +41,7 @@ export default function ForgotPasswordPage() {
       await resetPassword(values.email)
       setEmailSent(true)
     } catch (err) {
+      logError('forgot-password/handleSubmit', err)
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       setError('root', { message: mapAuthError(message) })
     }

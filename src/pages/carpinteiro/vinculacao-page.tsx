@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link2, CheckCircle2, Clock, XCircle, Building2, MapPin } from 'lucide-react'
 import { useVinculacao } from '@/hooks/useVinculacao'
+import { logError } from '@/lib/log-error'
 import BuscaMadeireira from '@/components/carpinteiro/busca-madeireira'
 import { Button } from '@/components/ui/button'
 
@@ -17,7 +18,8 @@ export default function CarpinteiroVinculacaoPage() {
     setError(null)
     try {
       await solicitarVinculacao(madeireiraId)
-    } catch {
+    } catch (err) {
+      logError('vinculacao/handleSolicitar', err)
       setError('Não foi possível enviar a solicitação. Tente novamente.')
     }
   }
@@ -27,7 +29,8 @@ export default function CarpinteiroVinculacaoPage() {
     setError(null)
     try {
       await cancelarSolicitacao()
-    } catch {
+    } catch (err) {
+      logError('vinculacao/handleCancelar', err)
       setError('Não foi possível cancelar a solicitação. Tente novamente.')
     } finally {
       setCancelando(false)

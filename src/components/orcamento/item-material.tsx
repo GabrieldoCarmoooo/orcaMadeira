@@ -24,7 +24,9 @@ interface ItemMaterialProps {
 }
 
 export function ItemMaterial({ item }: ItemMaterialProps) {
-  const { updateQuantidade, removeItem } = useOrcamentoStore()
+  // Selectors granulares: o componente só re-renderiza quando as actions mudam (estáveis)
+  const updateQuantidade = useOrcamentoStore(s => s.updateQuantidade)
+  const removeItem = useOrcamentoStore(s => s.removeItem)
 
   const subtotal = item.preco_unitario * item.quantidade
 
@@ -46,8 +48,11 @@ export function ItemMaterial({ item }: ItemMaterialProps) {
   // Estado local como string para permitir edição livre sem travar o input (ex: apagar e redigitar)
   const [inputValue, setInputValue] = useState(String(item.quantidade))
 
-  // Sincroniza o input quando o store muda por fora (ex: hydrate, reset)
+  // Sincroniza o input quando o store muda por fora (ex: hydrate, reset).
+  // O setState síncrono é intencional: a string local acompanha o valor externo sem derived state,
+  // pois o campo aceita edição parcial como "1." durante digitação.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setInputValue(String(item.quantidade))
   }, [item.quantidade])
 

@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Loader2, AlertCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { ROUTES } from '@/constants/routes'
+import { logError } from '@/lib/log-error'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -73,6 +74,7 @@ export default function ResetPasswordPage() {
       await supabase.auth.signOut()
       navigate(ROUTES.LOGIN, { replace: true })
     } catch (err) {
+      logError('reset-password/handleSubmit', err)
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       setError('root', { message: mapAuthError(message) })
     }

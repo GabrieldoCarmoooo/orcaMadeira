@@ -1,10 +1,21 @@
 import { lazy, Suspense, useEffect, type ReactNode } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { ROUTES } from '@/constants/routes'
 import AuthGuard from '@/components/layout/auth-guard'
 import DashboardLayout from '@/components/layout/dashboard-layout'
+
+// Cache global: dados ficam frescos por 60s; não refetch ao focar janela
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,
+      refetchOnWindowFocus: false,
+    },
+  },
+})
 
 // Auth pages
 const LoginPage = lazy(() => import('@/pages/auth/login-page'))
@@ -72,6 +83,7 @@ function RootRedirect() {
 
 export default function App() {
   return (
+    <QueryClientProvider client={queryClient}>
     <AuthInitializer>
       <Suspense fallback={<PageLoader />}>
         <Routes>
@@ -93,7 +105,7 @@ export default function App() {
                 para que o PDFViewer ocupe toda a altura disponível da viewport */}
             <Route path="/carpinteiro/orcamentos/:id/proposta" element={<CarpinteiroPropostaPage />} />
 
-            <Route element={<DashboardLayout role="carpinteiro" />}>
+            <Route element={<DashboardLayout userRole="carpinteiro" />}>
               <Route path={ROUTES.CARPINTEIRO_DASHBOARD} element={<CarpinteiroDashboardPage />} />
               <Route path={ROUTES.CARPINTEIRO_PERFIL} element={<CarpinteiroPerfilPage />} />
               <Route path={ROUTES.CARPINTEIRO_VINCULACAO} element={<CarpinteiroVinculacaoPage />} />
@@ -107,7 +119,7 @@ export default function App() {
 
           {/* Madeireira — requires role "madeireira" */}
           <Route element={<AuthGuard requiredRole="madeireira" />}>
-            <Route element={<DashboardLayout role="madeireira" />}>
+            <Route element={<DashboardLayout userRole="madeireira" />}>
               <Route path={ROUTES.MADEIREIRA_DASHBOARD} element={<MadeireiraDashboardPage />} />
               <Route path={ROUTES.MADEIREIRA_PERFIL} element={<MadeireiraPerfilPage />} />
               <Route path={ROUTES.MADEIREIRA_PRECOS} element={<MadeireiraPrecosPage />} />
@@ -121,5 +133,6 @@ export default function App() {
         </Routes>
       </Suspense>
     </AuthInitializer>
+    </QueryClientProvider>
   )
 }

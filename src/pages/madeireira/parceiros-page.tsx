@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Users, UserX, Loader2, User, MapPin } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { logError } from '@/lib/log-error'
 import { Button } from '@/components/ui/button'
 import CardSolicitacao, { type Solicitacao } from '@/components/madeireira/card-solicitacao'
 
@@ -139,7 +140,8 @@ export default function MadeireiraParceirosPage() {
 
       if (cError) throw cError
       // Realtime will trigger fetchAll
-    } catch {
+    } catch (err) {
+      logError('parceiros/handleAprovar', err)
       setError('Erro ao aprovar parceria. Tente novamente.')
     }
   }
@@ -154,7 +156,8 @@ export default function MadeireiraParceirosPage() {
 
       if (vError) throw vError
       // Realtime will trigger fetchAll
-    } catch {
+    } catch (err) {
+      logError('parceiros/handleRejeitar', err)
       setError('Erro ao rejeitar solicitação. Tente novamente.')
     }
   }
@@ -179,7 +182,8 @@ export default function MadeireiraParceirosPage() {
 
       if (cError) throw cError
       // Realtime will trigger fetchAll
-    } catch {
+    } catch (err) {
+      logError('parceiros/handleRemover', err)
       setError('Erro ao remover parceiro. Tente novamente.')
     } finally {
       setRemovendoId(null)

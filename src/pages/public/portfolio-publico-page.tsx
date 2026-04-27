@@ -15,7 +15,7 @@ export default function PortfolioPublicoPage() {
 
   useEffect(() => {
     if (!slug) return
-    setIsLoading(true)
+    // isLoading já começa como true; .finally garante reset após a resposta
     getPortfolioBySlug(slug)
       .then((data) => {
         if (!data) setNotFound(true)

@@ -35,7 +35,7 @@ const UNIDADES_SUGERIDAS = [
 
 interface OutroProdutoFormProps {
   /** Valores iniciais — presentes no modo edição, ausentes no modo criação */
-  defaultValues?: Partial<OutroProdutoInput>
+  defaultValues?: Partial<OutroProdutoInput> | undefined
   /** Callback chamado com os dados validados ao submeter */
   onSubmit: (data: OutroProdutoInput) => Promise<void>
   /** Cancela e fecha o dialog sem salvar */

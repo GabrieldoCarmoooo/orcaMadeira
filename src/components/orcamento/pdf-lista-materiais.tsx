@@ -251,7 +251,7 @@ export interface MateriaisPdfProps {
   orcamento: Orcamento
   itens: ItemOrcamento[]
   carpinteiro: Carpinteiro
-  logoBase64?: string
+  logoBase64?: string | undefined
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────

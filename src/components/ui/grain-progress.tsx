@@ -4,7 +4,7 @@ interface GrainProgressProps {
   current: number
   total: number
   percent: number
-  stepLabel?: string
+  stepLabel?: string | undefined
   className?: string
 }
 

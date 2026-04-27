@@ -4,7 +4,9 @@
       "mcp__supabase__execute_sql",
       "mcp__supabase__list_migrations",
       "mcp__supabase__generate_typescript_types",
-      "Bash(node -e \"const r = require\\('radix-ui'\\); console.log\\(Object.keys\\(r\\).filter\\(k => k.toLowerCase\\(\\).includes\\('alert'\\)\\)\\)\")"
+      "Bash(node -e \"const r = require\\('radix-ui'\\); console.log\\(Object.keys\\(r\\).filter\\(k => k.toLowerCase\\(\\).includes\\('alert'\\)\\)\\)\")",
+      "Bash(git -C /c/Users/Gabriel/Desktop/app.Carpinteiro/app ls-files)",
+      "Bash(git -C /c/Users/Gabriel/Desktop/app.Carpinteiro/app log --all --full-history --diff-filter=A -- .env)"
     ]
   },
   "enableAllProjectMcpServers": true,

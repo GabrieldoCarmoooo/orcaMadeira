@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button'
 
 interface AcabamentoFormProps {
   /** Valores iniciais — presentes no modo edição, ausentes no modo criação */
-  defaultValues?: Partial<AcabamentoInput>
+  defaultValues?: Partial<AcabamentoInput> | undefined
   /** Callback chamado com os dados validados ao submeter */
   onSubmit: (data: AcabamentoInput) => Promise<void>
   /** Cancela e fecha o dialog sem salvar */

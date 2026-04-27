@@ -8,10 +8,11 @@ export const acabamentoSchema = z.object({
   nome: z.string().min(2, 'Nome deve ter no mínimo 2 caracteres'),
 
   // Percentual de acréscimo sobre o preço base da madeira.
-  // Aceita 0 (sem acréscimo), nunca negativo.
+  // Aceita 0 (sem acréscimo), nunca negativo. Limite de 500% evita distorção de preços.
   percentual_acrescimo: z
     .number({ error: 'Informe o percentual de acréscimo' })
-    .min(0, 'O percentual não pode ser negativo'),
+    .min(0, 'O percentual não pode ser negativo')
+    .max(500, 'O percentual de acréscimo não pode exceder 500%'),
 })
 
 // Tipo inferido usado nos formulários e na chamada ao hook `useAcabamentos`

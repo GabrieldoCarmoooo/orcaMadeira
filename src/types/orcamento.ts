@@ -1,5 +1,14 @@
 import type { OrcamentoStatus, TipoProjeto, VinculacaoStatus } from '@/types/common'
 
+// Projeção mínima usada na listagem de orçamentos
+export type OrcamentoListItem = Pick<
+  Orcamento,
+  'id' | 'nome' | 'cliente_nome' | 'status' | 'total' | 'created_at' | 'tipo_projeto'
+>
+
+// Status do filtro da lista — "todos" além dos status reais do orçamento
+export type FilterStatus = 'todos' | OrcamentoStatus
+
 export interface Orcamento {
   id: string
   carpinteiro_id: string

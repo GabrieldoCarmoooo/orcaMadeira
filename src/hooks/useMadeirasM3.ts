@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { CATALOGO_PRODUTOS_KEY } from '@/hooks/useCatalogoProdutos'
 import type { MadeiraM3, ComprimentoMadeiraM3, EspecieMadeira } from '@/types/produto'
 import type { MadeiraM3Input } from '@/lib/schemas/madeira-m3-schema'
 
@@ -34,6 +36,7 @@ interface MadeiraM3Row {
 // relança o erro para o chamador tratar — o banco mantém consistência via RLS e constraints.
 export function useMadeirasM3(): UseMadeirasM3Return {
   const { madeireira } = useAuthStore()
+  const queryClient = useQueryClient()
   const [madeiras, setMadeiras] = useState<MadeiraM3[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
@@ -56,13 +59,15 @@ export function useMadeirasM3(): UseMadeirasM3Return {
 
       if (error) throw error
 
-      // Mapeia o retorno do PostgREST para o tipo MadeiraM3 com relações opcionais
+      // Mapeia o retorno do PostgREST para o tipo MadeiraM3 com relações opcionais.
+      // exactOptionalPropertyTypes exige omissão da chave quando o valor seria undefined:
+      // usa spread condicional em vez de `especie: row.especie ?? undefined`.
       const rows = (data as MadeiraM3Row[]) ?? []
       setMadeiras(
-        rows.map((row) => ({
-          ...row,
-          especie: row.especie ?? undefined,
-          comprimentos: row.comprimentos ?? [],
+        rows.map(({ especie, ...rest }) => ({
+          ...rest,
+          comprimentos: rest.comprimentos ?? [],
+          ...(especie != null ? { especie } : {}),
         })),
       )
     } finally {
@@ -73,6 +78,11 @@ export function useMadeirasM3(): UseMadeirasM3Return {
   useEffect(() => {
     fetchMadeiras()
   }, [fetchMadeiras])
+
+  // Invalida o cache do catálogo de produtos após mutações que afetam madeiras disponíveis
+  const invalidateCatalogo = useCallback(() => {
+    void queryClient.invalidateQueries({ queryKey: [CATALOGO_PRODUTOS_KEY] })
+  }, [queryClient])
 
   // Cria nova madeira m³ e insere seus comprimentos em sequência.
   // A inserção dos comprimentos depende do `id` gerado pela madeira, por isso é sequencial.
@@ -112,8 +122,9 @@ export function useMadeirasM3(): UseMadeirasM3Return {
       }
 
       await fetchMadeiras()
+      invalidateCatalogo()
     },
-    [madeireira, fetchMadeiras],
+    [madeireira, fetchMadeiras, invalidateCatalogo],
   )
 
   // Atualiza dados da madeira m³ e sincroniza a lista de comprimentos.
@@ -178,8 +189,9 @@ export function useMadeirasM3(): UseMadeirasM3Return {
       }
 
       await fetchMadeiras()
+      invalidateCatalogo()
     },
-    [fetchMadeiras],
+    [fetchMadeiras, invalidateCatalogo],
   )
 
   // Remove a madeira pelo id — o CASCADE no banco apaga os comprimentos filhos
@@ -192,8 +204,9 @@ export function useMadeirasM3(): UseMadeirasM3Return {
 
       if (error) throw error
       await fetchMadeiras()
+      invalidateCatalogo()
     },
-    [fetchMadeiras],
+    [fetchMadeiras, invalidateCatalogo],
   )
 
   return { madeiras, isLoading, create, update, remove }

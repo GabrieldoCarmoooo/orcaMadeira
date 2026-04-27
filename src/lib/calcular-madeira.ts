@@ -42,3 +42,21 @@ export function calcularValorMadeiraM3(
 export function aplicarAcabamento(preco: number, percentual: number): number {
   return preco * (1 + percentual / 100)
 }
+
+/**
+ * Calcula o preço final de uma linha de madeira m³, integrando espécie, dimensões e acabamento opcional.
+ * Consolida calcularValorVendaM3 + calcularValorMadeiraM3 + aplicarAcabamento em uma única chamada,
+ * eliminando o risco de divergência quando a fórmula é reimplementada inline em componentes.
+ *
+ * Retorna 0 quando a espécie não está disponível (produto sem vínculo de espécie no catálogo).
+ */
+export function calcularPrecoLinhaMadeiraM3(
+  especie: { custo_m3: number; margem_lucro_pct: number } | null | undefined,
+  dims: { espessura_cm: number; largura_cm: number; comprimento_m: number },
+  acabamento?: { percentual_acrescimo: number } | null,
+): number {
+  if (!especie) return 0
+  const valorM3 = calcularValorVendaM3(especie.custo_m3, especie.margem_lucro_pct)
+  const precoBase = calcularValorMadeiraM3(dims.espessura_cm, dims.largura_cm, dims.comprimento_m, valorM3)
+  return acabamento ? aplicarAcabamento(precoBase, acabamento.percentual_acrescimo) : precoBase
+}

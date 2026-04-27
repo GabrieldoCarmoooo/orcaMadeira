@@ -6,13 +6,13 @@ import BottomNav from '@/components/layout/bottom-nav'
 import type { UserRole } from '@/types/common'
 
 interface DashboardLayoutProps {
-  role: UserRole
+  userRole: UserRole
 }
 
-export default function DashboardLayout({ role }: DashboardLayoutProps) {
+export default function DashboardLayout({ userRole }: DashboardLayoutProps) {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <AppSidebar role={role} />
+      <AppSidebar userRole={userRole} />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <AppHeader />
@@ -21,7 +21,7 @@ export default function DashboardLayout({ role }: DashboardLayoutProps) {
         </PageWrapper>
       </div>
 
-      <BottomNav role={role} />
+      <BottomNav userRole={userRole} />
     </div>
   )
 }

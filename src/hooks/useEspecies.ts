@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { CATALOGO_PRODUTOS_KEY } from '@/hooks/useCatalogoProdutos'
 import type { EspecieMadeira } from '@/types/produto'
 import type { EspecieInput } from '@/lib/schemas/especie-schema'
 
@@ -17,6 +19,7 @@ interface UseEspeciesReturn {
 // pois a madeireira está sempre disponível após o login.
 export function useEspecies(): UseEspeciesReturn {
   const { madeireira } = useAuthStore()
+  const queryClient = useQueryClient()
   const [especies, setEspecies] = useState<EspecieMadeira[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
@@ -43,6 +46,11 @@ export function useEspecies(): UseEspeciesReturn {
     fetchEspecies()
   }, [fetchEspecies])
 
+  // Invalida o cache do catálogo de produtos — chamado após mutações que afetam preços das madeiras
+  const invalidateCatalogo = useCallback(() => {
+    void queryClient.invalidateQueries({ queryKey: [CATALOGO_PRODUTOS_KEY] })
+  }, [queryClient])
+
   // Cria nova espécie e revalida a lista imediatamente
   const create = useCallback(
     async (input: EspecieInput) => {
@@ -57,8 +65,9 @@ export function useEspecies(): UseEspeciesReturn {
 
       if (error) throw error
       await fetchEspecies()
+      invalidateCatalogo()
     },
-    [madeireira, fetchEspecies],
+    [madeireira, fetchEspecies, invalidateCatalogo],
   )
 
   // Atualiza campos de uma espécie existente e revalida a lista
@@ -75,8 +84,9 @@ export function useEspecies(): UseEspeciesReturn {
 
       if (error) throw error
       await fetchEspecies()
+      invalidateCatalogo()
     },
-    [fetchEspecies],
+    [fetchEspecies, invalidateCatalogo],
   )
 
   // Remove espécie pelo id — o CASCADE no banco apaga as madeiras_m3 filhas
@@ -89,8 +99,9 @@ export function useEspecies(): UseEspeciesReturn {
 
       if (error) throw error
       await fetchEspecies()
+      invalidateCatalogo()
     },
-    [fetchEspecies],
+    [fetchEspecies, invalidateCatalogo],
   )
 
   return { especies, isLoading, create, update, remove }

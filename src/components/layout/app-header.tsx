@@ -22,8 +22,8 @@ const ROUTE_LABELS: Record<string, string> = {
 function getInitials(nome?: string): string {
   if (!nome) return 'U'
   const parts = nome.trim().split(' ')
-  if (parts.length === 1) return parts[0][0]?.toUpperCase() ?? 'U'
-  return ((parts[0][0] ?? '') + (parts[parts.length - 1][0] ?? '')).toUpperCase()
+  if (parts.length === 1) return parts[0]?.[0]?.toUpperCase() ?? 'U'
+  return ((parts[0]?.[0] ?? '') + (parts[parts.length - 1]?.[0] ?? '')).toUpperCase()
 }
 
 export default function AppHeader() {

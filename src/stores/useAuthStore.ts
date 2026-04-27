@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import type { UserRole } from '@/types/common'
 import type { Carpinteiro } from '@/types/carpinteiro'
 import type { Madeireira } from '@/types/madeireira'
+import { logError } from '@/lib/log-error'
 
 interface AuthStore {
   // State
@@ -85,7 +86,8 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
     // Authenticated but no profile yet — check for pending registration data
     // (set when email confirmation interrupted the signup flow).
-    const raw = localStorage.getItem('pending_profile')
+    // Lemos de sessionStorage: dados de PII não devem persistir entre sessões do browser.
+    const raw = sessionStorage.getItem('pending_profile')
     if (raw) {
       try {
         const pending = JSON.parse(raw) as {
@@ -113,7 +115,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
               .single()
 
             if (!error && inserted) {
-              localStorage.removeItem('pending_profile')
+              sessionStorage.removeItem('pending_profile')
               set({
                 user: session.user,
                 role: 'carpinteiro',
@@ -140,7 +142,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
               .single()
 
             if (!error && inserted) {
-              localStorage.removeItem('pending_profile')
+              sessionStorage.removeItem('pending_profile')
               set({
                 user: session.user,
                 role: 'madeireira',
@@ -153,9 +155,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
             }
           }
         }
-      } catch {
+      } catch (err) {
         // Malformed data — ignore and fall through
-        localStorage.removeItem('pending_profile')
+        logError('useAuthStore/setSession/pending_profile', err)
+        sessionStorage.removeItem('pending_profile')
       }
     }
 

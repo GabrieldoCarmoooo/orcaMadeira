@@ -69,7 +69,10 @@ const MAO_OBRA_OPTIONS: { value: 'fixo' | 'hora'; label: string; description: st
 ]
 
 export function StepFinanceiro({ onNext, onBack }: StepFinanceiroProps) {
-  const { stepFinanceiro, setFinanceiro, setStep } = useOrcamentoStore()
+  // Selectors granulares: re-render apenas quando stepFinanceiro muda, não o store inteiro
+  const stepFinanceiro = useOrcamentoStore(s => s.stepFinanceiro)
+  const setFinanceiro = useOrcamentoStore(s => s.setFinanceiro)
+  const setStep = useOrcamentoStore(s => s.setStep)
 
   const {
     register,

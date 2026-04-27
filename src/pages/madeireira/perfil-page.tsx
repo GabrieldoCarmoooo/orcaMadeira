@@ -6,6 +6,7 @@ import { Loader2, CheckCircle2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { validarCpfCnpj } from '@/lib/validar-cpf-cnpj'
+import { logError } from '@/lib/log-error'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -93,6 +94,7 @@ export default function MadeireiraPerfilPage() {
       setSaveSuccess(true)
       setTimeout(() => setSaveSuccess(false), 4000)
     } catch (err) {
+      logError('perfil-madeireira/handleSubmit', err)
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       setError('root', { message: `Erro ao salvar: ${message}` })
     }

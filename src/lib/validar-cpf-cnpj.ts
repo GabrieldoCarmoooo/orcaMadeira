@@ -17,21 +17,21 @@ function validarCPF(cpf: string): boolean {
 
   let sum = 0
   for (let i = 0; i < 9; i++) {
-    sum += parseInt(cpf[i]) * (10 - i)
+    sum += parseInt(cpf.charAt(i)) * (10 - i)
   }
   let remainder = sum % 11
   const digit1 = remainder < 2 ? 0 : 11 - remainder
 
-  if (parseInt(cpf[9]) !== digit1) return false
+  if (parseInt(cpf.charAt(9)) !== digit1) return false
 
   sum = 0
   for (let i = 0; i < 10; i++) {
-    sum += parseInt(cpf[i]) * (11 - i)
+    sum += parseInt(cpf.charAt(i)) * (11 - i)
   }
   remainder = sum % 11
   const digit2 = remainder < 2 ? 0 : 11 - remainder
 
-  return parseInt(cpf[10]) === digit2
+  return parseInt(cpf.charAt(10)) === digit2
 }
 
 function validarCNPJ(cnpj: string): boolean {
@@ -41,20 +41,20 @@ function validarCNPJ(cnpj: string): boolean {
   const weights1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
   let sum = 0
   for (let i = 0; i < 12; i++) {
-    sum += parseInt(cnpj[i]) * weights1[i]
+    sum += parseInt(cnpj.charAt(i)) * (weights1[i] ?? 0)
   }
   let remainder = sum % 11
   const digit1 = remainder < 2 ? 0 : 11 - remainder
 
-  if (parseInt(cnpj[12]) !== digit1) return false
+  if (parseInt(cnpj.charAt(12)) !== digit1) return false
 
   const weights2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
   sum = 0
   for (let i = 0; i < 13; i++) {
-    sum += parseInt(cnpj[i]) * weights2[i]
+    sum += parseInt(cnpj.charAt(i)) * (weights2[i] ?? 0)
   }
   remainder = sum % 11
   const digit2 = remainder < 2 ? 0 : 11 - remainder
 
-  return parseInt(cnpj[13]) === digit2
+  return parseInt(cnpj.charAt(13)) === digit2
 }

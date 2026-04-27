@@ -1,14 +1,12 @@
-import Papa from 'papaparse'
-import * as XLSX from 'xlsx'
-import { MAX_UPLOAD_SIZE } from '@/constants/upload'
+import { MAX_UPLOAD_SIZE, COLUNAS_OBRIGATORIAS } from '@/constants/upload'
 
-/** A single raw row from the spreadsheet — string values, keyed by header name */
+/** Linha bruta do arquivo, chaveada pelo nome do header normalizado */
 export type RawRow = Record<string, string>
 
 export interface ParseResult {
-  /** Detected headers from the first row */
+  /** Headers detectados na primeira linha */
   headers: string[]
-  /** All data rows (first row used as headers, excluded from rows) */
+  /** Todas as linhas de dados (header excluído) */
   rows: RawRow[]
 }
 
@@ -19,9 +17,118 @@ export class ParseError extends Error {
   }
 }
 
+// ─── Tipos de validação ───────────────────────────────────────────────────────
+
+/** Linha validada com campos tipados e opcionais mapeados */
+export interface ValidatedRow {
+  /** Número da linha de origem no arquivo (1-based, para relatório de erros) */
+  rowIndex: number
+  nome: string
+  unidade: string
+  preco_unitario: number
+  categoria?: string
+  codigo?: string
+  descricao?: string
+  disponivel?: boolean
+}
+
+/** Erro de validação associado a uma linha específica */
+export interface RowError {
+  rowIndex: number
+  message: string
+}
+
+export interface ValidationResult {
+  rows: ValidatedRow[]
+  errors: RowError[]
+}
+
 /**
- * Parse a CSV or Excel file into a unified `ParseResult`.
- * Throws `ParseError` for size violations or unsupported formats.
+ * Valida um ParseResult aplicando as regras de negócio de importação de catálogo:
+ * - Exige presença das colunas obrigatórias nos headers (lança ParseError se ausentes)
+ * - Rejeita linhas com campos obrigatórios vazios ou preço negativo/inválido
+ * - Linhas válidas são retornadas mesmo quando outras têm erros (relatório parcial)
+ * - Colunas opcionais são incluídas no objeto retornado quando presentes e não-vazias
+ */
+export function validatePlanilha(result: ParseResult): ValidationResult {
+  // Verifica que todas as colunas obrigatórias estão nos headers detectados
+  const missing = COLUNAS_OBRIGATORIAS.filter((col) => !result.headers.includes(col))
+  if (missing.length > 0) {
+    throw new ParseError(`Colunas obrigatórias ausentes: ${missing.join(', ')}.`)
+  }
+
+  const rows: ValidatedRow[] = []
+  const errors: RowError[] = []
+
+  result.rows.forEach((raw, index) => {
+    const rowIndex = index + 1 // 1-based para facilitar leitura do relatório
+    const fieldErrors: string[] = []
+
+    const nome = raw['nome']?.trim() ?? ''
+    const unidade = raw['unidade']?.trim() ?? ''
+    const precoStr = raw['preco_unitario']?.trim() ?? ''
+
+    // Valida campos obrigatórios não-vazios
+    if (!nome) fieldErrors.push('campo "nome" está vazio')
+    if (!unidade) fieldErrors.push('campo "unidade" está vazio')
+
+    let preco: number | null = null
+    if (!precoStr) {
+      fieldErrors.push('campo "preco_unitario" está vazio')
+    } else {
+      // Aceita vírgula como separador decimal (pt-BR)
+      const parsed = parseFloat(precoStr.replace(',', '.'))
+      if (isNaN(parsed)) {
+        fieldErrors.push(`"preco_unitario" com valor inválido: "${precoStr}"`)
+      } else if (parsed < 0) {
+        fieldErrors.push(`preço negativo não permitido (${parsed})`)
+      } else {
+        preco = parsed
+      }
+    }
+
+    if (fieldErrors.length > 0) {
+      errors.push({ rowIndex, message: `Linha ${rowIndex}: ${fieldErrors.join('; ')}.` })
+      return
+    }
+
+    // Linha aprovada na validação — monta objeto com campos opcionais
+    const validatedRow: ValidatedRow = {
+      rowIndex,
+      nome,
+      unidade,
+      preco_unitario: preco!,
+    }
+
+    const categoria = raw['categoria']?.trim()
+    if (categoria) validatedRow.categoria = categoria
+
+    // Aceita 'código' (com acento, saída do PapaParse) e 'codigo' (sem acento)
+    const codigo = (raw['código'] ?? raw['codigo'])?.trim()
+    if (codigo) validatedRow.codigo = codigo
+
+    // Aceita 'descrição' e 'descricao'
+    const descricao = (raw['descrição'] ?? raw['descricao'])?.trim()
+    if (descricao) validatedRow.descricao = descricao
+
+    // 'disponível'/'disponivel': falso apenas para 'false', '0', 'não', 'nao', 'n'
+    const dispStr = (raw['disponível'] ?? raw['disponivel'])?.trim()
+    if (dispStr !== undefined && dispStr !== '') {
+      validatedRow.disponivel = !['false', '0', 'não', 'nao', 'n'].includes(
+        dispStr.toLowerCase(),
+      )
+    }
+
+    rows.push(validatedRow)
+  })
+
+  return { rows, errors }
+}
+
+/**
+ * Wrapper principal de parse: detecta a extensão do arquivo e carrega o módulo
+ * correto sob demanda via dynamic import, mantendo papaparse e xlsx fora do
+ * bundle principal. Somente o caminho de upload da madeireira chega até aqui.
  */
 export async function parsePlanilha(file: File): Promise<ParseResult> {
   if (file.size > MAX_UPLOAD_SIZE) {
@@ -33,70 +140,26 @@ export async function parsePlanilha(file: File): Promise<ParseResult> {
   const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
 
   if (ext === 'csv') {
-    return parseCsv(file)
+    try {
+      const { parseCsv } = await import('@/lib/parse-csv')
+      return await parseCsv(file)
+    } catch (err) {
+      if (err instanceof ParseError) throw err
+      throw new ParseError(err instanceof Error ? err.message : 'Erro inesperado ao ler CSV.')
+    }
   }
 
   if (ext === 'xlsx' || ext === 'xls') {
-    return parseExcel(file)
+    try {
+      const { parseExcel } = await import('@/lib/parse-xlsx')
+      return await parseExcel(file)
+    } catch (err) {
+      if (err instanceof ParseError) throw err
+      throw new ParseError(err instanceof Error ? err.message : 'Erro inesperado ao ler Excel.')
+    }
   }
 
   throw new ParseError(
     `Formato não suportado: .${ext}. Envie um arquivo .csv, .xlsx ou .xls.`,
   )
-}
-
-// ─── Internal helpers ─────────────────────────────────────────────────────────
-
-function parseCsv(file: File): Promise<ParseResult> {
-  return new Promise((resolve, reject) => {
-    Papa.parse<RawRow>(file, {
-      header: true,
-      skipEmptyLines: true,
-      transformHeader: (h) => h.trim().toLowerCase(),
-      complete(results) {
-        const headers = results.meta.fields ?? []
-        resolve({ headers, rows: results.data })
-      },
-      error(err) {
-        reject(new ParseError(`Erro ao ler CSV: ${err.message}`))
-      },
-    })
-  })
-}
-
-async function parseExcel(file: File): Promise<ParseResult> {
-  const buffer = await file.arrayBuffer()
-  const workbook = XLSX.read(buffer, { type: 'array' })
-
-  const sheetName = workbook.SheetNames[0]
-  if (!sheetName) {
-    throw new ParseError('A planilha Excel está vazia ou não contém abas.')
-  }
-
-  const sheet = workbook.Sheets[sheetName]
-
-  // Convert to array-of-arrays so we can treat the first row as headers
-  const aoa = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1, defval: '' })
-
-  if (aoa.length === 0) {
-    return { headers: [], rows: [] }
-  }
-
-  // First row = headers (normalise to lowercase trimmed strings)
-  const rawHeaders = aoa[0].map((h) => String(h).trim().toLowerCase())
-
-  const rows: RawRow[] = aoa.slice(1).reduce<RawRow[]>((acc, rowArr) => {
-    // Skip entirely empty rows
-    const values = rowArr.map((v) => String(v).trim())
-    if (values.every((v) => v === '')) return acc
-
-    const row: RawRow = {}
-    rawHeaders.forEach((header, i) => {
-      row[header] = values[i] ?? ''
-    })
-    acc.push(row)
-    return acc
-  }, [])
-
-  return { headers: rawHeaders, rows }
 }

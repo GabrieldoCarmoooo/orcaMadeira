@@ -17,7 +17,7 @@ interface BuscaMadeireiraProps {
   /** Disable the solicitar button while a request is being sent */
   disabled?: boolean
   /** ID da madeireira com parceria aprovada — exibe badge em vez de botão para essa entrada */
-  madeireiraVinculadaId?: string
+  madeireiraVinculadaId?: string | undefined
 }
 
 export default function BuscaMadeireira({ onSolicitar, disabled = false, madeireiraVinculadaId }: BuscaMadeireiraProps) {

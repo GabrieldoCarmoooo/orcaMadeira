@@ -7,16 +7,19 @@ export const especieSchema = z.object({
   // Nome único por madeireira (índice UNIQUE case-insensitive no banco)
   nome: z.string().min(2, 'Nome deve ter no mínimo 2 caracteres'),
 
-  // Custo por m³ da madeireira — base do cálculo de venda; não pode ser zero ou negativo
+  // Custo por m³ da madeireira — base do cálculo de venda; não pode ser zero ou negativo.
+  // Limite superior reflete o NUMERIC(12,2) do banco e evita corrompimento de cálculos.
   custo_m3: z
     .number({ error: 'Informe o custo por m³' })
-    .positive('O custo/m³ deve ser maior que zero'),
+    .positive('O custo/m³ deve ser maior que zero')
+    .max(999_999.99, 'O custo/m³ não pode exceder R$ 999.999,99'),
 
   // Percentual de margem de lucro aplicado sobre o custo para chegar ao preço de venda.
-  // Aceita 0 (sem margem), nunca negativo.
+  // Aceita 0 (sem margem), nunca negativo. Limite de 1.000% evita valores absurdos.
   margem_lucro_pct: z
     .number({ error: 'Informe a margem de lucro' })
-    .min(0, 'A margem não pode ser negativa'),
+    .min(0, 'A margem não pode ser negativa')
+    .max(1000, 'A margem de lucro não pode exceder 1.000%'),
 })
 
 // Tipo inferido usado nos formulários e na chamada ao hook `useEspecies`

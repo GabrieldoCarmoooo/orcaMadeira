@@ -85,8 +85,11 @@ function FinanceiroField({
   // valor numérico 0 do pai substitua imediatamente o campo vazio
   const [inputStr, setInputStr] = useState(numericValue === 0 ? '' : String(numericValue))
 
-  // Sincroniza o estado interno quando o valor externo muda (ex: reset do perfil)
+  // Sincroniza o estado interno quando o valor externo muda (ex: reset do perfil).
+  // Pattern intencional: o campo aceita strings incompletas (ex: "10." antes de "10.5"),
+  // portanto não é possível derivar o valor sem estado local separado.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setInputStr(numericValue === 0 ? '' : String(numericValue))
   }, [numericValue])
 

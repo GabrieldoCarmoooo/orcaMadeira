@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { pdf } from '@react-pdf/renderer'
 import type { Orcamento, ItemOrcamento } from '@/types/orcamento'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { logError } from '@/lib/log-error'
 
 interface UsePdfReturn {
   loading: boolean
@@ -21,7 +22,8 @@ async function fetchLogoBase64(url: string): Promise<string | undefined> {
       reader.onerror = () => resolve(undefined)
       reader.readAsDataURL(blob)
     })
-  } catch {
+  } catch (err) {
+    logError('usePdf/fetchLogoBase64', err)
     return undefined
   }
 }

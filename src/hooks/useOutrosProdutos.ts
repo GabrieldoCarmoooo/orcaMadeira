@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { CATALOGO_PRODUTOS_KEY } from '@/hooks/useCatalogoProdutos'
 import type { OutroProduto } from '@/types/produto'
 import type { OutroProdutoInput } from '@/lib/schemas/outro-produto-schema'
 
@@ -16,6 +18,7 @@ interface UseOutrosProdutosReturn {
 // "Outros produtos" são itens sem cálculo dimensional: parafuso, prego, telha, etc.
 export function useOutrosProdutos(): UseOutrosProdutosReturn {
   const { madeireira } = useAuthStore()
+  const queryClient = useQueryClient()
   const [outrosProdutos, setOutrosProdutos] = useState<OutroProduto[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
@@ -42,6 +45,11 @@ export function useOutrosProdutos(): UseOutrosProdutosReturn {
     fetchOutrosProdutos()
   }, [fetchOutrosProdutos])
 
+  // Invalida o cache do catálogo de produtos após mutações que afetam outros produtos disponíveis
+  const invalidateCatalogo = useCallback(() => {
+    void queryClient.invalidateQueries({ queryKey: [CATALOGO_PRODUTOS_KEY] })
+  }, [queryClient])
+
   // Cria novo produto e revalida a lista imediatamente
   const create = useCallback(
     async (input: OutroProdutoInput) => {
@@ -57,8 +65,9 @@ export function useOutrosProdutos(): UseOutrosProdutosReturn {
 
       if (error) throw error
       await fetchOutrosProdutos()
+      invalidateCatalogo()
     },
-    [madeireira, fetchOutrosProdutos],
+    [madeireira, fetchOutrosProdutos, invalidateCatalogo],
   )
 
   // Atualiza campos de um produto existente e revalida a lista
@@ -76,8 +85,9 @@ export function useOutrosProdutos(): UseOutrosProdutosReturn {
 
       if (error) throw error
       await fetchOutrosProdutos()
+      invalidateCatalogo()
     },
-    [fetchOutrosProdutos],
+    [fetchOutrosProdutos, invalidateCatalogo],
   )
 
   // Remove produto pelo id
@@ -90,8 +100,9 @@ export function useOutrosProdutos(): UseOutrosProdutosReturn {
 
       if (error) throw error
       await fetchOutrosProdutos()
+      invalidateCatalogo()
     },
-    [fetchOutrosProdutos],
+    [fetchOutrosProdutos, invalidateCatalogo],
   )
 
   return { outrosProdutos, isLoading, create, update, remove }

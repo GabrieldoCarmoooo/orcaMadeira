@@ -65,9 +65,11 @@ export default function CarpinteiroCatalogoPage() {
   // Exibe "sem vinculação" apenas quando o loading terminou e não há vínculo aprovado
   const semVinculacao = !isLoading && !hasVinculacao
 
-  // Busca a primeira imagem de cada portfólio para exibir como thumbnail nos cards
+  // Busca a primeira imagem de cada portfólio para exibir como thumbnail nos cards.
+  // setThumbnails({}) no branch vazio é necessário para limpar ao excluir todos os portfólios.
   useEffect(() => {
     if (!portfolios.length) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setThumbnails({})
       return
     }

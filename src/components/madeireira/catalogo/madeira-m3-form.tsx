@@ -1,20 +1,21 @@
 import { useState } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus, X, Layers } from 'lucide-react'
+import { Layers } from 'lucide-react'
 import { madeiraM3Schema, type MadeiraM3Input } from '@/lib/schemas/madeira-m3-schema'
 import { useEspecies } from '@/hooks/useEspecies'
 import {
   calcularValorVendaM3,
   calcularValorMadeiraM3,
 } from '@/lib/calcular-madeira'
+import { BRL } from '@/lib/format'
 import type { MadeiraM3 } from '@/types/produto'
 import {
   Form,
   FormField,
   FormItem,
+  FormLabel,
   FormControl,
-  FormMessage,
 } from '@/components/ui/form'
 import {
   Select,
@@ -26,42 +27,21 @@ import {
 import { EditorialInput } from '@/components/ui/editorial-input'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from './empty-state'
-
-// Comprimentos sugeridos em metros — atalhos para o preenchimento rápido da lista
-const COMPRIMENTOS_SUGERIDOS = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6]
+import { ComprimentosManager } from './comprimentos-manager'
+import { DimensoesFields } from './madeira-m3-dimensoes-fields'
 
 interface MadeiraM3FormProps {
   /** Madeira existente — presente no modo edição, ausente no modo criação */
-  defaultValues?: Partial<MadeiraM3>
+  defaultValues?: Partial<MadeiraM3> | undefined
   /** Callback com dados validados ao submeter */
   onSubmit: (data: MadeiraM3Input) => Promise<void>
   /** Cancela e fecha o dialog sem salvar */
   onCancel?: () => void
 }
 
-// Formata número como moeda BRL
-function formatBRL(value: number): string {
-  return value.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: 2,
-  })
-}
-
-// Formata comprimento com vírgula decimal (ex: 2,50 m)
-function formatComprimento(valor: number): string {
-  return valor.toLocaleString('pt-BR', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })
-}
-
 export function MadeiraM3Form({ defaultValues, onSubmit, onCancel }: MadeiraM3FormProps) {
   const { especies, isLoading: loadingEspecies } = useEspecies()
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  // Input controlado do campo "adicionar comprimento" — separado do form principal
-  const [novoComprimento, setNovoComprimento] = useState<string>('')
 
   // Monta defaultValues a partir da madeira existente (modo edição) ou valores iniciais
   const form = useForm<MadeiraM3Input>({
@@ -94,6 +74,9 @@ export function MadeiraM3Form({ defaultValues, onSubmit, onCancel }: MadeiraM3Fo
     'largura_cm',
   ])
 
+  // Watch nos comprimentos para refletir toggles de disponibilidade no ComprimentosManager
+  const comprimentosWatched = form.watch('comprimentos') ?? []
+
   // Resolve a espécie selecionada para calcular o valor de venda/m³
   const especieSelecionada = especies.find((e) => e.id === especieId)
   const valorVendaM3 =
@@ -104,28 +87,10 @@ export function MadeiraM3Form({ defaultValues, onSubmit, onCancel }: MadeiraM3Fo
   // Calcula o preço para 1m de comprimento de referência como preview no form
   const previewPreco1m =
     valorVendaM3 !== null &&
-    Number.isFinite(espessuraCm) &&
-    espessuraCm > 0 &&
-    Number.isFinite(larguraCm) &&
-    larguraCm > 0
+    Number.isFinite(espessuraCm) && espessuraCm > 0 &&
+    Number.isFinite(larguraCm) && larguraCm > 0
       ? calcularValorMadeiraM3(espessuraCm, larguraCm, 1, valorVendaM3)
       : null
-
-  // Adiciona comprimento à lista, rejeitando duplicatas e valores inválidos
-  function adicionarComprimento(valor: number) {
-    if (!Number.isFinite(valor) || valor <= 0) return
-
-    const jaExiste = fields.some((f) => f.comprimento_m === valor)
-    if (jaExiste) return
-
-    append({ comprimento_m: valor, disponivel: true })
-    setNovoComprimento('')
-  }
-
-  function handleAdicionarInput() {
-    const valor = parseFloat(novoComprimento.replace(',', '.'))
-    adicionarComprimento(valor)
-  }
 
   // Toggle de disponibilidade de um comprimento na lista — sem remover do banco
   function toggleDisponivel(index: number) {
@@ -172,34 +137,32 @@ export function MadeiraM3Form({ defaultValues, onSubmit, onCancel }: MadeiraM3Fo
           name="especie_id"
           render={({ field, fieldState }) => (
             <FormItem>
+              <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                Espécie
+              </FormLabel>
               <FormControl>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                    Espécie
-                  </label>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    disabled={loadingEspecies}
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  disabled={loadingEspecies}
+                >
+                  <SelectTrigger
+                    className={fieldState.error ? 'border-destructive' : ''}
                   >
-                    <SelectTrigger
-                      className={fieldState.error ? 'border-destructive' : ''}
-                    >
-                      <SelectValue placeholder="Selecione a espécie..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {especies.map((e) => (
-                        <SelectItem key={e.id} value={e.id}>
-                          {e.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {fieldState.error && (
-                    <p className="text-xs text-destructive">{fieldState.error.message}</p>
-                  )}
-                </div>
+                    <SelectValue placeholder="Selecione a espécie..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {especies.map((e) => (
+                      <SelectItem key={e.id} value={e.id}>
+                        {e.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </FormControl>
+              {fieldState.error && (
+                <p className="text-xs text-destructive">{fieldState.error.message}</p>
+              )}
             </FormItem>
           )}
         />
@@ -222,58 +185,8 @@ export function MadeiraM3Form({ defaultValues, onSubmit, onCancel }: MadeiraM3Fo
           )}
         />
 
-        {/* Dimensões da seção transversal — espessura e largura em cm */}
-        <div className="grid grid-cols-2 gap-3">
-          <FormField
-            control={form.control}
-            name="espessura_cm"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormControl>
-                  <EditorialInput
-                    label="Espessura (cm)"
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    placeholder="5"
-                    error={fieldState.error?.message}
-                    value={Number.isFinite(field.value) ? field.value : ''}
-                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                    onBlur={field.onBlur}
-                    name={field.name}
-                    ref={field.ref}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="largura_cm"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormControl>
-                  <EditorialInput
-                    label="Largura (cm)"
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    placeholder="15"
-                    error={fieldState.error?.message}
-                    value={Number.isFinite(field.value) ? field.value : ''}
-                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                    onBlur={field.onBlur}
-                    name={field.name}
-                    ref={field.ref}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        {/* Campos de dimensão transversal — espessura e largura em cm */}
+        <DimensoesFields control={form.control} />
 
         {/* Preview do valor tabelado para 1m — calculado via espécie + dimensões */}
         {previewPreco1m !== null && (
@@ -282,165 +195,22 @@ export function MadeiraM3Form({ defaultValues, onSubmit, onCancel }: MadeiraM3Fo
               Valor tabelado (1m)
             </span>
             <span className="text-base font-semibold text-primary">
-              {formatBRL(previewPreco1m)}
+              {BRL.format(previewPreco1m)}
             </span>
           </div>
         )}
 
-        {/* ─── Seção de comprimentos disponíveis ───────────────────────────── */}
-        {/* Cada comprimento é uma opção que o carpinteiro pode selecionar no orçamento */}
-        <div className="space-y-3">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-            Comprimentos disponíveis
-          </p>
-
-          {/* Chips de sugestão — atalhos para comprimentos comuns no mercado */}
-          <div className="flex flex-wrap gap-1.5">
-            {COMPRIMENTOS_SUGERIDOS.map((val) => {
-              const jaAdicionado = fields.some((f) => f.comprimento_m === val)
-              return (
-                <button
-                  key={val}
-                  type="button"
-                  onClick={() => adicionarComprimento(val)}
-                  disabled={jaAdicionado}
-                  className={[
-                    'px-2.5 py-1 rounded-md text-xs font-medium transition-colors',
-                    jaAdicionado
-                      ? 'bg-primary/10 text-primary cursor-default'
-                      : 'bg-surface-container-high text-on-surface hover:bg-surface-container-highest',
-                  ].join(' ')}
-                >
-                  {formatComprimento(val)}m
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Input manual + botão adicionar para comprimentos fora das sugestões */}
-          <div className="flex gap-2">
-            <EditorialInput
-              label="Comprimento (m)"
-              type="number"
-              step="0.01"
-              min="0.01"
-              placeholder="Ex: 2,50"
-              value={novoComprimento}
-              onChange={(e) => setNovoComprimento(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  handleAdicionarInput()
-                }
-              }}
-              className="flex-1"
-            />
-            <div className="flex items-end pb-0.5">
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={handleAdicionarInput}
-                disabled={!novoComprimento}
-              >
-                <Plus />
-                Adicionar
-              </Button>
-            </div>
-          </div>
-
-          {/* Lista de comprimentos adicionados com tabela de preços calculados */}
-          {fields.length > 0 && valorVendaM3 !== null && previewPreco1m !== null ? (
-            <div className="bg-surface-container-highest rounded-lg overflow-hidden">
-              <div className="grid grid-cols-[1fr_auto_auto] text-[10px] font-bold uppercase tracking-widest text-on-surface-variant px-4 py-2 border-b border-outline/10">
-                <span>Comprimento</span>
-                <span className="text-right pr-6">Preço unit.</span>
-                <span />
-              </div>
-              {fields.map((field, index) => {
-                // Calcula preço para cada comprimento cadastrado usando as dimensões do form
-                const preco =
-                  Number.isFinite(espessuraCm) &&
-                  espessuraCm > 0 &&
-                  Number.isFinite(larguraCm) &&
-                  larguraCm > 0
-                    ? calcularValorMadeiraM3(espessuraCm, larguraCm, field.comprimento_m, valorVendaM3)
-                    : null
-
-                const disponivel = form.watch(`comprimentos.${index}.disponivel`)
-
-                return (
-                  <div
-                    key={field.id}
-                    className="grid grid-cols-[1fr_auto_auto] items-center px-4 py-2.5 border-b border-outline/10 last:border-0"
-                  >
-                    {/* Comprimento com indicador de disponibilidade */}
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => toggleDisponivel(index)}
-                        title={disponivel ? 'Desativar' : 'Ativar'}
-                        className={[
-                          'w-2 h-2 rounded-full shrink-0 transition-colors',
-                          disponivel ? 'bg-primary' : 'bg-outline/40',
-                        ].join(' ')}
-                      />
-                      <span
-                        className={[
-                          'text-sm font-medium',
-                          disponivel ? 'text-on-surface' : 'text-on-surface-variant line-through',
-                        ].join(' ')}
-                      >
-                        {formatComprimento(field.comprimento_m)} m
-                      </span>
-                    </div>
-
-                    {/* Preço calculado para este comprimento */}
-                    <span className="text-sm font-semibold text-primary text-right pr-4">
-                      {preco !== null ? formatBRL(preco) : '—'}
-                    </span>
-
-                    {/* Botão de remoção — remove do array do form */}
-                    <button
-                      type="button"
-                      onClick={() => remove(index)}
-                      className="text-on-surface-variant hover:text-destructive transition-colors"
-                      aria-label={`Remover ${field.comprimento_m}m`}
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                )
-              })}
-            </div>
-          ) : fields.length > 0 ? (
-            // Lista sem preview de preço (espécie ou dimensões não preenchidas)
-            <div className="bg-surface-container-highest rounded-lg overflow-hidden">
-              {fields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="flex items-center justify-between px-4 py-2.5 border-b border-outline/10 last:border-0"
-                >
-                  <span className="text-sm text-on-surface">
-                    {formatComprimento(field.comprimento_m)} m
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => remove(index)}
-                    className="text-on-surface-variant hover:text-destructive transition-colors"
-                    aria-label={`Remover ${field.comprimento_m}m`}
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-on-surface-variant py-2">
-              Nenhum comprimento adicionado. Use os chips acima ou insira um valor manualmente.
-            </p>
-          )}
-        </div>
+        {/* Seção extraída: gerenciador de comprimentos disponíveis da madeira */}
+        <ComprimentosManager
+          fieldIds={fields.map((f) => f.id)}
+          comprimentos={comprimentosWatched}
+          onAppend={append}
+          onRemove={remove}
+          onToggleDisponivel={toggleDisponivel}
+          valorVendaM3={valorVendaM3}
+          espessuraCm={espessuraCm}
+          larguraCm={larguraCm}
+        />
 
         <div className="flex gap-2 justify-end pt-1">
           {onCancel && (

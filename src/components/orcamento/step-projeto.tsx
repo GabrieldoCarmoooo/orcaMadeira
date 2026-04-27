@@ -44,7 +44,10 @@ const TIPO_OPTIONS: { value: TipoProjeto; label: string; icon: React.ElementType
 ]
 
 export function StepProjeto({ onNext }: StepProjetoProps) {
-  const { stepProjeto, setStepProjeto, setStep } = useOrcamentoStore()
+  // Selectors granulares: re-render apenas quando stepProjeto muda, não o store inteiro
+  const stepProjeto = useOrcamentoStore(s => s.stepProjeto)
+  const setStepProjeto = useOrcamentoStore(s => s.setStepProjeto)
+  const setStep = useOrcamentoStore(s => s.setStep)
 
   const {
     register,

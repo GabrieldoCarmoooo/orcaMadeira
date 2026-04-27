@@ -4,7 +4,8 @@ import { forwardRef } from 'react'
 
 interface EditorialInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
-  error?: string
+  // Permite string | undefined para compatibilidade com fieldState.error?.message
+  error?: string | undefined
 }
 
 /**

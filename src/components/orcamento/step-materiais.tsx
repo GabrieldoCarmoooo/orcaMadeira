@@ -29,11 +29,8 @@ import { ItemMaterial } from '@/components/orcamento/item-material'
 import { useCatalogoProdutos } from '@/hooks/useCatalogoProdutos'
 import { useOrcamentoStore } from '@/stores/useOrcamentoStore'
 import { supabase } from '@/lib/supabase'
-import {
-  calcularValorVendaM3,
-  calcularValorMadeiraM3,
-  aplicarAcabamento,
-} from '@/lib/calcular-madeira'
+import { calcularPrecoLinhaMadeiraM3 } from '@/lib/calcular-madeira'
+import { buildMadeiraKey } from '@/lib/item-key'
 import type { CatalogoItem, CatalogoItemMadeiraM3, ServicoAcabamento } from '@/types/produto'
 
 // Sentinel para "sem acabamento" no Select — string não vazia para compatibilidade com Radix
@@ -49,7 +46,11 @@ interface StepMateriaisProps {
 }
 
 export function StepMateriais({ onNext, onBack }: StepMateriaisProps) {
-  const { itens, resumo, addItem, setStep } = useOrcamentoStore()
+  // Selectors granulares: re-render isolado por campo — itens não dispara re-render de stepFinanceiro
+  const itens = useOrcamentoStore(s => s.itens)
+  const resumo = useOrcamentoStore(s => s.resumo)
+  const addItem = useOrcamentoStore(s => s.addItem)
+  const setStep = useOrcamentoStore(s => s.setStep)
 
   const [query, setQuery] = useState('')
   const { items, isLoading } = useCatalogoProdutos(query)
@@ -85,24 +86,19 @@ export function StepMateriais({ onNext, onBack }: StepMateriaisProps) {
       ? acabamentos.find((a) => a.id === selectedAcabamentoId)
       : undefined
 
-  // Preço base calculado a partir das dimensões e do valor de venda da espécie
-  const precoBase = (() => {
+  // Preço unitário: espécie → m³ venda → volume × m³ → acabamento opcional
+  const precoUnitario = (() => {
     if (!selectedItem || !comprimentoSelecionado) return 0
-    const especie = selectedItem.data.especie
-    if (!especie) return 0
-    const valorM3 = calcularValorVendaM3(especie.custo_m3, especie.margem_lucro_pct)
-    return calcularValorMadeiraM3(
-      selectedItem.data.espessura_cm,
-      selectedItem.data.largura_cm,
-      comprimentoSelecionado.comprimento_m,
-      valorM3,
+    return calcularPrecoLinhaMadeiraM3(
+      selectedItem.data.especie,
+      {
+        espessura_cm: selectedItem.data.espessura_cm,
+        largura_cm: selectedItem.data.largura_cm,
+        comprimento_m: comprimentoSelecionado.comprimento_m,
+      },
+      acabamentoSelecionado,
     )
   })()
-
-  // Acabamento é aplicado sobre o preço base quando selecionado
-  const precoUnitario = acabamentoSelecionado
-    ? aplicarAcabamento(precoBase, acabamentoSelecionado.percentual_acrescimo)
-    : precoBase
 
   const subtotalDialog = precoUnitario * dialogQty
 
@@ -123,8 +119,10 @@ export function StepMateriais({ onNext, onBack }: StepMateriaisProps) {
 
     // uid composto garante que a mesma madeira com comprimentos ou acabamentos diferentes
     // sejam linhas independentes no store (sem colapso por item_preco_id)
-    const uid = `madeira:${selectedItem.data.id}:${comprimentoSelecionado.id}:${acabamentoSelecionado?.id ?? 'none'}`
+    const uid = buildMadeiraKey({ id: selectedItem.data.id, comprimentoId: comprimentoSelecionado.id, acabamentoId: acabamentoSelecionado?.id ?? null })
 
+    // exactOptionalPropertyTypes: campos opcionais que podem ser undefined são incluídos
+    // via spread condicional para não violar o contrato da flag
     addItem({
       uid,
       item_preco_id: selectedItem.data.id,
@@ -135,14 +133,20 @@ export function StepMateriais({ onNext, onBack }: StepMateriaisProps) {
       // Snapshot gravado para preservar histórico no orçamento finalizado
       origem: 'madeira_m3',
       madeira_m3_id: selectedItem.data.id,
-      especie_nome: selectedItem.data.especie?.nome,
+      ...(selectedItem.data.especie?.nome !== undefined
+        ? { especie_nome: selectedItem.data.especie.nome }
+        : {}),
       espessura_cm: selectedItem.data.espessura_cm,
       largura_cm: selectedItem.data.largura_cm,
       comprimento_id: comprimentoSelecionado.id,
       comprimento_real_m: comprimentoSelecionado.comprimento_m,
-      acabamento_id: acabamentoSelecionado?.id,
-      acabamento_nome: acabamentoSelecionado?.nome,
-      acabamento_percentual: acabamentoSelecionado?.percentual_acrescimo,
+      ...(acabamentoSelecionado !== undefined
+        ? {
+            acabamento_id: acabamentoSelecionado.id,
+            acabamento_nome: acabamentoSelecionado.nome,
+            acabamento_percentual: acabamentoSelecionado.percentual_acrescimo,
+          }
+        : {}),
     })
 
     setDialogOpen(false)
@@ -316,15 +320,13 @@ export function StepMateriais({ onNext, onBack }: StepMateriaisProps) {
                     <SelectContent>
                       {comprimentos.map((c) => {
                         // Calcula preço de cada comprimento disponível para mostrar na option
-                        const especie = selectedItem.data.especie
-                        const valorM3 = especie
-                          ? calcularValorVendaM3(especie.custo_m3, especie.margem_lucro_pct)
-                          : 0
-                        const preco = calcularValorMadeiraM3(
-                          selectedItem.data.espessura_cm,
-                          selectedItem.data.largura_cm,
-                          c.comprimento_m,
-                          valorM3,
+                        const preco = calcularPrecoLinhaMadeiraM3(
+                          selectedItem.data.especie,
+                          {
+                            espessura_cm: selectedItem.data.espessura_cm,
+                            largura_cm: selectedItem.data.largura_cm,
+                            comprimento_m: c.comprimento_m,
+                          },
                         )
                         return (
                           <SelectItem key={c.id} value={c.id}>
